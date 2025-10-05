@@ -6,39 +6,56 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System;
 
-namespace Player
+[SelectionBase]
+public class Player : MonoBehaviour
 {
-    [SelectionBase]
-    public class Player : MonoBehaviour
+    public static Player Instance { get; private set; }
+
+    private PlayerInputAction playerInputAction;
+
+    private Rigidbody2D rb;
+    [SerializeField] private float speed = 5f;
+    [SerializeField] private int maxHealth = 10;
+    [SerializeField] private float damageRecoveryTime = 0.5f;
+
+    Vector2 inputVector;
+
+    private Camera camera;
+
+    private readonly float minSpeed = 0.1f;
+    private bool isRunning = false;
+
+    private void Awake()
     {
-        public static Player Instance { get; private set; }
+        Instance = this;
+        rb = GetComponent<Rigidbody2D>();
+        camera = Camera.main;
+    }
 
-        private Rigidbody2D rb;
-        [SerializeField] private float speed = 5f; 
-        [SerializeField] private int maxHealth = 10;
-        [SerializeField] private float damageRecoveryTime = 0.5f;
 
-        Vector2 inputVector;
 
-        private Camera camera;
+    private void Update()
+    {
+        inputVector = GameInput.Instance.GetMovementVector();
+    }
 
-        private readonly float minSpeed = 0.1f;
-        private bool isRunning = false;
+    public Vector3 GetScreenPlayerPosition()
+    {
+        Vector3 playerScreenPos = camera.WorldToScreenPoint(transform.position);
+        return playerScreenPos;
+    }
 
-        private void Awake()
-        {
-            rb = GetComponent<Rigidbody2D>();
+    private void FixedUpdate()
+    {
+        HandleMovement();
+    }
 
-            camera = GetComponent<Camera>();
-        }
-
-        private void  HandleMovement()
-        {
-            rb.MovePosition(rb.position + inputVector * Time.fixedDeltaTime * speed);
-            if (Math.Abs(inputVector.x) > minSpeed)
-                isRunning = true;
-            else
-                isRunning = false;
-        }
+    private void HandleMovement()
+    {
+        rb.MovePosition(rb.position + inputVector * Time.fixedDeltaTime * speed);
+        if (Math.Abs(inputVector.x) > minSpeed)
+            isRunning = true;
+        else
+            isRunning = false;
     }
 }
