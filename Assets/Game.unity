@@ -221,7 +221,7 @@ Transform:
   m_GameObject: {fileID: 942183353}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.19, y: -0.37, z: 0}
+  m_LocalPosition: {x: 0.19, y: -0.55, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -238,6 +238,14 @@ PrefabInstance:
     - target: {fileID: 281434931472288349, guid: 7c939f3618c1e1c43b6a649e10795dca, type: 3}
       propertyPath: m_Name
       value: gr (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 281434931472288349, guid: 7c939f3618c1e1c43b6a649e10795dca, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 4925177859710520799, guid: 7c939f3618c1e1c43b6a649e10795dca, type: 3}
+      propertyPath: m_Layer
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 8791321506712903935, guid: 7c939f3618c1e1c43b6a649e10795dca, type: 3}
       propertyPath: m_LocalPosition.x
@@ -700,7 +708,7 @@ MonoBehaviour:
   jumpForce: 10
   groundLayer:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 8
   groundCheck: {fileID: 942183354}
   groundCheckRadius: 0.2
 --- !u!1 &1773260597
@@ -886,7 +894,7 @@ SpriteRenderer:
   m_SortingOrder: 0
   m_Sprite: {fileID: 5347721121394986093, guid: df66268ea6dd03142b15bef108194536, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_FlipX: 0
+  m_FlipX: 1
   m_FlipY: 0
   m_DrawMode: 0
   m_Size: {x: 41.0625, y: 51.5625}
@@ -906,6 +914,14 @@ PrefabInstance:
     - target: {fileID: 281434931472288349, guid: 7c939f3618c1e1c43b6a649e10795dca, type: 3}
       propertyPath: m_Name
       value: gr
+      objectReference: {fileID: 0}
+    - target: {fileID: 281434931472288349, guid: 7c939f3618c1e1c43b6a649e10795dca, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 4925177859710520799, guid: 7c939f3618c1e1c43b6a649e10795dca, type: 3}
+      propertyPath: m_Layer
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 8791321506712903935, guid: 7c939f3618c1e1c43b6a649e10795dca, type: 3}
       propertyPath: m_LocalPosition.x

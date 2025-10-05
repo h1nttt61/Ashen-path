@@ -33,6 +33,7 @@ public class Player : MonoBehaviour
 
     private void Update()
     {
+        CheckGrounded();
         if (GameInput.Instance != null)
         {
             inputVector = new Vector2(GameInput.Instance.GetMovementVector().x, 0f);
@@ -55,7 +56,8 @@ public class Player : MonoBehaviour
 
     private void HandleMovement()
     {
-        rb.MovePosition(rb.position + inputVector * Time.fixedDeltaTime * speed);
+        rb.linearVelocity = new Vector2(inputVector.x * speed, rb.linearVelocity.y);
+
         if (Math.Abs(inputVector.x) > minSpeed)
             isRunning = true;
         else
