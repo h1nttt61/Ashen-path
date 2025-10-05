@@ -10,17 +10,12 @@ public class GameInput : MonoBehaviour
     {
         Instance = this;
         playerInputAction = new PlayerInputAction();
-
         playerInputAction.Enable();
     }
 
     public Vector2 GetMovementVector()
     {
         Vector2 inputVector = playerInputAction.Player.Move.ReadValue<Vector2>();
-        if (inputVector.magnitude > 0.1f)
-        {
-            Debug.Log($"Input detected: {inputVector}");
-        }
         return inputVector;
     }
 }
