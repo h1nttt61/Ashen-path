@@ -36,7 +36,10 @@ public class Player : MonoBehaviour
 
     private void Update()
     {
-        inputVector = GameInput.Instance.GetMovementVector();
+        if (GameInput.Instance != null)
+        {
+            inputVector = new Vector2(GameInput.Instance.GetMovementVector().x, 0f);
+        }
     }
 
     public Vector3 GetScreenPlayerPosition()
