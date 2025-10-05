@@ -16,6 +16,14 @@ public class Player : MonoBehaviour
     private readonly float minSpeed = 0.1f;
     private bool isRunning = false;
 
+
+    [SerializeField] private float jumpForce = 2f;
+    [SerializeField] private LayerMask groundLayer;
+    [SerializeField] private Transform groundCheck;
+    [SerializeField] private float groundCheckRadius = 0.2f;
+
+    private bool isGrounded;
+
     private void Awake()
     {
         Instance = this;
@@ -28,6 +36,9 @@ public class Player : MonoBehaviour
         if (GameInput.Instance != null)
         {
             inputVector = new Vector2(GameInput.Instance.GetMovementVector().x, 0f);
+
+            if (GameInput.Instance.WasJumpPressedThisFrame() && isGrounded)
+                Jump();
         }
     }
 
@@ -49,5 +60,24 @@ public class Player : MonoBehaviour
             isRunning = true;
         else
             isRunning = false;
+    }
+
+    private void Jump()
+    {
+        rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+    }
+
+    private void CheckGrounded()
+    {
+        isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        if (groundCheck != null)
+        {
+            Gizmos.color = isGrounded ? Color.green : Color.red;
+            Gizmos.DrawWireSphere(groundCheck.position, groundCheckRadius);
+        }
     }
 }
