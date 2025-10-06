@@ -22,6 +22,8 @@ public class Player : MonoBehaviour
     [SerializeField] private Transform groundCheck;
     [SerializeField] private float groundCheckRadius = 0.2f;
 
+    private bool isAlive;
+
     private bool isGrounded;
 
     private void Awake()
@@ -53,6 +55,8 @@ public class Player : MonoBehaviour
     {
         HandleMovement();
     }
+
+    public bool IsAlive() => isAlive;
 
     private void HandleMovement()
     {
