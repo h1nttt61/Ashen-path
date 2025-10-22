@@ -44,6 +44,8 @@ public class Player : MonoBehaviour
     {
         Instance = this;
         rb = GetComponent<Rigidbody2D>();
+        if (rb != null)
+            rb.freezeRotation = true;
         camera = Camera.main;
         initialSpeed = speed;
     }
