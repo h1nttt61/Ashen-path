@@ -1,10 +1,14 @@
 using UnityEngine;
 using System;
+using System.Collections;
 
 [SelectionBase]
 public class Player : MonoBehaviour
 {
+
     public static Player Instance { get; private set; }
+
+    public event EventHandler OnPlayerDash;
 
     private Rigidbody2D rb;
     [SerializeField] private float speed = 5f;
@@ -22,9 +26,17 @@ public class Player : MonoBehaviour
     [SerializeField] private Transform groundCheck;
     [SerializeField] private float groundCheckRadius = 0.2f;
 
+    [Header("Dash settings")]
+    [SerializeField] private int dashSpeed = 4;
+    [SerializeField] private float dashTime = 0.2f;
+    [SerializeField] private TrailRenderer trailRenderer;
+    [SerializeField] private float dashCooldown = 2f;
+    private bool isDashing;
+
     private bool isAlive;
 
     private bool isGrounded;
+
 
     private void Awake()
     {
@@ -54,6 +66,33 @@ public class Player : MonoBehaviour
     private void FixedUpdate()
     {
         HandleMovement();
+    }
+
+    public void Start()
+    {
+        GameInput.Instance.OnPlayerDash += OnPlayerDashh;
+    }
+
+    private void OnPlayerDashh(object sender, EventArgs e)
+    {
+        Dash();
+    }
+
+    private void Dash()
+    {
+        if (!isDashing)
+            StartCoroutine(DashRutine());
+    }
+
+    private IEnumerator DashRutine()
+    {
+        isDashing = true;
+        speed *= dashSpeed;
+        trailRenderer.emitting = true;
+        yield return new WaitForSeconds(dashTime);
+        trailRenderer.emitting = false;
+        yield return new WaitForSeconds(dashCooldown);
+        isDashing = false;
     }
 
     public bool IsAlive() => isAlive;
