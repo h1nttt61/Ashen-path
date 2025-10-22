@@ -37,12 +37,15 @@ public class Player : MonoBehaviour
 
     private bool isGrounded;
 
+    private float initialSpeed;
+
 
     private void Awake()
     {
         Instance = this;
         rb = GetComponent<Rigidbody2D>();
         camera = Camera.main;
+        initialSpeed = speed;
     }
 
     private void Update()
@@ -91,6 +94,7 @@ public class Player : MonoBehaviour
         trailRenderer.emitting = true;
         yield return new WaitForSeconds(dashTime);
         trailRenderer.emitting = false;
+        speed = initialSpeed;
         yield return new WaitForSeconds(dashCooldown);
         isDashing = false;
     }
