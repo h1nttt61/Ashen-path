@@ -1,6 +1,7 @@
 using UnityEngine;
 using System;
 using System.Collections;
+using System.ComponentModel.Design;
 
 [SelectionBase]
 public class Player : MonoBehaviour
@@ -13,18 +14,20 @@ public class Player : MonoBehaviour
     private Rigidbody2D rb;
     [SerializeField] private float speed = 5f;
     [SerializeField] private int maxHealth = 10;
-    [SerializeField] private float damageRecoveryTime = 0.5f;
+    [SerializeField] private float damageRecoveryTime = 10f;
 
     Vector2 inputVector;
     private Camera camera;
     private readonly float minSpeed = 0.1f;
     private bool isRunning = false;
 
-
-    [SerializeField] private float jumpForce = 2f;
+    [Header("Jump settings")]
+    [SerializeField] private float jumpForce = 0.5f;
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private Transform groundCheck;
     [SerializeField] private float groundCheckRadius = 0.2f;
+    [SerializeField] private float fallMultiplier = 4f;
+    [SerializeField] private float lowJumpMultiplier = 2.5f;
 
     [Header("Dash settings")]
     [SerializeField] private int dashSpeed = 4;
@@ -71,6 +74,7 @@ public class Player : MonoBehaviour
     private void FixedUpdate()
     {
         HandleMovement();
+        ApplyGravity();
     }
 
     public void Start()
@@ -102,6 +106,16 @@ public class Player : MonoBehaviour
     }
 
     public bool IsAlive() => isAlive;
+
+    private void ApplyGravity()
+    {
+        if (rb.linearVelocity.y < 0)
+            rb.gravityScale = fallMultiplier;
+        else if (rb.linearVelocity.y > 0 && !GameInput.Instance.IsJumpPressed())
+            rb.gravityScale = lowJumpMultiplier;
+        else
+            rb.gravityScale = 1f;
+    }
 
     private void HandleMovement()
     {
