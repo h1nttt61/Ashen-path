@@ -1252,15 +1252,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: da83808d0653d3b44aef9d71de600d5a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Player
-  speed: 5
+  speed: 10
   maxHealth: 10
   damageRecoveryTime: 0.5
-  jumpForce: 10
+  jumpForce: 4
   groundLayer:
     serializedVersion: 2
     m_Bits: 8
   groundCheck: {fileID: 942183354}
   groundCheckRadius: 0.2
+  fallMultiplier: 4
+  lowJumpMultiplier: 2.5
   dashSpeed: 4
   dashTime: 0.2
   trailRenderer: {fileID: 214106954}

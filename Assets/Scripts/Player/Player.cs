@@ -6,7 +6,6 @@ using System.ComponentModel.Design;
 [SelectionBase]
 public class Player : MonoBehaviour
 {
-
     public static Player Instance { get; private set; }
 
     public event EventHandler OnPlayerDash;
