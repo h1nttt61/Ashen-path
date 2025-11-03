@@ -39,7 +39,6 @@ public class Player : MonoBehaviour
 
     private float initialSpeed;
 
-
     private void Awake()
     {
         Instance = this;
