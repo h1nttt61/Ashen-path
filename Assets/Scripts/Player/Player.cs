@@ -11,7 +11,7 @@ public class Player : MonoBehaviour
     public event EventHandler OnPlayerDash;
 
     private Rigidbody2D rb;
-    [SerializeField] private float speed = 5f;
+    [SerializeField] public float speed = 5f;
     [SerializeField] private int maxHealth = 10;
     [SerializeField] private float damageRecoveryTime = 0.5f;
 
@@ -47,6 +47,7 @@ public class Player : MonoBehaviour
             rb.freezeRotation = true;
         camera = Camera.main;
         initialSpeed = speed;
+        DontDestroyOnLoad(gameObject);
     }
 
     private void Update()
