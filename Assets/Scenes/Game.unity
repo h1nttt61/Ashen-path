@@ -1179,7 +1179,11 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
+<<<<<<< HEAD
   m_Offset: {x: 0.21012306, y: 0.36950833}
+=======
+  m_Offset: {x: 0.07881737, y: -0.050668746}
+>>>>>>> 144e823cc3e5b949b10d88ce50f1c9b330676f5d
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -1189,7 +1193,11 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
+<<<<<<< HEAD
   m_Size: {x: 0.74466825, y: 1.6939789}
+=======
+  m_Size: {x: 0.48205686, y: 0.85362476}
+>>>>>>> 144e823cc3e5b949b10d88ce50f1c9b330676f5d
   m_EdgeRadius: 0
 --- !u!70 &1768703723
 CapsuleCollider2D:
@@ -1267,17 +1275,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: da83808d0653d3b44aef9d71de600d5a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Player
+<<<<<<< HEAD
   speed: 10
   maxHealth: 10
   damageRecoveryTime: 0.5
   jumpForce: 4
+=======
+  speed: 5
+  maxHealth: 10
+  damageRecoveryTime: 0.5
+  jumpForce: 10
+>>>>>>> 144e823cc3e5b949b10d88ce50f1c9b330676f5d
   groundLayer:
     serializedVersion: 2
     m_Bits: 8
   groundCheck: {fileID: 942183354}
   groundCheckRadius: 0.2
+<<<<<<< HEAD
   fallMultiplier: 4
   lowJumpMultiplier: 2.5
+=======
+>>>>>>> 144e823cc3e5b949b10d88ce50f1c9b330676f5d
   dashSpeed: 4
   dashTime: 0.2
   trailRenderer: {fileID: 214106954}
