@@ -79,8 +79,13 @@ public class Player : MonoBehaviour
     public void Start()
     {
         GameInput.Instance.OnPlayerDash += OnPlayerDashh;
+        GameInput.Instance.OnPlayerAttack += Player_OnPlayerAttack;
+        isAlive = true;
     }
-
+    private void Player_OnPlayerAttack(object sender, System.EventArgs e)
+    {
+        ActiveWeapon.Instance.GetActiveWeapon().Attack();
+    }
     private void OnPlayerDashh(object sender, EventArgs e)
     {
         Dash();

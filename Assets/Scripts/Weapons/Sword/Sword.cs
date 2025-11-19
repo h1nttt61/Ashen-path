@@ -18,11 +18,34 @@ public class Sword : MonoBehaviour
     {
         AttackColliderTurnOffOn();
     }
+    public void Attack()
+    {
+        OnSwordSwing?.Invoke(this, EventArgs.Empty);
+        Debug.Log("Атака мечом!");
+    }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
         //function to deal damage to the enemy
         //will be added after the first version of the mob
+        if (collision.gameObject != Player.Instance?.gameObject) // Игнорируем игрока
+        {
+            Debug.Log($"Попадание в: {collision.gameObject.name}");
+
+            // Создаем временный визуальный эффект
+            StartCoroutine(HitEffect(collision.transform));
+        }
+    }
+
+    private System.Collections.IEnumerator HitEffect(Transform target)
+    {
+        if (target.TryGetComponent<SpriteRenderer>(out SpriteRenderer sprite))
+        {
+            Color originalColor = sprite.color;
+            sprite.color = Color.red;
+            yield return new WaitForSeconds(0.2f);
+            sprite.color = originalColor;
+        }
     }
 
     public void AttackColliderTurnOff()

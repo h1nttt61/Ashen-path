@@ -9,12 +9,21 @@ public class GameInput : MonoBehaviour
 
     public event EventHandler OnPlayerDash;
 
+    public event EventHandler OnPlayerAttack;
+
     private void Awake()
     {
         Instance = this;
         playerInputAction = new PlayerInputAction();
         playerInputAction.Enable();
-        playerInputAction.Player.Dash.performed +=Dash_performed;
+
+        playerInputAction.Combat.Attack.started += Attack_started;
+        playerInputAction.Player.Dash.performed += Dash_performed;
+    }
+
+    private void Attack_started(UnityEngine.InputSystem.InputAction.CallbackContext obj)
+    {
+        OnPlayerAttack?.Invoke(this, EventArgs.Empty);
     }
 
     private void Dash_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj)
