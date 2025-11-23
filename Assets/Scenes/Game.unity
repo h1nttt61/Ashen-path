@@ -402,9 +402,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 293342108}
-  m_Component:
-  - component: {fileID: 293342108}
-  - component: {fileID: 293342109}
   m_Layer: 0
   m_Name: ActiveWeapon
   m_TagString: Untagged
@@ -428,20 +425,6 @@ Transform:
   - {fileID: 1856645963}
   m_Father: {fileID: 1768703721}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &293342109
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 293342107}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 19d1af54fd64e5c4cb6cd44572c4948d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ActiveWeapon
-  spriteRenderer: {fileID: 0}
-  sword: {fileID: 1856645964} 
 --- !u!4 &670953744 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8791321506712903935, guid: 7c939f3618c1e1c43b6a649e10795dca, type: 3}
