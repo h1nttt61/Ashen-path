@@ -402,10 +402,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 293342108}
-<<<<<<< HEAD
+  m_Component:
+  - component: {fileID: 293342108}
   - component: {fileID: 293342109}
-=======
->>>>>>> 56778db (Added the main menu and settings menu)
   m_Layer: 0
   m_Name: ActiveWeapon
   m_TagString: Untagged
@@ -429,7 +428,6 @@ Transform:
   - {fileID: 1856645963}
   m_Father: {fileID: 1768703721}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-<<<<<<< HEAD
 --- !u!114 &293342109
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -443,9 +441,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ActiveWeapon
   spriteRenderer: {fileID: 0}
-  sword: {fileID: 1856645964}
-=======
->>>>>>> 56778db (Added the main menu and settings menu)
+  sword: {fileID: 1856645964} 
 --- !u!4 &670953744 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8791321506712903935, guid: 7c939f3618c1e1c43b6a649e10795dca, type: 3}
@@ -1185,15 +1181,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-<<<<<<< HEAD
-<<<<<<< HEAD
   m_Offset: {x: 0.21012306, y: 0.36950833}
-=======
-  m_Offset: {x: 0.07881737, y: -0.050668746}
->>>>>>> 144e823cc3e5b949b10d88ce50f1c9b330676f5d
-=======
-  m_Offset: {x: 0.21012306, y: 0.36950833}
->>>>>>> 56778db (Added the main menu and settings menu)
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -1203,15 +1191,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-<<<<<<< HEAD
-<<<<<<< HEAD
   m_Size: {x: 0.74466825, y: 1.6939789}
-=======
-  m_Size: {x: 0.48205686, y: 0.85362476}
->>>>>>> 144e823cc3e5b949b10d88ce50f1c9b330676f5d
-=======
-  m_Size: {x: 0.74466825, y: 1.6939789}
->>>>>>> 56778db (Added the main menu and settings menu)
   m_EdgeRadius: 0
 --- !u!70 &1768703723
 CapsuleCollider2D:
@@ -1289,38 +1269,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: da83808d0653d3b44aef9d71de600d5a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Player
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 56778db (Added the main menu and settings menu)
   speed: 10
   maxHealth: 10
   damageRecoveryTime: 0.5
   jumpForce: 4
-<<<<<<< HEAD
-=======
-  speed: 5
-  maxHealth: 10
-  damageRecoveryTime: 0.5
-  jumpForce: 10
->>>>>>> 144e823cc3e5b949b10d88ce50f1c9b330676f5d
-=======
->>>>>>> 56778db (Added the main menu and settings menu)
   groundLayer:
     serializedVersion: 2
     m_Bits: 8
   groundCheck: {fileID: 942183354}
   groundCheckRadius: 0.2
-<<<<<<< HEAD
-<<<<<<< HEAD
   fallMultiplier: 4
   lowJumpMultiplier: 2.5
-=======
->>>>>>> 144e823cc3e5b949b10d88ce50f1c9b330676f5d
-=======
-  fallMultiplier: 4
-  lowJumpMultiplier: 2.5
->>>>>>> 56778db (Added the main menu and settings menu)
   dashSpeed: 4
   dashTime: 0.2
   trailRenderer: {fileID: 214106954}
@@ -1427,7 +1386,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
-<<<<<<< HEAD
 --- !u!1 &1818604258
 GameObject:
   m_ObjectHideFlags: 0
@@ -1555,8 +1513,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
-=======
->>>>>>> 56778db (Added the main menu and settings menu)
 --- !u!4 &1824302176 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8791321506712903935, guid: 7c939f3618c1e1c43b6a649e10795dca, type: 3}
@@ -1571,11 +1527,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1856645963}
-<<<<<<< HEAD
   - component: {fileID: 1856645965}
   - component: {fileID: 1856645964}
-=======
->>>>>>> 56778db (Added the main menu and settings menu)
   m_Layer: 0
   m_Name: Sword
   m_TagString: Untagged
@@ -1595,7 +1548,6 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-<<<<<<< HEAD
   m_Children:
   - {fileID: 1818604259}
   m_Father: {fileID: 293342108}
@@ -1667,11 +1619,6 @@ PolygonCollider2D:
       - {x: 1.7696799, y: -0.3721755}
       - {x: 1.8217036, y: 0.64970505}
   m_UseDelaunayMesh: 0
-=======
-  m_Children: []
-  m_Father: {fileID: 293342108}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
->>>>>>> 56778db (Added the main menu and settings menu)
 --- !u!1 &1884590962
 GameObject:
   m_ObjectHideFlags: 0
