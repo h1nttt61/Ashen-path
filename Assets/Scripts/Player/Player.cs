@@ -33,6 +33,20 @@ public class Player : MonoBehaviour
     [SerializeField] private float dashTime = 0.2f;
     [SerializeField] private TrailRenderer trailRenderer;
     [SerializeField] private float dashCooldown = 2f;
+
+    [Header("Wall Climb Settings")]
+    [SerializeField] private bool canWallClimb = true;
+    [SerializeField] private float wallCheckDistatnce = 0.6f;
+    [SerializeField] private LayerMask walllayer;
+    [SerializeField] private float wallSlidingSpace = 2f;
+    [SerializeField] private float wallJumpForceX = 10f;
+    [SerializeField] private float wallJumpForceY = 15f;
+
+    [Header("Collision Settings")]
+    [SerializeField] private float skinWidth = 0.05f;
+    [SerializeField] private int horizontalRays = 3;
+    [SerializeField] private int verticalRays = 3;
+
     private bool isDashing;
 
     private bool isAlive;
@@ -41,11 +55,21 @@ public class Player : MonoBehaviour
 
     private float initialSpeed;
 
+    private bool isWallSliding;
+
+    private bool isTouchingWall;
+
+    private bool isFacingRight = true;
+
+    private int wallDirection;
+
+    private BoxCollider2D boxCollider;
 
     private void Awake()
     {
         Instance = this;
         rb = GetComponent<Rigidbody2D>();
+        boxCollider = GetComponent<BoxCollider2D>();
         if (rb != null)
             rb.freezeRotation = true;
         camera = Camera.main;
@@ -55,11 +79,17 @@ public class Player : MonoBehaviour
     private void Update()
     {
         CheckGrounded();
+        CheckWall();
+        HandleWallSliding();
         if (GameInput.Instance != null)
         {
             inputVector = new Vector2(GameInput.Instance.GetMovementVector().x, 0f);
 
-            if (GameInput.Instance.WasJumpPressedThisFrame() && isGrounded)
+            if (inputVector.x > 0.1f) isFacingRight = true;
+
+            else if (inputVector.x < -0.1f) isFacingRight = false;
+
+            if (GameInput.Instance.WasJumpPressedThisFrame() && (isGrounded || isWallSliding))
                 Jump();
         }
     }
@@ -74,6 +104,7 @@ public class Player : MonoBehaviour
     {
         HandleMovement();
         ApplyGravity();
+        ImprovedCollisionHandling();
     }
 
     public void Start()
@@ -113,7 +144,11 @@ public class Player : MonoBehaviour
 
     private void ApplyGravity()
     {
-        if (rb.linearVelocity.y < 0)
+        if (isWallSliding)
+        {
+            rb.gravityScale = 0.5f;
+        }
+        else if (rb.linearVelocity.y < 0)
             rb.gravityScale = fallMultiplier;
         else if (rb.linearVelocity.y > 0 && !GameInput.Instance.IsJumpPressed())
             rb.gravityScale = lowJumpMultiplier;
@@ -123,7 +158,15 @@ public class Player : MonoBehaviour
 
     private void HandleMovement()
     {
-        rb.linearVelocity = new Vector2(inputVector.x * speed, rb.linearVelocity.y);
+        if (!isWallSliding)
+        {
+            rb.linearVelocity = new Vector2(inputVector.x * speed, rb.linearVelocity.y);
+        }
+        else
+        {
+            rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
+        }
+    
 
         if (Math.Abs(inputVector.x) > minSpeed)
             isRunning = true;
@@ -133,7 +176,13 @@ public class Player : MonoBehaviour
 
     private void Jump()
     {
-        rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+        if (isWallSliding)
+        {
+            rb.linearVelocity = new Vector2(-wallDirection * wallJumpForceX, wallJumpForceY);
+            isWallSliding = false;
+        }
+        else if (isGrounded)
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
     }
 
     private void CheckGrounded()
@@ -147,6 +196,131 @@ public class Player : MonoBehaviour
         {
             Gizmos.color = isGrounded ? Color.green : Color.red;
             Gizmos.DrawWireSphere(groundCheck.position, groundCheckRadius);
+        }
+    }
+
+    private void CheckWall()
+    {
+        wallDirection = isFacingRight ? 1 : -1;
+        Vector2 rayOrigin = (Vector2)transform.position + Vector2.right * (boxCollider.size.x / 2 * wallDirection);
+
+        LayerMask L = groundLayer | walllayer;
+
+        RaycastHit2D hit = Physics2D.Raycast(
+            transform.position,
+            Vector2.right * wallDirection,
+            wallCheckDistatnce,
+            L
+            );
+
+        isTouchingWall = hit.collider != null;
+    }
+
+    private void HandleWallSliding()
+    {
+
+        bool shouldSlide = isTouchingWall && !isGrounded &&
+            Math.Sign(inputVector.x) == Mathf.Sign(wallDirection);
+        if (shouldSlide && canWallClimb)
+        {
+            isWallSliding = true;
+            if (rb.linearVelocity.y < -wallSlidingSpace)
+                rb.linearVelocity = new Vector2(rb.linearVelocity.x, -wallSlidingSpace);
+        }
+        else
+            isWallSliding = false;
+    }
+
+    private void ImprovedCollisionHandling()
+    {
+        var collider = GetComponent<Collider2D>();
+        if (collider == null) return;
+        CheckHorizontalCollisions();
+        CheckVerticalCollisions();
+    }
+
+    private void CheckHorizontalCollisions()
+    {
+        Bounds bounds = GetComponent<Collider2D>().bounds;
+
+        bounds.Expand(skinWidth * -2);
+
+        float raySpacing = bounds.size.y / (horizontalRays - 1);
+
+        for (int i = 0; i < horizontalRays; i++)
+        {
+            Vector2 rayOrigin = new Vector2(
+                isFacingRight ? bounds.max.x : bounds.min.x,
+                bounds.min.y + raySpacing * i
+                );
+
+            RaycastHit2D hit = Physics2D.Raycast(
+                rayOrigin,
+                Vector2.right * (isFacingRight ? 1 : -1),
+                skinWidth,
+                groundLayer | walllayer);
+
+            if (hit.collider != null)
+            {
+                float pushDistance = skinWidth - hit.distance;
+                transform.position += new Vector3(
+                    (isFacingRight ? -pushDistance : pushDistance),
+                    0,
+                    0);
+            }
+        }
+    }
+
+    private void CheckVerticalCollisions()
+    {
+        var collider = GetComponent<Collider2D>();
+        if (collider == null) return;
+
+        Bounds bounds = collider.bounds;
+
+        bounds.Expand(skinWidth * -2);
+
+        float raySpacing = bounds.size.y / (verticalRays - 1);
+
+        for (int i = 0; i < verticalRays; i++)
+        {
+            Vector2 rayOrigin = new Vector2(
+                bounds.min.x + raySpacing * i,
+                bounds.max.y
+                );
+
+            RaycastHit2D hit = Physics2D.Raycast(
+                rayOrigin,
+                Vector2.up,
+                skinWidth,
+                groundLayer | walllayer);
+
+            if (hit.collider != null)
+            {
+                rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0);
+                break;
+            }
+        }
+
+
+        for (int i = 0; i < verticalRays; i++)
+        {
+            Vector2 rayOrigin = new Vector2(
+                bounds.min.x + raySpacing * i,
+                bounds.min.y);
+
+            RaycastHit2D hit = Physics2D.Raycast(
+                rayOrigin,
+                Vector2.down,
+                skinWidth,
+                groundLayer | walllayer);
+
+            if (hit.collider != null && rb.linearVelocity.y <= 0)
+            {
+                float pushDistance = skinWidth - hit.distance;
+                transform.position += new Vector3(0, pushDistance, 0);
+                break;
+            }
         }
     }
 }
