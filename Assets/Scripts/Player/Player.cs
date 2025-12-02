@@ -142,6 +142,8 @@ public class Player : MonoBehaviour
 
     public bool IsAlive() => isAlive;
 
+    public bool IsRunning() => isRunning;
+
     private void ApplyGravity()
     {
         if (isWallSliding)
@@ -180,15 +182,25 @@ public class Player : MonoBehaviour
         {
             rb.linearVelocity = new Vector2(-wallDirection * wallJumpForceX, wallJumpForceY);
             isWallSliding = false;
+
+            StartCoroutine(WallJumpCooldown());
         }
         else if (isGrounded)
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+    }
+
+    private IEnumerator WallJumpCooldown()
+    {
+        canWallClimb = false;
+        yield return new WaitForSeconds(0.3f);
+        canWallClimb = true;
     }
 
     private void CheckGrounded()
     {
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
     }
+
 
     private void OnDrawGizmosSelected()
     {
@@ -207,7 +219,7 @@ public class Player : MonoBehaviour
         LayerMask L = groundLayer | walllayer;
 
         RaycastHit2D hit = Physics2D.Raycast(
-            transform.position,
+            rayOrigin,
             Vector2.right * wallDirection,
             wallCheckDistatnce,
             L
@@ -220,7 +232,7 @@ public class Player : MonoBehaviour
     {
 
         bool shouldSlide = isTouchingWall && !isGrounded &&
-            Math.Sign(inputVector.x) == Mathf.Sign(wallDirection);
+            Mathf.Sign(inputVector.x) == Mathf.Sign(wallDirection);
         if (shouldSlide && canWallClimb)
         {
             isWallSliding = true;
@@ -270,6 +282,7 @@ public class Player : MonoBehaviour
             }
         }
     }
+
 
     private void CheckVerticalCollisions()
     {
@@ -321,6 +334,15 @@ public class Player : MonoBehaviour
                 transform.position += new Vector3(0, pushDistance, 0);
                 break;
             }
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (GameInput.Instance != null)
+        {
+            GameInput.Instance.OnPlayerDash -= OnPlayerDashh;
+            GameInput.Instance.OnPlayerAttack -= Player_OnPlayerAttack;
         }
     }
 }
