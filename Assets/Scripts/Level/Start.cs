@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class Finish : MonoBehaviour
+public class Start : MonoBehaviour
 {
     [SerializeField] private string playerTag = "Player";
     [SerializeField] private int targetSpawnId;
@@ -10,25 +10,25 @@ public class Finish : MonoBehaviour
     {
         if (collision.CompareTag(playerTag))
         {
-            LoadNextScene();
+            LoadPrevScene();
         }
     }
 
-    private void LoadNextScene()
+    private void LoadPrevScene()
     {
         int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
-        int nextSceneIndex = currentSceneIndex + 1;
+        int prevSceneIndex = currentSceneIndex - 1;
 
-        if (nextSceneIndex < SceneManager.sceneCountInBuildSettings)
+        if (prevSceneIndex >= 0 && prevSceneIndex < SceneManager.sceneCountInBuildSettings)
         {
-            PlayerPositionStorage.TargetSceneIndex = nextSceneIndex;
+            PlayerPositionStorage.TargetSceneIndex = prevSceneIndex;
             PlayerPositionStorage.TargetSpawnId = targetSpawnId;
 
-            SceneManager.LoadScene(nextSceneIndex);
+            SceneManager.LoadScene(prevSceneIndex);
         }
         else
         {
-            Debug.Log("Ёто последн€€ сцена!");
+            Debug.Log("Ёто перва€ сцена!");
             SceneManager.LoadScene(0);
         }
     }
