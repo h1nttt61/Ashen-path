@@ -130,7 +130,7 @@ TextureImporter:
         width: 128
         height: 128
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -139,6 +139,28 @@ TextureImporter:
       bones: []
       spriteID: 400265fb05fe97249886b37e6ecc14ec
       internalID: -1079801953
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Square - Black_2
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 320
+        width: 128
+        height: 192
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8e53454b4d11769498afc4ecb424c591
+      internalID: 1466480490
       vertices: []
       indices: 
       edges: []
@@ -159,6 +181,8 @@ TextureImporter:
     nameFileIdTable:
       Square - Black_0: -4385779503170729266
       Square - Black_1: -1079801953
+      Square - Black_2: 1466480490
+      Square - Black_3: -571324517
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

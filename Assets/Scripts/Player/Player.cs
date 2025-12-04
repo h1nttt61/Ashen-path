@@ -136,6 +136,32 @@ public class Player : MonoBehaviour
         GameInput.Instance.OnPlayerDash += OnPlayerDashh;
         GameInput.Instance.OnPlayerAttack += Player_OnPlayerAttack;
         isAlive = true;
+
+        int currentIndex = UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex;
+
+        if (PlayerPositionStorage.TargetSceneIndex == currentIndex)
+        {
+            SpawnPoint[] allSpawns = FindObjectsOfType<SpawnPoint>();
+            SpawnPoint spawn = null;
+
+            foreach (var s in allSpawns)
+            {
+                if (s.spawnId == PlayerPositionStorage.TargetSpawnId)
+                {
+                    spawn = s;
+                    break;
+                }
+            }
+
+            if (spawn != null)
+            {
+                Vector3 pos = spawn.transform.position;
+                transform.position = pos;
+                rb.position = pos;
+            }
+
+            PlayerPositionStorage.TargetSceneIndex = -1;
+        }
     }
     private void Player_OnPlayerAttack(object sender, System.EventArgs e)
     {
