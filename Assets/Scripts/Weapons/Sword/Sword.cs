@@ -21,7 +21,7 @@ public class Sword : MonoBehaviour
     public void Attack()
     {
         OnSwordSwing?.Invoke(this, EventArgs.Empty);
-        Debug.Log("Атака мечом!");
+        //Debug.Log("Атака мечом!");
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -30,9 +30,8 @@ public class Sword : MonoBehaviour
         //will be added after the first version of the mob
         if (collision.gameObject != Player.Instance?.gameObject) // Игнорируем игрока
         {
-            Debug.Log($"Попадание в: {collision.gameObject.name}");
+            //Debug.Log($"Попадание в: {collision.gameObject.name}");
 
-            // Создаем временный визуальный эффект
             StartCoroutine(HitEffect(collision.transform));
         }
     }
