@@ -1208,7 +1208,9 @@ MonoBehaviour:
   skinWidth: 0.05
   horizontalRays: 3
   verticalRays: 3
-  wallSLideGravity: 0.3
+  wallJumpCooldown: 0.5
+  weakWallJumpForceX: 8
+  weakWallJumpForceY: 12
 --- !u!61 &265178039
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -1328,7 +1330,7 @@ Transform:
   m_GameObject: {fileID: 265178037}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 114.5, y: 45.2, z: 0}
+  m_LocalPosition: {x: 114.56, y: 44.58, z: 0}
   m_LocalScale: {x: 0.88509, y: 0.88509, z: 0.88509}
   m_ConstrainProportionsScale: 0
   m_Children:

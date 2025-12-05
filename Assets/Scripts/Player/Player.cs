@@ -47,6 +47,7 @@ public class Player : MonoBehaviour
     [SerializeField] private float wallStickTime = 0.3f;
     [SerializeField] private float wallStickGravity = 0f;
     [SerializeField] private float wallSlideGravity = 0.3f;
+    [SerializeField] private float wallStickDelay = 0.5f;
 
     [Header("Collision Settings")]
     [SerializeField] private float skinWidth = 0.05f;
@@ -90,6 +91,9 @@ public class Player : MonoBehaviour
 
     private float lastWallJumpTime = 0f;
 
+    private float wallTouchStartTime = 0f;
+
+    private bool wallTouchRegistered = false;
 
     private void Awake()
     {
@@ -109,6 +113,7 @@ public class Player : MonoBehaviour
         CheckWall();
         HandleWallStickTimer();
         HandleWallSliding();
+        Debug.Log($"Grounded: {isGrounded}, Wall: {isTouchingWall}, Sticking: {isWallSticking}, Sliding: {isWallSliding}, Input: {inputVector.x}");
         if (GameInput.Instance != null)
         {
             inputVector = new Vector2(GameInput.Instance.GetMovementVector().x, 0f);
@@ -246,21 +251,30 @@ public class Player : MonoBehaviour
     {
         float timer = 0f;
 
-        while (timer < wallStickTime && isTouchingWall &&
-           !isGrounded &&
-           Mathf.Abs(inputVector.x) > 0.05f &&
-           Mathf.Sign(inputVector.x) == Mathf.Sign(wallDirection))
+        while (timer < wallStickTime && isTouchingWall && !isGrounded)
         {
             timer += Time.deltaTime;
+
+            bool stillHolding = Mathf.Abs(inputVector.x) > 0.05f && Mathf.Sign(inputVector.x) == Mathf.Sign(wallDirection);
+
+            if (!stillHolding)
+            {
+                EndWallStick();
+                yield break;
+            }
+
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0);
+
             yield return null;
         }
 
         EndWallStick();
 
-        yield return new WaitForSeconds(0.1f);
-
-        if (isTouchingWall && !isGrounded && Mathf.Abs(inputVector.x) > 0.1f)
+        if (isTouchingWall && !isGrounded && Mathf.Abs(inputVector.x) > 0.05f && Mathf.Sign(inputVector.x) == Mathf.Sign(wallDirection))
+        {
+            yield return new WaitForSeconds(0.1f);
             isWallSliding = true;
+        }
     }
 
     private void EndWallStick()
@@ -289,20 +303,42 @@ public class Player : MonoBehaviour
         var pushX = -wallDirection * wallPushForce;
         var pushY = Mathf.Max(rb.linearVelocity.y, 3f);
 
-        rb.linearVelocity = new Vector2(pushX, pushY);
+        if (Mathf.Abs(inputVector.x) > 0.1f && Mathf.Sign(inputVector.x) != wallDirection)
+        {
+            pushX *= 1.3f;
+            pushY = Mathf.Max(pushY, 5f);
+        }
+
+        Vector2 pushForce = new Vector2(pushX, pushY);
+        rb.linearVelocity = Vector2.Lerp(rb.linearVelocity, pushForce, 0.6f);
+
+        rb.AddForce(pushForce * 0.2f, ForceMode2D.Impulse);
+
+        
         isWallSliding = false;
+        isWallSticking = false;
         wallStickTimer = 0f;
+        wallTouchRegistered = false;
 
         lastWallActionTime = Time.time;
-
+        lastWallJumpTime = Time.time;
     }
     private void HandleWallStickTimer()
     {
         if (isTouchingWall && !isGrounded && !isWallSticking && Mathf.Abs(inputVector.x) > 0.1f &&
             Mathf.Sign(inputVector.x) == Mathf.Sign(wallDirection))
         {
-            StartWallStick();
+            if (!wallTouchRegistered)
+            {
+                wallTouchStartTime = Time.time;
+                wallTouchRegistered = true;
+            }
+            else if (wallTouchRegistered && Time.time >= wallTouchStartTime + wallStickDelay)
+                StartWallStick();
         }
+
+        if (isWallSticking && (Mathf.Abs(inputVector.x) < 0.05f || Mathf.Sign(inputVector.x) != Mathf.Sign(wallDirection)))
+            EndWallStick();
 
         /* if (isWallSticking)
          {
@@ -321,7 +357,16 @@ public class Player : MonoBehaviour
         }
         else if (!isWallSliding)
         {
-            rb.linearVelocity = new Vector2(inputVector.x * speed, rb.linearVelocity.y);
+            float currentSpeed = speed;
+            if (!isGrounded)
+                currentSpeed = speed * 0.8f;
+
+            float targetVelocityX = inputVector.x * currentSpeed;
+            float currentVelocityX = rb.linearVelocity.x;
+
+            float newVelocityX = Mathf.Lerp(currentVelocityX, targetVelocityX, Time.fixedDeltaTime * 10f);
+
+            rb.linearVelocity = new Vector2(newVelocityX, rb.linearVelocity.y);
         }
         else
         {
@@ -342,12 +387,24 @@ public class Player : MonoBehaviour
             float jumpDirection = -wallDirection;
             float jumpX = jumpDirection * wallJumpForceX;
             float jumpY = wallJumpForceY;
+            if (Mathf.Abs(inputVector.x) > 0.1f)
+            {
+                if (Mathf.Abs(inputVector.x) > 0.1f && Mathf.Sign(inputVector.x) != wallDirection)
+                {
+                    jumpX *= 1.5f;
+                    jumpY *= 1.5f;
+                }
+                else jumpX *= 2.5f;
+            }
+            Vector2 currentVelocity = rb.linearVelocity;
+            Vector2 targetVelocity = new Vector2(jumpX, jumpY);
+            rb.linearVelocity = Vector2.Lerp(currentVelocity, targetVelocity, 0.7f);
 
-            if (Mathf.Abs(inputVector.x) > 0.1f && Mathf.Sign(inputVector.x) != wallDirection)
-                jumpX *= 1.5f;
+            rb.AddForce(new Vector2(jumpX * 0.3f, jumpY * 0.3f), ForceMode2D.Impulse);
 
-            rb.linearVelocity = new Vector2(jumpX, jumpY);
             isWallSliding = false;
+            isWallSticking = false;
+            wallTouchRegistered = false;
 
             lastWallActionTime = Time.time;
         }
@@ -398,26 +455,43 @@ public class Player : MonoBehaviour
 
         isTouchingWall = hit.collider != null;
 
-        if (!isTouchingWall && wasTouchingWall)
+        if (isTouchingWall && !wasTouchingWall && !isGrounded)
+        {
+            wallTouchStartTime = Time.time;
+            wallTouchRegistered = true;
+        }
+        else if (!isTouchingWall && wasTouchingWall)
         {
             ResetWallStick();
+            isWallSliding = false;
             isWallSticking = false;
+            wallTouchRegistered = false;
         }
     }
 
     private void HandleWallSliding()
     {
 
-        if (isWallSticking) return;
+        if (isWallSticking) { isWallSliding = true; return; }
 
         bool shouldSlide = isTouchingWall && !isGrounded &&
-            Mathf.Abs(inputVector.x) > 0.05f && Mathf.Sign(inputVector.x) == wallDirection &&
+            Mathf.Abs(inputVector.x) > 0.05f && Mathf.Sign(inputVector.x) == Mathf.Sign(wallDirection) &&
             rb.linearVelocity.y <= 0;
         if (shouldSlide && canWallClimb)
         {
             isWallSliding = true;
-            if (rb.linearVelocity.y < -wallSlideSpeed)
-                rb.linearVelocity = new Vector2(0, -wallSlideSpeed);
+
+            var targetSpeed = -wallSlideSpeed;
+            var currentSpeed = rb.linearVelocity.y;
+
+            if (currentSpeed < targetSpeed)
+            {
+                var newSpeed = Mathf.Lerp(currentSpeed, targetSpeed, Time.deltaTime * 3f);
+                rb.linearVelocity = new Vector2(rb.linearVelocity.x, newSpeed);
+            }
+
+            else if (currentSpeed > -0.5f)
+                rb.linearVelocity = new Vector2(rb.linearVelocity.x, targetSpeed);
         }
         else if (!isWallSticking)
             isWallSliding = false;
