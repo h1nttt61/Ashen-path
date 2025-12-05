@@ -12,7 +12,7 @@ public class Player : MonoBehaviour
 
     private Rigidbody2D rb;
     [SerializeField] private float speed = 5f;
-    [SerializeField] private int maxHealth = 10;
+    [SerializeField] public int maxHealth = 10;
     [SerializeField] private float damageRecoveryTime = 10f;
 
     Vector2 inputVector;
