@@ -113,7 +113,6 @@ public class Player : MonoBehaviour
         CheckWall();
         HandleWallStickTimer();
         HandleWallSliding();
-        Debug.Log($"Grounded: {isGrounded}, Wall: {isTouchingWall}, Sticking: {isWallSticking}, Sliding: {isWallSliding}, Input: {inputVector.x}");
         if (GameInput.Instance != null)
         {
             inputVector = new Vector2(GameInput.Instance.GetMovementVector().x, 0f);
