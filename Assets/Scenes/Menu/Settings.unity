@@ -596,6 +596,7 @@ GameObject:
   m_Component:
   - component: {fileID: 289129511}
   - component: {fileID: 289129512}
+  - component: {fileID: 289129513}
   m_Layer: 5
   m_Name: FullscreenToggle
   m_TagString: Untagged
@@ -684,6 +685,18 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
   m_IsOn: 1
+--- !u!114 &289129513
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 289129510}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e60c626e04e7c2a44af4c54e599b19b1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FullscreenToggleInitializer
 --- !u!1 &292419882
 GameObject:
   m_ObjectHideFlags: 0
