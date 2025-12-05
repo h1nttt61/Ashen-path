@@ -9,8 +9,7 @@ public static class EnemyFactory
             Debug.LogError("EnemyData is null!");
             return null;
         }
-        
-        // Создаем базовый объект врага
+
         GameObject enemyGO = new GameObject($"Enemy_{data.enemyName}");
         enemyGO.transform.position = position;
         
@@ -19,7 +18,6 @@ public static class EnemyFactory
             enemyGO.transform.SetParent(parent);
         }
         
-        // Добавляем компоненты
         var collider = enemyGO.AddComponent<BoxCollider2D>();
         collider.size = new Vector2(0.8f, 1.2f);
         
@@ -38,7 +36,7 @@ public static class EnemyFactory
             animator.runtimeAnimatorController = data.animatorController;
         }
         
-        // Добавляем конкретную реализацию врага
+
         if (data.useSimpleAI && !data.useNavigationAI)
         {
             var enemy = enemyGO.AddComponent<SimplePatrolEnemy>();
@@ -46,11 +44,9 @@ public static class EnemyFactory
         }
         else if (data.useNavigationAI)
         {
-            // Здесь можно добавить врага с навигацией
             Debug.LogWarning("Navigation AI not implemented yet");
         }
-        
-        // Теги и слои
+
         enemyGO.tag = "Enemy";
         enemyGO.layer = LayerMask.NameToLayer("Enemy");
         
@@ -59,7 +55,6 @@ public static class EnemyFactory
     
     private static void ApplyEnemyData(SimplePatrolEnemy enemy, EnemyData data)
     {
-        // Можно использовать рефлексию или вручную установить значения
-        // В реальном проекте лучше использовать сериализацию
+        //in future
     }
 }

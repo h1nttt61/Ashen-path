@@ -1,9 +1,5 @@
 using UnityEngine;
 
-/// <summary>
-/// Базовый класс для всех врагов в игре
-/// Абстрактный, требует реализации конкретного поведения
-/// </summary>
 [RequireComponent(typeof(Rigidbody2D), typeof(Collider2D))]
 public abstract class BaseEnemy : MonoBehaviour, IDamageable
 {
@@ -20,12 +16,12 @@ public abstract class BaseEnemy : MonoBehaviour, IDamageable
     [SerializeField] protected SpriteRenderer spriteRenderer;
     [SerializeField] protected Animator animator;
     
-    // Текущее состояние
+
     protected int currentHealth;
     protected float lastDamageTime;
     protected bool isAlive = true;
     
-    // События
+
     public System.Action OnDeath;
     public System.Action<int> OnHealthChanged;
     public System.Action OnDamageTaken;
@@ -41,7 +37,7 @@ public abstract class BaseEnemy : MonoBehaviour, IDamageable
     
     protected virtual void Start()
     {
-        // Можно добавить поиск игрока или другие инициализации
+       
     }
     
     protected virtual void Update()
@@ -68,19 +64,13 @@ public abstract class BaseEnemy : MonoBehaviour, IDamageable
     
     #region Abstract Methods
     
-    /// <summary>
-    /// Инициализация конкретного врага
-    /// </summary>
+
     protected abstract void Initialize();
     
-    /// <summary>
-    /// Обновление логики врага
-    /// </summary>
+
     protected abstract void UpdateEnemy();
     
-    /// <summary>
-    /// Физическое обновление врага
-    /// </summary>
+
     protected abstract void FixedUpdateEnemy();
     
     #endregion
@@ -95,7 +85,7 @@ public abstract class BaseEnemy : MonoBehaviour, IDamageable
         OnHealthChanged?.Invoke(currentHealth);
         OnDamageTaken?.Invoke();
         
-        // Эффект получения урона
+
         StartCoroutine(DamageFlashEffect());
         
         if (currentHealth <= 0)
@@ -104,7 +94,7 @@ public abstract class BaseEnemy : MonoBehaviour, IDamageable
         }
         else
         {
-            // Отбрасывание при получении урона
+        
             ApplyKnockback(direction);
         }
     }
@@ -126,13 +116,13 @@ public abstract class BaseEnemy : MonoBehaviour, IDamageable
         
         OnDeath?.Invoke();
         
-        // Анимация смерти
+
         if (animator != null)
         {
             animator.SetTrigger("Die");
         }
         
-        // Уничтожение через время
+
         Destroy(gameObject, 2f);
     }
     
@@ -144,7 +134,6 @@ public abstract class BaseEnemy : MonoBehaviour, IDamageable
     {
         if (!isAlive) return;
         
-        // Проверяем, является ли коллизия с игроком
         if (((1 << collision.gameObject.layer) & playerLayer) != 0)
         {
             TryDealContactDamage(collision.gameObject);
@@ -154,8 +143,7 @@ public abstract class BaseEnemy : MonoBehaviour, IDamageable
     protected virtual void OnTriggerEnter2D(Collider2D other)
     {
         if (!isAlive) return;
-        
-        // Проверяем, является ли триггер с игроком
+  
         if (((1 << other.gameObject.layer) & playerLayer) != 0)
         {
             TryDealContactDamage(other.gameObject);
@@ -166,7 +154,7 @@ public abstract class BaseEnemy : MonoBehaviour, IDamageable
     {
         if (Time.time - lastDamageTime < damageCooldown) return;
         
-        // Получаем компонент здоровья игрока
+
         var playerHealth = playerObject.GetComponent<IPlayerHealth>();
         if (playerHealth != null)
         {
@@ -174,7 +162,7 @@ public abstract class BaseEnemy : MonoBehaviour, IDamageable
             playerHealth.TakeDamage(contactDamage, damageDirection);
             lastDamageTime = Time.time;
             
-            // Визуальная обратная связь
+       
             StartCoroutine(ContactDamageEffect());
         }
     }
@@ -218,7 +206,7 @@ public abstract class BaseEnemy : MonoBehaviour, IDamageable
         if (rb == null) rb = GetComponent<Rigidbody2D>();
         if (hitCollider == null) hitCollider = GetComponent<Collider2D>();
         
-        // Настройка Rigidbody2D для 2D платформера
+
         if (rb != null)
         {
             rb.freezeRotation = true;
@@ -238,7 +226,7 @@ public abstract class BaseEnemy : MonoBehaviour, IDamageable
     
     #region Navigation Support (задел для NavMesh)
     
-    // Виртуальные методы для возможной интеграции с навигацией
+  
     protected virtual bool CanUseNavigation() => false;
     
     protected virtual void InitializeNavigation() { }
@@ -261,7 +249,7 @@ public abstract class BaseEnemy : MonoBehaviour, IDamageable
     #endregion
 }
 
-// Интерфейсы для системы урона
+
 public interface IDamageable
 {
     void TakeDamage(int damage, Vector2 direction, DamageType damageType = DamageType.Normal);
