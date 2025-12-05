@@ -1205,6 +1205,7 @@ MonoBehaviour:
   wallStickTime: 2
   wallStickGravity: 0.01
   wallSlideGravity: 0.2
+  wallStickDelay: 0.5
   skinWidth: 0.05
   horizontalRays: 3
   verticalRays: 3
@@ -1330,7 +1331,7 @@ Transform:
   m_GameObject: {fileID: 265178037}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 114.56, y: 44.58, z: 0}
+  m_LocalPosition: {x: -7.2, y: -1.2, z: 0}
   m_LocalScale: {x: 0.88509, y: 0.88509, z: 0.88509}
   m_ConstrainProportionsScale: 0
   m_Children:
