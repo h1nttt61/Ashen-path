@@ -53,16 +53,10 @@ public class Player : MonoBehaviour
     [SerializeField] private int horizontalRays = 3;
     [SerializeField] private int verticalRays = 3;
 
-    [Header("Air Jump Settings")]
-    [SerializeField] private int maxAirJumps = 1;
-    [SerializeField] private float airJumpForce = 10f;
-
     [Header("Wall Jump Colldown Settings")]
     [SerializeField] private float wallJumpCooldown = 0.5f;
     [SerializeField] private float weakWallJumpForceX = 8f;
     [SerializeField] private float weakWallJumpForceY = 12f;
-
-    private int airJumpsRemaining;
 
     private bool isDashing;
 
@@ -96,7 +90,6 @@ public class Player : MonoBehaviour
 
     private float lastWallJumpTime = 0f;
 
-    private bool hasWallJumpedRecently = false;
 
     private void Awake()
     {
@@ -136,8 +129,6 @@ public class Player : MonoBehaviour
                     Jump();
                 else if (canWallJump)
                     Jump();
-                else if (airJumpsRemaining > 0)
-                    Jump();
             }
         }
     }
@@ -160,8 +151,6 @@ public class Player : MonoBehaviour
         GameInput.Instance.OnPlayerDash += OnPlayerDashh;
         GameInput.Instance.OnPlayerAttack += Player_OnPlayerAttack;
         isAlive = true;
-
-        airJumpsRemaining = maxAirJumps;
 
         int currentIndex = UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex;
 
@@ -306,11 +295,6 @@ public class Player : MonoBehaviour
 
         lastWallActionTime = Time.time;
 
-        lastWallJumpTime = Time.time;
-
-        hasWallJumpedRecently = true;
-
-        StartCoroutine(ResetWallJumpState());
     }
     private void HandleWallStickTimer()
     {
@@ -356,20 +340,9 @@ public class Player : MonoBehaviour
             EndWallStick();
 
             float jumpDirection = -wallDirection;
-            float jumpX, jumpY;
+            float jumpX = jumpDirection * wallJumpForceX;
+            float jumpY = wallJumpForceY;
 
-            if (airJumpForce > 0)
-            {
-                jumpX = jumpDirection * wallJumpForceX;
-                jumpY = wallJumpForceY;
-                airJumpsRemaining--;
-            }
-            else
-            {
-                jumpX = jumpDirection * weakWallJumpForceX;
-                jumpY = weakWallJumpForceY;
-
-            }
             if (Mathf.Abs(inputVector.x) > 0.1f && Mathf.Sign(inputVector.x) != wallDirection)
                 jumpX *= 1.5f;
 
@@ -377,45 +350,17 @@ public class Player : MonoBehaviour
             isWallSliding = false;
 
             lastWallActionTime = Time.time;
-            hasWallJumpedRecently = true;
-
-            StartCoroutine(ResetWallJumpState());
         }
         else if (isGrounded)
         {
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
-            airJumpsRemaining = maxAirJumps;
-            hasWallJumpedRecently = false;
         }
-        else if (airJumpsRemaining > 0)
-        {
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, airJumpForce);
-            airJumpsRemaining--;
-            hasWallJumpedRecently = false;
-        }
-    }
-
-    private IEnumerator ResetWallJumpState()
-    {
-        yield return new WaitForSeconds(wallJumpCooldown);
-
-        if (!isGrounded && airJumpsRemaining < maxAirJumps)
-            airJumpsRemaining = maxAirJumps;
-
-        hasWallJumpedRecently = false;
     }
 
     private void CheckGrounded()
     {
-        bool wasGrounded = isGrounded;
 
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
-
-        if (isGrounded && !wasGrounded)
-        {
-            airJumpsRemaining = maxAirJumps;
-            hasWallJumpedRecently = false;
-        }
 
         if (isGrounded)
         {
