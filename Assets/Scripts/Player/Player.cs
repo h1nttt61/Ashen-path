@@ -57,6 +57,11 @@ public class Player : MonoBehaviour
     [SerializeField] private int maxAirJumps = 1;
     [SerializeField] private float airJumpForce = 10f;
 
+    [Header("Wall Jump Colldown Settings")]
+    [SerializeField] private float wallJumpCooldown = 0.5f;
+    [SerializeField] private float weakWallJumpForceX = 8f;
+    [SerializeField] private float weakWallJumpForceY = 12f;
+
     private int airJumpsRemaining;
 
     private bool isDashing;
@@ -89,6 +94,10 @@ public class Player : MonoBehaviour
 
     private Coroutine wallStickCoroutine;
 
+    private float lastWallJumpTime = 0f;
+
+    private bool hasWallJumpedRecently = false;
+
     private void Awake()
     {
         Instance = this;
@@ -120,8 +129,16 @@ public class Player : MonoBehaviour
                     TryWallPushOff();
 
             if (GameInput.Instance.WasJumpPressedThisFrame())
-                if  (isGrounded || isWallSliding || isWallSticking)
+            {
+                bool canWallJump = (isWallSliding || isWallSticking) && (Time.time >= lastWallJumpTime + wallJumpCooldown);
+
+                if (isGrounded)
                     Jump();
+                else if (canWallJump)
+                    Jump();
+                else if (airJumpsRemaining > 0)
+                    Jump();
+            }
         }
     }
 
@@ -221,7 +238,7 @@ public class Player : MonoBehaviour
             rb.gravityScale = 1f;
     }
 
-   
+
 
 
     private void StartWallStick()
@@ -285,7 +302,15 @@ public class Player : MonoBehaviour
 
         rb.linearVelocity = new Vector2(pushX, pushY);
         isWallSliding = false;
+        wallStickTimer = 0f;
+
         lastWallActionTime = Time.time;
+
+        lastWallJumpTime = Time.time;
+
+        hasWallJumpedRecently = true;
+
+        StartCoroutine(ResetWallJumpState());
     }
     private void HandleWallStickTimer()
     {
@@ -295,14 +320,14 @@ public class Player : MonoBehaviour
             StartWallStick();
         }
 
-       /* if (isWallSticking)
-        {
-            wallStickTimer -= Time.deltaTime;
-            if (wallStickTimer <= 0 || !isTouchingWall || isGrounded ||
-                Mathf.Abs(inputVector.x) < 0.05f ||
-                Mathf.Sign(inputVector.x) != Mathf.Sign(wallDirection))
-                EndWallStick();
-        }*/
+        /* if (isWallSticking)
+         {
+             wallStickTimer -= Time.deltaTime;
+             if (wallStickTimer <= 0 || !isTouchingWall || isGrounded ||
+                 Mathf.Abs(inputVector.x) < 0.05f ||
+                 Mathf.Sign(inputVector.x) != Mathf.Sign(wallDirection))
+                 EndWallStick();
+         }*/
     }
     private void HandleMovement()
     {
@@ -331,9 +356,20 @@ public class Player : MonoBehaviour
             EndWallStick();
 
             float jumpDirection = -wallDirection;
-            float jumpX = jumpDirection * wallJumpForceX;
-            float jumpY = wallJumpForceY;
+            float jumpX, jumpY;
 
+            if (airJumpForce > 0)
+            {
+                jumpX = jumpDirection * wallJumpForceX;
+                jumpY = wallJumpForceY;
+                airJumpsRemaining--;
+            }
+            else
+            {
+                jumpX = jumpDirection * weakWallJumpForceX;
+                jumpY = weakWallJumpForceY;
+
+            }
             if (Mathf.Abs(inputVector.x) > 0.1f && Mathf.Sign(inputVector.x) != wallDirection)
                 jumpX *= 1.5f;
 
@@ -341,17 +377,33 @@ public class Player : MonoBehaviour
             isWallSliding = false;
 
             lastWallActionTime = Time.time;
+            hasWallJumpedRecently = true;
+
+            StartCoroutine(ResetWallJumpState());
         }
         else if (isGrounded)
+        {
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+            airJumpsRemaining = maxAirJumps;
+            hasWallJumpedRecently = false;
+        }
+        else if (airJumpsRemaining > 0)
+        {
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, airJumpForce);
+            airJumpsRemaining--;
+            hasWallJumpedRecently = false;
+        }
     }
 
-   /* private IEnumerator WallJumpCooldown()
+    private IEnumerator ResetWallJumpState()
     {
-        canWallClimb = false;
-        yield return new WaitForSeconds(0.3f);
-        canWallClimb = true;
-    }*/
+        yield return new WaitForSeconds(wallJumpCooldown);
+
+        if (!isGrounded && airJumpsRemaining < maxAirJumps)
+            airJumpsRemaining = maxAirJumps;
+
+        hasWallJumpedRecently = false;
+    }
 
     private void CheckGrounded()
     {
@@ -362,6 +414,7 @@ public class Player : MonoBehaviour
         if (isGrounded && !wasGrounded)
         {
             airJumpsRemaining = maxAirJumps;
+            hasWallJumpedRecently = false;
         }
 
         if (isGrounded)
