@@ -120,7 +120,7 @@ public abstract class BaseEnemy : MonoBehaviour, IDamageable
     protected virtual void Die()
     {
         isAlive = false;
-        rb.velocity = Vector2.zero;
+        rb.linearVelocity = Vector2.zero;
         rb.isKinematic = true;
         hitCollider.enabled = false;
         

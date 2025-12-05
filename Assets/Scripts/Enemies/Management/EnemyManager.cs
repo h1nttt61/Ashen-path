@@ -58,8 +58,7 @@ public class EnemyManager : MonoBehaviour
         if (enemy != null)
         {
             activeEnemies.Add(enemy);
-            
-            // Подписываемся на смерть врага
+
             var baseEnemy = enemy.GetComponent<BaseEnemy>();
             if (baseEnemy != null)
             {
@@ -87,13 +86,17 @@ public class EnemyManager : MonoBehaviour
     private void UpdateRespawnTimers()
     {
         List<GameObject> toRespawn = new List<GameObject>();
-        
-        foreach (var kvp in respawnTimers)
+
+        var keysToCheck = new List<GameObject>(respawnTimers.Keys);
+
+        foreach (var kvp in keysToCheck)
         {
-            kvp.Value -= Time.deltaTime;
-            if (kvp.Value <= 0)
+            if (!respawnTimers.ContainsKey(kvp)) continue;
+
+            respawnTimers[kvp] -= Time.deltaTime;
+            if (respawnTimers[kvp] <= 0)
             {
-                toRespawn.Add(kvp.Key);
+                toRespawn.Add(kvp);
             }
         }
         
@@ -112,8 +115,6 @@ public class EnemyManager : MonoBehaviour
         var baseEnemy = enemy.GetComponent<BaseEnemy>();
         if (baseEnemy != null)
         {
-            // Сброс здоровья и состояния
-            // В реальном проекте здесь будет вызов метода Reset
         }
     }
     

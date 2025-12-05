@@ -29,7 +29,7 @@ public class EnemyData : ScriptableObject
     [Header("AI")]
     public bool useSimpleAI = true;
     public bool useNavigationAI = false;
-    public float detectionRange = 0f; // 0 = не использует обнаружение
+    public float detectionRange = 0f; 
     
     [Header("Audio")]
     public AudioClip hurtSound;

@@ -105,9 +105,9 @@ public class SimplePatrolEnemy : BaseEnemy
         if (rb == null) return;
         
         float moveDirection = isMovingRight ? 1f : -1f;
-        Vector2 velocity = rb.velocity;
+        Vector2 velocity = rb.linearVelocity;
         velocity.x = moveDirection * moveSpeed;
-        rb.velocity = velocity;
+        rb.linearVelocity = velocity;
     }
     
     private void CheckForEdges()
@@ -153,7 +153,7 @@ public class SimplePatrolEnemy : BaseEnemy
         }
         
         isMovingRight = !isMovingRight;
-        rb.velocity = new Vector2(0, rb.velocity.y);
+        rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
     }
     
     #endregion
@@ -172,7 +172,7 @@ public class SimplePatrolEnemy : BaseEnemy
         
         if (rb != null)
         {
-            rb.velocity = new Vector2(0, rb.velocity.y);
+            rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
         }
     }
     
@@ -215,7 +215,7 @@ public class SimplePatrolEnemy : BaseEnemy
         
         animator.SetBool("IsMoving", !isIdle);
         animator.SetBool("IsFacingRight", isMovingRight);
-        animator.SetFloat("MoveSpeed", Mathf.Abs(rb.velocity.x));
+        animator.SetFloat("MoveSpeed", Mathf.Abs(rb.linearVelocity.x));
     }
     
     #endregion
