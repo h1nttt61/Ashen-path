@@ -27,3 +27,7 @@ w,d - бег влево/впраов
 shift - рывок
 удар - пкм
 
+## Используемые Ассеты
+
+[2D DarkCave Assets by Maaot](https://maaot.itch.io/2d-browncave-assets)
+
