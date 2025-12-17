@@ -13,7 +13,10 @@ public class Player : MonoBehaviour
     private Rigidbody2D rb;
     [SerializeField] private float speed = 5f;
     [SerializeField] public int maxHealth = 10;
+    [SerializeField] public int Health = 10;
     [SerializeField] private float damageRecoveryTime = 10f;
+    [SerializeField] private float spikesDamageCooldown = 5f;
+    [SerializeField] private bool canTakeDamage = true;
 
     Vector2 inputVector;
     private Camera camera;
@@ -141,6 +144,30 @@ public class Player : MonoBehaviour
     {
         Vector3 playerScreenPos = camera.WorldToScreenPoint(transform.position);
         return playerScreenPos;
+    }
+
+    public void TakeDamage(int damageAmount, Transform damageSource)
+    {
+        if (canTakeDamage)
+        {
+            Health -= damageAmount;
+            // needs knockback i think
+            //KnockBack.Instance.GetKnockedBack(damageSource);
+            if (Health <= 0)
+            {
+                Health = 0;
+                Debug.Log("player is dead no waay");
+            }
+            
+            StartCoroutine(DamageCooldownRoutine(spikesDamageCooldown));
+        }
+    }
+
+    private IEnumerator DamageCooldownRoutine(float cooldown)
+    {
+        canTakeDamage = false;
+        yield return new WaitForSeconds(cooldown);
+        canTakeDamage = true;
     }
 
     private void FixedUpdate()
