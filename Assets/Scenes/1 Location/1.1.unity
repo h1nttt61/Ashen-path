@@ -860,10 +860,13 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 3
       objectReference: {fileID: 0}
+<<<<<<< HEAD
     - target: {fileID: 3346504904327013546, guid: 7c939f3618c1e1c43b6a649e10795dca, type: 3}
       propertyPath: m_IsTrigger
       value: 0
       objectReference: {fileID: 0}
+=======
+>>>>>>> 754e626b9899ce85747a1c02c1bd8fbf5c280461
     - target: {fileID: 4925177859710520799, guid: 7c939f3618c1e1c43b6a649e10795dca, type: 3}
       propertyPath: m_Layer
       value: 3
@@ -919,10 +922,14 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
+<<<<<<< HEAD
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 4925177859710520799, guid: 7c939f3618c1e1c43b6a649e10795dca, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1535852291}
+=======
+    m_AddedComponents: []
+>>>>>>> 754e626b9899ce85747a1c02c1bd8fbf5c280461
   m_SourcePrefab: {fileID: 100100000, guid: 7c939f3618c1e1c43b6a649e10795dca, type: 3}
 --- !u!4 &201077609 stripped
 Transform:
@@ -1187,10 +1194,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Player
   speed: 10
   maxHealth: 10
+<<<<<<< HEAD
   Health: 10
   damageRecoveryTime: 0.5
   spikesDamageCooldown: 1
   canTakeDamage: 1
+=======
+  damageRecoveryTime: 0.5
+>>>>>>> 754e626b9899ce85747a1c02c1bd8fbf5c280461
   jumpForce: 8
   groundLayer:
     serializedVersion: 2
@@ -1329,7 +1340,11 @@ Rigidbody2D:
     serializedVersion: 2
     m_Bits: 0
   m_Interpolate: 0
+<<<<<<< HEAD
   m_SleepingMode: 0
+=======
+  m_SleepingMode: 1
+>>>>>>> 754e626b9899ce85747a1c02c1bd8fbf5c280461
   m_CollisionDetection: 0
   m_Constraints: 0
 --- !u!4 &265178042
@@ -1349,7 +1364,10 @@ Transform:
   - {fileID: 1321918309}
   - {fileID: 2078493459}
   - {fileID: 866432748}
+<<<<<<< HEAD
   - {fileID: 541178233}
+=======
+>>>>>>> 754e626b9899ce85747a1c02c1bd8fbf5c280461
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &273057858
@@ -2292,10 +2310,14 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
+<<<<<<< HEAD
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 4925177859710520799, guid: 7c939f3618c1e1c43b6a649e10795dca, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2053682775}
+=======
+    m_AddedComponents: []
+>>>>>>> 754e626b9899ce85747a1c02c1bd8fbf5c280461
   m_SourcePrefab: {fileID: 100100000, guid: 7c939f3618c1e1c43b6a649e10795dca, type: 3}
 --- !u!4 &453882279 stripped
 Transform:
@@ -2453,6 +2475,7 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7c939f3618c1e1c43b6a649e10795dca, type: 3}
+<<<<<<< HEAD
 --- !u!1 &541178232
 GameObject:
   m_ObjectHideFlags: 0
@@ -2556,6 +2579,8 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 1
   m_TargetDisplay: 0
+=======
+>>>>>>> 754e626b9899ce85747a1c02c1bd8fbf5c280461
 --- !u!1 &596024044
 GameObject:
   m_ObjectHideFlags: 0
@@ -4140,6 +4165,7 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8791321506712903935, guid: 7c939f3618c1e1c43b6a649e10795dca, type: 3}
   m_PrefabInstance: {fileID: 1020438463}
   m_PrefabAsset: {fileID: 0}
+<<<<<<< HEAD
 --- !u!1 &1028443351
 GameObject:
   m_ObjectHideFlags: 0
@@ -4215,6 +4241,8 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1028443351}
   m_CullTransparentMesh: 1
+=======
+>>>>>>> 754e626b9899ce85747a1c02c1bd8fbf5c280461
 --- !u!1001 &1031307709
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4286,10 +4314,14 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
+<<<<<<< HEAD
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 4925177859710520799, guid: 7c939f3618c1e1c43b6a649e10795dca, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1736042879}
+=======
+    m_AddedComponents: []
+>>>>>>> 754e626b9899ce85747a1c02c1bd8fbf5c280461
   m_SourcePrefab: {fileID: 100100000, guid: 7c939f3618c1e1c43b6a649e10795dca, type: 3}
 --- !u!1001 &1042333445
 PrefabInstance:
@@ -5724,10 +5756,13 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 3
       objectReference: {fileID: 0}
+<<<<<<< HEAD
     - target: {fileID: 3346504904327013546, guid: 7c939f3618c1e1c43b6a649e10795dca, type: 3}
       propertyPath: m_IsTrigger
       value: 0
       objectReference: {fileID: 0}
+=======
+>>>>>>> 754e626b9899ce85747a1c02c1bd8fbf5c280461
     - target: {fileID: 4925177859710520799, guid: 7c939f3618c1e1c43b6a649e10795dca, type: 3}
       propertyPath: m_Layer
       value: 3
@@ -32899,6 +32934,7 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8791321506712903935, guid: 7c939f3618c1e1c43b6a649e10795dca, type: 3}
   m_PrefabInstance: {fileID: 1159790034}
   m_PrefabAsset: {fileID: 0}
+<<<<<<< HEAD
 --- !u!1 &1535852289 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4925177859710520799, guid: 7c939f3618c1e1c43b6a649e10795dca, type: 3}
@@ -32916,6 +32952,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a51d94a5fa1592044a0af6795b760a0b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::scr
+=======
+>>>>>>> 754e626b9899ce85747a1c02c1bd8fbf5c280461
 --- !u!1 &1600112089 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7207567793292723065, guid: 9f876642348f4454d827bb981e575dff, type: 3}
@@ -33464,6 +33502,7 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+<<<<<<< HEAD
 --- !u!1 &1736042875 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4925177859710520799, guid: 7c939f3618c1e1c43b6a649e10795dca, type: 3}
@@ -33481,6 +33520,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a51d94a5fa1592044a0af6795b760a0b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SpikesTrigger
+=======
+>>>>>>> 754e626b9899ce85747a1c02c1bd8fbf5c280461
 --- !u!1001 &1740378974
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -34803,6 +34844,7 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7c939f3618c1e1c43b6a649e10795dca, type: 3}
+<<<<<<< HEAD
 --- !u!1 &2053682773 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4925177859710520799, guid: 7c939f3618c1e1c43b6a649e10795dca, type: 3}
@@ -34820,6 +34862,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a51d94a5fa1592044a0af6795b760a0b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SpikesTrigger
+=======
+>>>>>>> 754e626b9899ce85747a1c02c1bd8fbf5c280461
 --- !u!1001 &2058027083
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -35087,6 +35131,7 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8791321506712903935, guid: 7c939f3618c1e1c43b6a649e10795dca, type: 3}
   m_PrefabInstance: {fileID: 73074857}
   m_PrefabAsset: {fileID: 0}
+<<<<<<< HEAD
 --- !u!1 &2123510494
 GameObject:
   m_ObjectHideFlags: 0
@@ -35176,6 +35221,8 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2123510494}
   m_CullTransparentMesh: 1
+=======
+>>>>>>> 754e626b9899ce85747a1c02c1bd8fbf5c280461
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
