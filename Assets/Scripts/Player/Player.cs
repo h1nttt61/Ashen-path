@@ -153,7 +153,6 @@ public class Player : MonoBehaviour
 >>>>>>> 829128e (Colliders fix)
         HandleMovement();
         ApplyGravity();
-        //ImprovedCollisionHandling();
     }
 
     public void Start()
@@ -344,15 +343,6 @@ public class Player : MonoBehaviour
 
         if (isWallSticking && (Mathf.Abs(inputVector.x) < 0.05f || Mathf.Sign(inputVector.x) != Mathf.Sign(wallDirection)))
             EndWallStick();
-
-        /* if (isWallSticking)
-         {
-             wallStickTimer -= Time.deltaTime;
-             if (wallStickTimer <= 0 || !isTouchingWall || isGrounded ||
-                 Mathf.Abs(inputVector.x) < 0.05f ||
-                 Mathf.Sign(inputVector.x) != Mathf.Sign(wallDirection))
-                 EndWallStick();
-         }*/
     }
     private void HandleMovement()
     {

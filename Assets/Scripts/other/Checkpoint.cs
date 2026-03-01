@@ -12,7 +12,7 @@ public class Checkpoint : MonoBehaviour
             visual.SetActive(false);
     }
 
-    private void pdate()
+    private void Update()
     {
         if (isPlayerInside && Input.GetKeyDown(KeyCode.T))
             ActiveCheck();
