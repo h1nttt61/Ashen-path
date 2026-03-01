@@ -144,13 +144,12 @@ public class Player : MonoBehaviour
     }
 
     private void FixedUpdate()
-    {
+    {   if (isDashing) return;
         HandleWallSliding();
         HandleWallStickTimer();
 
         HandleMovement();
         ApplyGravity();
-        //ImprovedCollisionHandling();
     }
 
     public void Start()
@@ -341,15 +340,6 @@ public class Player : MonoBehaviour
 
         if (isWallSticking && (Mathf.Abs(inputVector.x) < 0.05f || Mathf.Sign(inputVector.x) != Mathf.Sign(wallDirection)))
             EndWallStick();
-
-        /* if (isWallSticking)
-         {
-             wallStickTimer -= Time.deltaTime;
-             if (wallStickTimer <= 0 || !isTouchingWall || isGrounded ||
-                 Mathf.Abs(inputVector.x) < 0.05f ||
-                 Mathf.Sign(inputVector.x) != Mathf.Sign(wallDirection))
-                 EndWallStick();
-         }*/
     }
     private void HandleMovement()
     {
