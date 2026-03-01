@@ -147,7 +147,7 @@ public class Player : MonoBehaviour
     {
         HandleMovement();
         ApplyGravity();
-        ImprovedCollisionHandling();
+        //ImprovedCollisionHandling();
     }
 
     public void Start()
