@@ -145,9 +145,12 @@ public class Player : MonoBehaviour
 
     private void FixedUpdate()
     {
+<<<<<<< HEAD
         HandleWallSliding();
         HandleWallStickTimer();
 
+=======
+>>>>>>> 829128e (Colliders fix)
         HandleMovement();
         ApplyGravity();
         //ImprovedCollisionHandling();
@@ -355,6 +358,7 @@ public class Player : MonoBehaviour
     {
         if (isWallSticking)
         {
+<<<<<<< HEAD
             rb.linearVelocity = Vector2.zero;
             return;
         }
@@ -366,12 +370,35 @@ public class Player : MonoBehaviour
         float newX = Mathf.MoveTowards(rb.linearVelocityX, targetVelocityX, acceliration * Time.fixedDeltaTime);
 
         rb.linearVelocity = new Vector2(newX, rb.linearVelocityY);
+=======
+            rb.linearVelocity = new Vector2(0, 0);
+        }
+        else if (!isWallSliding)
+        {
+            float currentSpeed = speed;
+            if (!isGrounded)
+                currentSpeed = speed * 0.8f;
+
+            float targetVelocityX = inputVector.x * currentSpeed;
+            float currentVelocityX = rb.linearVelocity.x;
+
+            float newVelocityX = Mathf.Lerp(currentVelocityX, targetVelocityX, Time.fixedDeltaTime * 10f);
+
+            rb.linearVelocity = new Vector2(newVelocityX, rb.linearVelocity.y);
+        }
+        else
+        {
+            rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
+        }
+
+>>>>>>> 829128e (Colliders fix)
 
         isRunning = Mathf.Abs(inputVector.x) > minSpeed;
     }
 
     private void Jump()
     {
+<<<<<<< HEAD
         if (isGrounded)
         {
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
@@ -383,14 +410,48 @@ public class Player : MonoBehaviour
 
             float jumpDir = -wallDirection;
             rb.linearVelocity = new Vector2(jumpDir * wallJumpForceX, wallJumpForceY);
+=======
+        if (isWallSliding || isWallSticking)
+        {
+
+            EndWallStick();
+
+            float jumpDirection = -wallDirection;
+            float jumpX = jumpDirection * wallJumpForceX;
+            float jumpY = wallJumpForceY;
+            if (Mathf.Abs(inputVector.x) > 0.1f)
+            {
+                if (Mathf.Abs(inputVector.x) > 0.1f && Mathf.Sign(inputVector.x) != wallDirection)
+                {
+                    jumpX *= 1.5f;
+                    jumpY *= 1.5f;
+                }
+                else jumpX *= 2.5f;
+            }
+            Vector2 currentVelocity = rb.linearVelocity;
+            Vector2 targetVelocity = new Vector2(jumpX, jumpY);
+            rb.linearVelocity = Vector2.Lerp(currentVelocity, targetVelocity, 0.7f);
+
+            rb.AddForce(new Vector2(jumpX * 0.3f, jumpY * 0.3f), ForceMode2D.Impulse);
+>>>>>>> 829128e (Colliders fix)
 
             isWallSliding = false;
             isWallSticking = false;
             wallTouchRegistered = false;
+<<<<<<< HEAD
             lastWallActionTime = Time.time;
             lastWallJumpTime = Time.time;
         }
        
+=======
+
+            lastWallActionTime = Time.time;
+        }
+        else if (isGrounded)
+        {
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+        }
+>>>>>>> 829128e (Colliders fix)
     }
 
     private void CheckGrounded()
@@ -451,7 +512,11 @@ public class Player : MonoBehaviour
     private void HandleWallSliding()
     {
 
+<<<<<<< HEAD
         if (isWallSticking) return; 
+=======
+        if (isWallSticking) { isWallSliding = true; return; }
+>>>>>>> 829128e (Colliders fix)
 
         bool shouldSlide = isTouchingWall && !isGrounded &&
             Mathf.Abs(inputVector.x) > 0.05f && Mathf.Sign(inputVector.x) == Mathf.Sign(wallDirection) &&
@@ -459,6 +524,7 @@ public class Player : MonoBehaviour
         if (shouldSlide && canWallClimb)
         {
             isWallSliding = true;
+<<<<<<< HEAD
             float targetSpeed = -wallSlideSpeed;
 
 
@@ -468,6 +534,25 @@ public class Player : MonoBehaviour
         else
             isWallSliding = false;
     }
+=======
+
+            var targetSpeed = -wallSlideSpeed;
+            var currentSpeed = rb.linearVelocity.y;
+
+            if (currentSpeed < targetSpeed)
+            {
+                var newSpeed = Mathf.Lerp(currentSpeed, targetSpeed, Time.deltaTime * 3f);
+                rb.linearVelocity = new Vector2(rb.linearVelocity.x, newSpeed);
+            }
+
+            else if (currentSpeed > -0.5f)
+                rb.linearVelocity = new Vector2(rb.linearVelocity.x, targetSpeed);
+        }
+        else if (!isWallSticking)
+            isWallSliding = false;
+    }
+
+>>>>>>> 829128e (Colliders fix)
     private void OnDestroy()
     {
         if (GameInput.Instance != null)
