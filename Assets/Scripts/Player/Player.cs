@@ -145,6 +145,9 @@ public class Player : MonoBehaviour
 
     private void FixedUpdate()
     {
+        HandleWallSliding();
+        HandleWallStickTimer();
+
         HandleMovement();
         ApplyGravity();
         //ImprovedCollisionHandling();
@@ -352,65 +355,42 @@ public class Player : MonoBehaviour
     {
         if (isWallSticking)
         {
-            rb.linearVelocity = new Vector2(0, 0);
-        }
-        else if (!isWallSliding)
-        {
-            float currentSpeed = speed;
-            if (!isGrounded)
-                currentSpeed = speed * 0.8f;
-
-            float targetVelocityX = inputVector.x * currentSpeed;
-            float currentVelocityX = rb.linearVelocity.x;
-
-            float newVelocityX = Mathf.Lerp(currentVelocityX, targetVelocityX, Time.fixedDeltaTime * 10f);
-
-            rb.linearVelocity = new Vector2(newVelocityX, rb.linearVelocity.y);
-        }
-        else
-        {
-            rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
+            rb.linearVelocity = Vector2.zero;
+            return;
         }
 
+        float targetVelocityX = inputVector.x * speed;
+
+        float acceliration = isGrounded ? 100f : 50f;
+
+        float newX = Mathf.MoveTowards(rb.linearVelocityX, targetVelocityX, acceliration * Time.fixedDeltaTime);
+
+        rb.linearVelocity = new Vector2(newX, rb.linearVelocityY);
 
         isRunning = Mathf.Abs(inputVector.x) > minSpeed;
     }
 
     private void Jump()
     {
+        if (isGrounded)
+        {
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+        }
         if (isWallSliding || isWallSticking)
         {
 
-            EndWallStick();
+            ResetWallStick();
 
-            float jumpDirection = -wallDirection;
-            float jumpX = jumpDirection * wallJumpForceX;
-            float jumpY = wallJumpForceY;
-            if (Mathf.Abs(inputVector.x) > 0.1f)
-            {
-                if (Mathf.Abs(inputVector.x) > 0.1f && Mathf.Sign(inputVector.x) != wallDirection)
-                {
-                    jumpX *= 1.5f;
-                    jumpY *= 1.5f;
-                }
-                else jumpX *= 2.5f;
-            }
-            Vector2 currentVelocity = rb.linearVelocity;
-            Vector2 targetVelocity = new Vector2(jumpX, jumpY);
-            rb.linearVelocity = Vector2.Lerp(currentVelocity, targetVelocity, 0.7f);
-
-            rb.AddForce(new Vector2(jumpX * 0.3f, jumpY * 0.3f), ForceMode2D.Impulse);
+            float jumpDir = -wallDirection;
+            rb.linearVelocity = new Vector2(jumpDir * wallJumpForceX, wallJumpForceY);
 
             isWallSliding = false;
             isWallSticking = false;
             wallTouchRegistered = false;
-
             lastWallActionTime = Time.time;
+            lastWallJumpTime = Time.time;
         }
-        else if (isGrounded)
-        {
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
-        }
+       
     }
 
     private void CheckGrounded()
@@ -471,7 +451,7 @@ public class Player : MonoBehaviour
     private void HandleWallSliding()
     {
 
-        if (isWallSticking) { isWallSliding = true; return; }
+        if (isWallSticking) return; 
 
         bool shouldSlide = isTouchingWall && !isGrounded &&
             Mathf.Abs(inputVector.x) > 0.05f && Mathf.Sign(inputVector.x) == Mathf.Sign(wallDirection) &&
@@ -479,117 +459,15 @@ public class Player : MonoBehaviour
         if (shouldSlide && canWallClimb)
         {
             isWallSliding = true;
+            float targetSpeed = -wallSlideSpeed;
 
-            var targetSpeed = -wallSlideSpeed;
-            var currentSpeed = rb.linearVelocity.y;
 
-            if (currentSpeed < targetSpeed)
-            {
-                var newSpeed = Mathf.Lerp(currentSpeed, targetSpeed, Time.deltaTime * 3f);
-                rb.linearVelocity = new Vector2(rb.linearVelocity.x, newSpeed);
-            }
-
-            else if (currentSpeed > -0.5f)
-                rb.linearVelocity = new Vector2(rb.linearVelocity.x, targetSpeed);
+            float newY = Mathf.MoveTowards(rb.linearVelocityY, targetSpeed, 50f * Time.fixedDeltaTime);
+            rb.linearVelocity = new Vector2(rb.linearVelocityX, newY);
         }
-        else if (!isWallSticking)
+        else
             isWallSliding = false;
     }
-
-    private void ImprovedCollisionHandling()
-    {
-        var collider = GetComponent<Collider2D>();
-        if (collider == null) return;
-        CheckHorizontalCollisions();
-        CheckVerticalCollisions();
-    }
-
-    private void CheckHorizontalCollisions()
-    {
-        Bounds bounds = GetComponent<Collider2D>().bounds;
-
-        bounds.Expand(skinWidth * -2);
-
-        float raySpacing = bounds.size.y / (horizontalRays - 1);
-
-        for (int i = 0; i < horizontalRays; i++)
-        {
-            Vector2 rayOrigin = new Vector2(
-                isFacingRight ? bounds.max.x : bounds.min.x,
-                bounds.min.y + raySpacing * i
-                );
-
-            RaycastHit2D hit = Physics2D.Raycast(
-                rayOrigin,
-                Vector2.right * (isFacingRight ? 1 : -1),
-                skinWidth,
-                groundLayer | walllayer);
-
-            if (hit.collider != null)
-            {
-                float pushDistance = skinWidth - hit.distance;
-                transform.position += new Vector3(
-                    (isFacingRight ? -pushDistance : pushDistance),
-                    0,
-                    0);
-            }
-        }
-    }
-
-
-    private void CheckVerticalCollisions()
-    {
-        var collider = GetComponent<Collider2D>();
-        if (collider == null) return;
-
-        Bounds bounds = collider.bounds;
-
-        bounds.Expand(skinWidth * -2);
-
-        float raySpacing = bounds.size.y / (verticalRays - 1);
-
-        for (int i = 0; i < verticalRays; i++)
-        {
-            Vector2 rayOrigin = new Vector2(
-                bounds.min.x + raySpacing * i,
-                bounds.max.y
-                );
-
-            RaycastHit2D hit = Physics2D.Raycast(
-                rayOrigin,
-                Vector2.up,
-                skinWidth,
-                groundLayer | walllayer);
-
-            if (hit.collider != null)
-            {
-                rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0);
-                break;
-            }
-        }
-
-
-        for (int i = 0; i < verticalRays; i++)
-        {
-            Vector2 rayOrigin = new Vector2(
-                bounds.min.x + raySpacing * i,
-                bounds.min.y);
-
-            RaycastHit2D hit = Physics2D.Raycast(
-                rayOrigin,
-                Vector2.down,
-                skinWidth,
-                groundLayer | walllayer);
-
-            if (hit.collider != null && rb.linearVelocity.y <= 0)
-            {
-                float pushDistance = skinWidth - hit.distance;
-                transform.position += new Vector3(0, pushDistance, 0);
-                break;
-            }
-        }
-    }
-
     private void OnDestroy()
     {
         if (GameInput.Instance != null)
