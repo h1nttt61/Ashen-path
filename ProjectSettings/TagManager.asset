@@ -8,7 +8,11 @@ TagManager:
   - Default
   - TransparentFX
   - Ignore Raycast
+<<<<<<< HEAD
   - 
+=======
+  - Ground
+>>>>>>> 776758f6052dea20786186353ebd4315101b8463
   - Water
   - UI
   - 
@@ -41,5 +45,20 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+<<<<<<< HEAD
+=======
+  - name: Foreground
+    uniqueID: 2807840481
+    locked: 0
+  - name: Player
+    uniqueID: 3153907737
+    locked: 0
+  - name: Platforms
+    uniqueID: 2619760929
+    locked: 0
+  - name: Background
+    uniqueID: 3771869715
+    locked: 0
+>>>>>>> 776758f6052dea20786186353ebd4315101b8463
   m_RenderingLayers:
   - Default

@@ -3,6 +3,10 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody2D))]
 public class KnockBack : MonoBehaviour
 {
+<<<<<<< HEAD
+=======
+    public static KnockBack Instance { get; private set; } 
+>>>>>>> 776758f6052dea20786186353ebd4315101b8463
     [SerializeField] private float knockBackForce = 1f;
     [SerializeField] private float knockBackMovingTimerMax = 0.3f;
 
@@ -17,6 +21,10 @@ public class KnockBack : MonoBehaviour
 
     private void Awake()
     {
+<<<<<<< HEAD
+=======
+        Instance = this;
+>>>>>>> 776758f6052dea20786186353ebd4315101b8463
         _rigidbody2d = GetComponent<Rigidbody2D>();
     }
 
