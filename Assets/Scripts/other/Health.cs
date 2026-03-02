@@ -1,7 +1,7 @@
 using UnityEditor.Analytics;
 using UnityEngine;
 
-public class Health : MonoBehaviour
+public class Health2D : MonoBehaviour
 {
     [Header("Health settings")]
     [SerializeField] private int maxHealth = 10;
