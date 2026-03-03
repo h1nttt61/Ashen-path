@@ -21,7 +21,7 @@ public class Player : MonoBehaviour
     public int Health { get; private set; }
 
     private Vector3 lastCheckpointPos;
-    [SerializeField] private float spikesDamageCooldown = 2f;
+    [SerializeField] private float spikesDamageCooldown = 0.4f;
     [SerializeField] private bool canTakeDamage = true;
 
     Vector2 inputVector;
@@ -158,11 +158,14 @@ public class Player : MonoBehaviour
         return playerScreenPos;
     }
 
+    public static event Action<int> OnHealthChanged;
+
     public void TakeDamage(int damageAmount, Transform damageSource)
     {
         if (canTakeDamage && Health > 0)
         {
             Health -= damageAmount;
+            OnHealthChanged?.Invoke(Health);
             // needs knockback i think
             //KnockBack.Instance.GetKnockedBack(damageSource);
             if (Health <= 0)
@@ -186,6 +189,7 @@ public class Player : MonoBehaviour
     {
         Health = maxHealth;
         transform.position = lastCheckpointPos;
+        OnHealthChanged?.Invoke(Health);
 
         if (rb != null)
         {

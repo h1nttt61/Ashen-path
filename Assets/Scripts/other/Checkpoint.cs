@@ -5,7 +5,6 @@ public class Checkpoint : MonoBehaviour
     [SerializeField] private GameObject visual;
     private bool isPlayerInside = false;
 
-
     private void Start()
     {
         if (visual != null)
