@@ -60,6 +60,15 @@
         "*.asset": "yaml",
         "*.meta": "yaml",
         "*.prefab": "yaml",
+<<<<<<< HEAD
+        "*.unity": "yaml"
+    },
+    "explorer.fileNesting.enabled": true,
+    "explorer.fileNesting.patterns": {
+        "*.sln": "*.csproj"
+    },
+    "dotnet.defaultSolution": "Ashen-path-main.sln"
+=======
         "*.unity": "yaml",
     },
     "explorer.fileNesting.enabled": true,
@@ -67,4 +76,5 @@
         "*.sln": "*.csproj",
     },
     "dotnet.defaultSolution": "Ashen-path-h1ntttDev.sln"
+>>>>>>> ed090367e13877581047ab58c252cf496f84c34c
 }
