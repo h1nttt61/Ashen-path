@@ -3,6 +3,8 @@ using System;
 using System.Collections;
 using System.ComponentModel.Design;
 
+
+
 [SelectionBase]
 public class Player : MonoBehaviour
 {
@@ -12,10 +14,14 @@ public class Player : MonoBehaviour
 
     private Rigidbody2D rb;
     [SerializeField] private float speed = 5f;
-    [SerializeField] public int maxHealth = 10;
-    [SerializeField] public int Health = 10;
     [SerializeField] private float damageRecoveryTime = 10f;
-    [SerializeField] private float spikesDamageCooldown = 5f;
+
+    [Header("Health & Respawn")]
+    [SerializeField] public int maxHealth = 10;
+    public int Health { get; private set; }
+
+    private Vector3 lastCheckpointPos;
+    [SerializeField] private float spikesDamageCooldown = 2f;
     [SerializeField] private bool canTakeDamage = true;
 
     Vector2 inputVector;
@@ -111,6 +117,8 @@ public class Player : MonoBehaviour
             rb.freezeRotation = true;
         camera = Camera.main;
         initialSpeed = speed;
+        Health = maxHealth;
+        lastCheckpointPos = transform.position;
     }
 
     private void Update()
@@ -152,7 +160,7 @@ public class Player : MonoBehaviour
 
     public void TakeDamage(int damageAmount, Transform damageSource)
     {
-        if (canTakeDamage)
+        if (canTakeDamage && Health > 0)
         {
             Health -= damageAmount;
             // needs knockback i think
@@ -161,11 +169,37 @@ public class Player : MonoBehaviour
             {
                 Health = 0;
                 Debug.Log("player is dead no waay");
+                Die();
             }
-            
+
             StartCoroutine(DamageCooldownRoutine(spikesDamageCooldown));
         }
     }
+
+    private void Die()
+    {
+        Debug.Log("Player died!");
+        Respawn();
+    }
+
+    public void Respawn()
+    {
+        Health = maxHealth;
+        transform.position = lastCheckpointPos;
+
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+            rb.position = lastCheckpointPos;
+        }
+    }
+
+    public void UpdateCheckpoint(Vector3 newPos)
+    {
+        lastCheckpointPos = newPos;
+        Debug.Log("Checkpoint updated");
+    }
+
 
     private IEnumerator DamageCooldownRoutine(float cooldown)
     {
@@ -396,7 +430,7 @@ public class Player : MonoBehaviour
         {
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
         }
-        if (isWallSliding || isWallSticking)
+        else if (isTouchingWall)
         {
 
             ResetWallStick();
@@ -417,12 +451,11 @@ public class Player : MonoBehaviour
     {
 
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
-
         if (isGrounded)
         {
             ResetWallStick();
             isWallSliding = false;
-
+            hasFinishedSticking = false;
         }
     }
 
@@ -436,38 +469,20 @@ public class Player : MonoBehaviour
         }
     }
 
+
     private void CheckWall()
     {
-        wallDirection = isFacingRight ? 1 : -1;
-
-        Vector2 rayOrigin = (Vector2)transform.position + Vector2.right * (boxCollider.size.x / 2 * wallDirection);
-
-        LayerMask L = groundLayer | walllayer;
-
-        RaycastHit2D hit = Physics2D.Raycast(
-            rayOrigin,
-            Vector2.right * wallDirection,
-            wallCheckDistatnce,
-            L
-            );
-
         wasTouchingWall = isTouchingWall;
+        float rayDistance = wallCheckDistatnce + (boxCollider.size.x / 2);
+        LayerMask combinedLayer = walllayer | groundLayer;
 
-        isTouchingWall = hit.collider != null;
+        RaycastHit2D rightHit = Physics2D.Raycast(transform.position, Vector2.right, rayDistance, combinedLayer);
+        RaycastHit2D leftHit = Physics2D.Raycast(transform.position, Vector2.left, rayDistance, combinedLayer);
 
-        if (isTouchingWall && !wasTouchingWall && !isGrounded)
-        {
-            wallTouchStartTime = Time.time;
-            wallTouchRegistered = true;
-        }
-        else if (!isTouchingWall && wasTouchingWall)
-        {
-            ResetWallStick();
-            isWallSliding = false;
-            isWallSticking = false;
-            wallTouchRegistered = false;
-            hasFinishedSticking = false;
-        }
+        isTouchingWall = rightHit.collider != null || leftHit.collider != null;
+
+        if (rightHit.collider != null) wallDirection = 1;
+        else if (leftHit.collider != null) wallDirection = -1;
     }
 
     private void HandleWallSliding()
@@ -485,11 +500,7 @@ public class Player : MonoBehaviour
             if (Time.time > wallTouchStartTime + wallStickDelay)
             {
                 isWallSliding = true;
-                float targetSpeed = -wallSlideSpeed;
-
-
-                float newY = Mathf.MoveTowards(rb.linearVelocityY, targetSpeed, 50f * Time.fixedDeltaTime);
-                rb.linearVelocity = new Vector2(rb.linearVelocityX, newY);
+                rb.linearVelocity = new Vector2(rb.linearVelocity.x, -wallSlideSpeed);
             }
         }
         else

@@ -4,7 +4,7 @@ public class Checkpoint : MonoBehaviour
 {
     [SerializeField] private GameObject visual;
     private bool isPlayerInside = false;
-    private Health health;
+
 
     private void Start()
     {
@@ -20,10 +20,10 @@ public class Checkpoint : MonoBehaviour
 
     private void ActiveCheck()
     {
-        if (health != null)
+        if (Player.Instance != null)
         {
             isPlayerInside = true;
-            health.UpdateCheckpoint(transform.position);
+            Player.Instance.UpdateCheckpoint(transform.position);
 
             Debug.Log("Checkpoint saved");
             visual.SetActive(false);
@@ -35,7 +35,6 @@ public class Checkpoint : MonoBehaviour
         if (collision.CompareTag("Player"))
         {
             isPlayerInside = true;
-            health = collision.GetComponent<Health>();
             if (visual != null)
                 visual.SetActive(true);
         }
@@ -46,7 +45,6 @@ public class Checkpoint : MonoBehaviour
         if (collision.CompareTag("Player"))
         {
             isPlayerInside = false;
-            health = collision.GetComponent<Health>();
             if (visual != null)
                 visual.SetActive(false);
         }
