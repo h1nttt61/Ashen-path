@@ -21,7 +21,7 @@
 
 [unity]: https://unity.com/ru
 [cs]: https://learn.microsoft.com/ru-ru/dotnet/csharp/ 
-=======
+
 Создание компьютерной игры в жанре метроидвания, с мрачной стилистикой.
 
 ## Используемые технологии
