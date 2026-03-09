@@ -152,62 +152,6 @@ public class Player : MonoBehaviour
         }
     }
 
-    public Vector3 GetScreenPlayerPosition()
-    {
-        Vector3 playerScreenPos = camera.WorldToScreenPoint(transform.position);
-        return playerScreenPos;
-    }
-
-    public void TakeDamage(int damageAmount, Transform damageSource)
-    {
-        if (canTakeDamage && Health > 0)
-        {
-            Health -= damageAmount;
-            // needs knockback i think
-            //KnockBack.Instance.GetKnockedBack(damageSource);
-            if (Health <= 0)
-            {
-                Health = 0;
-                Debug.Log("player is dead no waay");
-                Die();
-            }
-
-            StartCoroutine(DamageCooldownRoutine(spikesDamageCooldown));
-        }
-    }
-
-    private void Die()
-    {
-        Debug.Log("Player died!");
-        Respawn();
-    }
-
-    public void Respawn()
-    {
-        Health = maxHealth;
-        transform.position = lastCheckpointPos;
-
-        if (rb != null)
-        {
-            rb.linearVelocity = Vector2.zero;
-            rb.position = lastCheckpointPos;
-        }
-    }
-
-    public void UpdateCheckpoint(Vector3 newPos)
-    {
-        lastCheckpointPos = newPos;
-        Debug.Log("Checkpoint updated");
-    }
-
-
-    private IEnumerator DamageCooldownRoutine(float cooldown)
-    {
-        canTakeDamage = false;
-        yield return new WaitForSeconds(cooldown);
-        canTakeDamage = true;
-    }
-
     private void FixedUpdate()
     {
 
@@ -251,6 +195,66 @@ public class Player : MonoBehaviour
             PlayerPositionStorage.TargetSceneIndex = -1;
         }
     }
+
+    public Vector3 GetScreenPlayerPosition()
+    {
+        Vector3 playerScreenPos = camera.WorldToScreenPoint(transform.position);
+        return playerScreenPos;
+    }
+
+    public void TakeDamage(int damageAmount, Transform damageSource)
+    {
+        if (canTakeDamage && Health > 0)
+        {
+            Health -= damageAmount;
+            // needs knockback i think
+            //KnockBack.Instance.GetKnockedBack(damageSource);
+            if (Health <= 0)
+            {
+                Health = 0;
+                Debug.Log("player is dead no waay");
+                Die();
+            }
+
+            StartCoroutine(DamageCooldownRoutine(spikesDamageCooldown));
+        }
+    }
+
+    public bool IsAlive() => isAlive;
+
+    public bool IsRunning() => isRunning;
+
+    public void Respawn()
+    {
+        Health = maxHealth;
+        transform.position = lastCheckpointPos;
+
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+            rb.position = lastCheckpointPos;
+        }
+    }
+
+    public void UpdateCheckpoint(Vector3 newPos)
+    {
+        lastCheckpointPos = newPos;
+        Debug.Log("Checkpoint updated");
+    }
+
+
+    private IEnumerator DamageCooldownRoutine(float cooldown)
+    {
+        canTakeDamage = false;
+        yield return new WaitForSeconds(cooldown);
+        canTakeDamage = true;
+    }
+    private void Die()
+    {
+        Debug.Log("Player died!");
+        Respawn();
+    }
+
     private void Player_OnPlayerAttack(object sender, System.EventArgs e)
     {
         ActiveWeapon.Instance.GetActiveWeapon().Attack();
@@ -278,9 +282,7 @@ public class Player : MonoBehaviour
         isDashing = false;
     }
 
-    public bool IsAlive() => isAlive;
-
-    public bool IsRunning() => isRunning;
+    
 
     private void ApplyGravity()
     {
