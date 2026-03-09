@@ -125,49 +125,62 @@ public class Player : MonoBehaviour
         lastCheckpointPos = transform.position;
     }
 
-    private void Update()
-    {
 
+private void Update()
+    {
         CheckGrounded();
         CheckWall();
-        HandleWallStickTimer();
-        HandleWallSliding();
+
+        // Пока слои общие, мы считаем, что игрок "в воздухе у стены", 
+        // если он касается стены, но при этом не стоит плотно на горизонтальном полу.
+        // Если твой groundCheck цепляет стену, это условие поможет их разделить.
+        bool strictlyAtWall = isTouchingWall && !isGrounded;
+
+        // Но если groundCheck слишком широкий и всегда true у стены, 
+        // временно используем просто isTouchingWall для тестов:
+        bool wallLogicActive = isTouchingWall;
+
         if (GameInput.Instance != null)
         {
             inputVector = new Vector2(GameInput.Instance.GetMovementVector().x, 0f);
 
+            // Поворот персонажа
             if (inputVector.x > 0.1f) isFacingRight = true;
-
             else if (inputVector.x < -0.1f) isFacingRight = false;
 
-            if (isTouchingWall && !isGrounded && Mathf.Abs(inputVector.x) > 0.05f)
-                if (Mathf.Sign(inputVector.x) != wallDirection)
-                    TryWallPushOff();
-
+            // 1. ЛОГИКА ПРЫЖКА
             if (GameInput.Instance.WasJumpPressedThisFrame())
             {
-                // Логируем состояние в момент нажатия прыжка
-                Debug.Log($"[Jump Attempt] Grounded: {isGrounded}, TouchingWall: {isTouchingWall}, Sliding: {isWallSliding}, Sticking: {isWallSticking}");
-
-                // Строгая проверка: прыгаем только если на земле или в активном контакте со стеной
-                bool canWallJump = (isWallSliding || isWallSticking) && (Time.time >= lastWallJumpTime + wallJumpCooldown);
-
-                if (isGrounded)
+                // Если мы у стены (даже если она Ground), приоритет отдаем прыжку ОТ стены
+                if (isTouchingWall)
                 {
-                    Debug.Log("--- Executing Ground Jump ---");
-                    Jump();
+                    Jump(); // Внутри Jump() сработает логика отскока
                 }
-                else if (canWallJump)
+                else if (isGrounded)
                 {
-                    Debug.Log("--- Executing Wall Jump ---");
-                    Jump();
+                    Jump(); // Обычный прыжок вверх
                 }
-                else
+            }
+            // 2. ЛОГИКА ОТСКОКА БЕЗ ПРЫЖКА (Твоя идея с кнопкой D/A)
+            else if (wallLogicActive)
+            {
+                float moveInput = inputVector.x;
+
+                // Если зажали кнопку ОТ стены (разные знаки направления стены и ввода)
+                if (Mathf.Abs(moveInput) > 0.1f && Mathf.Sign(moveInput) != Mathf.Sign(wallDirection))
                 {
-                    Debug.LogWarning("[Jump Denied] No valid surface or cooldown active.");
+                    TryWallPushOff();
+                }
+                // Если зажали кнопку В СТОРОНУ стены — прилипаем
+                else if (Mathf.Abs(moveInput) > 0.1f && Mathf.Sign(moveInput) == Mathf.Sign(wallDirection))
+                {
+                    HandleWallStickTimer();
                 }
             }
         }
+
+        // Обработка скольжения, если не прилипли
+        if (!isWallSticking) HandleWallSliding();
     }
 
     private void FixedUpdate()
@@ -384,39 +397,31 @@ public class Player : MonoBehaviour
 
     private void TryWallPushOff()
     {
-        if (Time.time < lastWallActionTime + wallActionCooldown)
-            return;
+        if (Time.time < lastWallActionTime + wallActionCooldown) return;
 
-        var pushX = -wallDirection * (wallPushForce * 0.5f);
-        var pushY = Mathf.Max(rb.linearVelocity.y, 2f);
+        float pushX = -wallDirection * wallPushForce;
+        float pushY = weakWallJumpForceY; 
 
+        rb.linearVelocity = new Vector2(pushX, pushY);
 
-        Vector2 pushForce = new Vector2(pushX, pushY);
-        rb.linearVelocity = pushForce;
-        wallJumpControlWait = 0.1f;
-
-
+        wallJumpControlWait = 0.15f;
 
         isWallSliding = false;
         isWallSticking = false;
         ResetWallStick();
-        wallTouchRegistered = false;
 
         lastWallActionTime = Time.time;
-        lastWallJumpTime = Time.time;
     }
     private void HandleWallStickTimer()
     {
-        if (isTouchingWall && !isGrounded && !isWallSticking && !hasFinishedSticking && Mathf.Abs(inputVector.x) > 0.1f &&
-            Mathf.Sign(inputVector.x) == Mathf.Sign(wallDirection))
+        bool pressingTowardsWall = Mathf.Abs(inputVector.x) > 0.1f && Mathf.Sign(inputVector.x) == Mathf.Sign(wallDirection);
+
+        if (isTouchingWall && !isGrounded && pressingTowardsWall && !hasFinishedSticking)
         {
-            if (!wallTouchRegistered)
+            if (!isWallSticking)
             {
-                wallTouchStartTime = Time.time;
-                wallTouchRegistered = true;
-            }
-            else if (wallTouchRegistered && Time.time >= wallTouchStartTime + wallStickDelay)
                 StartWallStick();
+            }
         }
     }
     private void HandleMovement()
@@ -451,23 +456,22 @@ public class Player : MonoBehaviour
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
             isJumping = true;
         }
-        else if (isWallSliding || isWallSticking)
+        else 
         {
             ResetWallStick();
 
             float jumpDir = -wallDirection;
             rb.linearVelocity = new Vector2(jumpDir * wallJumpForceX, wallJumpForceY);
 
-            wallJumpControlWait = 0.15f;
+            // Блокируем управление чуть дольше для сочного прыжка
+            wallJumpControlWait = 0.2f;
 
             isWallSliding = false;
             isWallSticking = false;
-            wallTouchRegistered = false;
+            hasFinishedSticking = true; 
 
-            lastWallActionTime = Time.time;
             lastWallJumpTime = Time.time;
             isJumping = true;
-            Debug.Log($"Wall Jump performed. Direction: {jumpDir}, New Velocity: {rb.linearVelocity}");
         }
     }
 

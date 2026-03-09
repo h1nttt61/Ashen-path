@@ -1218,7 +1218,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Player
   speed: 10
-  damageRecoveryTime: 0.5
+  damageRecoveryTime: 0.2
   maxHealth: 10
   spikesDamageCooldown: 0.2
   canTakeDamage: 1
@@ -1231,7 +1231,7 @@ MonoBehaviour:
   fallMultiplier: 4
   lowJumpMultiplier: 2.5
   dashSpeed: 4
-  dashTime: 0.2
+  dashTime: 0.5
   trailRenderer: {fileID: 1930046317}
   dashCooldown: 2
   canWallClimb: 1
@@ -2957,7 +2957,7 @@ GameObject:
   - component: {fileID: 541178236}
   - component: {fileID: 541178235}
   - component: {fileID: 541178234}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: UI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4780,7 +4780,7 @@ GameObject:
   - component: {fileID: 1028443352}
   - component: {fileID: 1028443354}
   - component: {fileID: 1028443353}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: HealthBackground
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6871,7 +6871,7 @@ GameObject:
   - component: {fileID: 1493782648}
   - component: {fileID: 1493782651}
   - component: {fileID: 1493782650}
-  m_Layer: 6
+  m_Layer: 3
   m_Name: Tilemap
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -36702,7 +36702,7 @@ GameObject:
   - component: {fileID: 2123510498}
   - component: {fileID: 2123510497}
   - component: {fileID: 2123510496}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: HealthBar
   m_TagString: Untagged
   m_Icon: {fileID: 0}
