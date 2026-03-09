@@ -131,51 +131,36 @@ private void Update()
         CheckGrounded();
         CheckWall();
 
-        // Пока слои общие, мы считаем, что игрок "в воздухе у стены", 
-        // если он касается стены, но при этом не стоит плотно на горизонтальном полу.
-        // Если твой groundCheck цепляет стену, это условие поможет их разделить.
         bool strictlyAtWall = isTouchingWall && !isGrounded;
-
-        // Но если groundCheck слишком широкий и всегда true у стены, 
-        // временно используем просто isTouchingWall для тестов:
         bool wallLogicActive = isTouchingWall;
 
         if (GameInput.Instance != null)
         {
             inputVector = new Vector2(GameInput.Instance.GetMovementVector().x, 0f);
 
-            // Поворот персонажа
             if (inputVector.x > 0.1f) isFacingRight = true;
             else if (inputVector.x < -0.1f) isFacingRight = false;
 
-            // 1. ЛОГИКА ПРЫЖКА
             if (GameInput.Instance.WasJumpPressedThisFrame())
             {
-                // Если мы у стены (даже если она Ground), приоритет отдаем прыжку ОТ стены
                 if (isTouchingWall)
                 {
-                    Jump(); // Внутри Jump() сработает логика отскока
+                    Jump(); 
                 }
                 else if (isGrounded)
                 {
-                    Jump(); // Обычный прыжок вверх
+                    Jump(); 
                 }
             }
-            // 2. ЛОГИКА ОТСКОКА БЕЗ ПРЫЖКА (Твоя идея с кнопкой D/A)
             else if (wallLogicActive)
             {
                 float moveInput = inputVector.x;
 
                 // Если зажали кнопку ОТ стены (разные знаки направления стены и ввода)
                 if (Mathf.Abs(moveInput) > 0.1f && Mathf.Sign(moveInput) != Mathf.Sign(wallDirection))
-                {
                     TryWallPushOff();
-                }
-                // Если зажали кнопку В СТОРОНУ стены — прилипаем
                 else if (Mathf.Abs(moveInput) > 0.1f && Mathf.Sign(moveInput) == Mathf.Sign(wallDirection))
-                {
                     HandleWallStickTimer();
-                }
             }
         }
 
