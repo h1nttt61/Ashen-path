@@ -12,6 +12,8 @@ public class Player : MonoBehaviour
 
     public event EventHandler OnPlayerDash;
 
+    public static event Action<int> OnHealthChanged;
+
     private Rigidbody2D rb;
     [SerializeField] private float speed = 5f;
     [SerializeField] private float damageRecoveryTime = 10f;
@@ -36,6 +38,8 @@ public class Player : MonoBehaviour
     [SerializeField] private float groundCheckRadius = 0.2f;
     [SerializeField] private float fallMultiplier = 4f;
     [SerializeField] private float lowJumpMultiplier = 2.5f;
+    private bool canJump = true;
+    private bool isJumping = false;
 
     [Header("Dash settings")]
     [SerializeField] private int dashSpeed = 4;
@@ -142,12 +146,26 @@ public class Player : MonoBehaviour
 
             if (GameInput.Instance.WasJumpPressedThisFrame())
             {
+                // Логируем состояние в момент нажатия прыжка
+                Debug.Log($"[Jump Attempt] Grounded: {isGrounded}, TouchingWall: {isTouchingWall}, Sliding: {isWallSliding}, Sticking: {isWallSticking}");
+
+                // Строгая проверка: прыгаем только если на земле или в активном контакте со стеной
                 bool canWallJump = (isWallSliding || isWallSticking) && (Time.time >= lastWallJumpTime + wallJumpCooldown);
 
                 if (isGrounded)
+                {
+                    Debug.Log("--- Executing Ground Jump ---");
                     Jump();
+                }
                 else if (canWallJump)
+                {
+                    Debug.Log("--- Executing Wall Jump ---");
                     Jump();
+                }
+                else
+                {
+                    Debug.LogWarning("[Jump Denied] No valid surface or cooldown active.");
+                }
             }
         }
     }
@@ -431,30 +449,37 @@ public class Player : MonoBehaviour
         if (isGrounded)
         {
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+            isJumping = true;
         }
-        else if (isTouchingWall)
+        else if (isWallSliding || isWallSticking)
         {
-
             ResetWallStick();
 
             float jumpDir = -wallDirection;
             rb.linearVelocity = new Vector2(jumpDir * wallJumpForceX, wallJumpForceY);
 
+            wallJumpControlWait = 0.15f;
+
             isWallSliding = false;
             isWallSticking = false;
             wallTouchRegistered = false;
+
             lastWallActionTime = Time.time;
             lastWallJumpTime = Time.time;
+            isJumping = true;
+            Debug.Log($"Wall Jump performed. Direction: {jumpDir}, New Velocity: {rb.linearVelocity}");
         }
-
     }
 
     private void CheckGrounded()
     {
 
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
+
         if (isGrounded)
         {
+            canJump = true;
+            isJumping = false;
             ResetWallStick();
             isWallSliding = false;
             hasFinishedSticking = false;
