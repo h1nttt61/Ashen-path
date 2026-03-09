@@ -518,4 +518,13 @@ public class Player : MonoBehaviour
             GameInput.Instance.OnPlayerAttack -= Player_OnPlayerAttack;
         }
     }
+    public bool IsGrounded()
+    {
+        return isGrounded;
+    }
+
+    public float GetVerticalSpeed()
+    {
+        return rb.linearVelocity.y;
+    }
 }
