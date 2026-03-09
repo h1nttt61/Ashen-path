@@ -12,6 +12,8 @@ public class Player : MonoBehaviour
 
     public event EventHandler OnPlayerDash;
 
+    public static event Action<int> OnHealthChanged;
+
     private Rigidbody2D rb;
     [SerializeField] private float speed = 5f;
     [SerializeField] private float damageRecoveryTime = 10f;
@@ -21,7 +23,7 @@ public class Player : MonoBehaviour
     public int Health { get; private set; }
 
     private Vector3 lastCheckpointPos;
-    [SerializeField] private float spikesDamageCooldown = 0.4f;
+    [SerializeField] private float spikesDamageCooldown = 2f;
     [SerializeField] private bool canTakeDamage = true;
 
     Vector2 inputVector;
@@ -36,6 +38,8 @@ public class Player : MonoBehaviour
     [SerializeField] private float groundCheckRadius = 0.2f;
     [SerializeField] private float fallMultiplier = 4f;
     [SerializeField] private float lowJumpMultiplier = 2.5f;
+    private bool canJump = true;
+    private bool isJumping = false;
 
     [Header("Dash settings")]
     [SerializeField] private int dashSpeed = 4;
@@ -121,95 +125,47 @@ public class Player : MonoBehaviour
         lastCheckpointPos = transform.position;
     }
 
-    private void Update()
-    {
 
+private void Update()
+    {
         CheckGrounded();
         CheckWall();
-        HandleWallStickTimer();
-        HandleWallSliding();
+        bool strictlyAtWall = isTouchingWall && !isGrounded;
+        bool wallLogicActive = isTouchingWall;
+
         if (GameInput.Instance != null)
         {
             inputVector = new Vector2(GameInput.Instance.GetMovementVector().x, 0f);
 
             if (inputVector.x > 0.1f) isFacingRight = true;
-
             else if (inputVector.x < -0.1f) isFacingRight = false;
-
-            if (isTouchingWall && !isGrounded && Mathf.Abs(inputVector.x) > 0.05f)
-                if (Mathf.Sign(inputVector.x) != wallDirection)
-                    TryWallPushOff();
 
             if (GameInput.Instance.WasJumpPressedThisFrame())
             {
-                bool canWallJump = (isWallSliding || isWallSticking) && (Time.time >= lastWallJumpTime + wallJumpCooldown);
-
-                if (isGrounded)
-                    Jump();
-                else if (canWallJump)
-                    Jump();
+                if (isTouchingWall)
+                {
+                    Jump(); 
+                }
+                else if (isGrounded)
+                {
+                    Jump(); 
+                }
             }
-        }
-    }
-
-    public Vector3 GetScreenPlayerPosition()
-    {
-        Vector3 playerScreenPos = camera.WorldToScreenPoint(transform.position);
-        return playerScreenPos;
-    }
-
-    public static event Action<int> OnHealthChanged;
-
-    public void TakeDamage(int damageAmount, Transform damageSource)
-    {
-        if (canTakeDamage && Health > 0)
-        {
-            Health -= damageAmount;
-            OnHealthChanged?.Invoke(Health);
-            // needs knockback i think
-            //KnockBack.Instance.GetKnockedBack(damageSource);
-            if (Health <= 0)
+            else if (wallLogicActive)
             {
-                Health = 0;
-                Debug.Log("player is dead no waay");
-                Die();
+                float moveInput = inputVector.x;
+                if (Mathf.Abs(moveInput) > 0.1f && Mathf.Sign(moveInput) != Mathf.Sign(wallDirection))
+                {
+                    TryWallPushOff();
+                }
+                else if (Mathf.Abs(moveInput) > 0.1f && Mathf.Sign(moveInput) == Mathf.Sign(wallDirection))
+                {
+                    HandleWallStickTimer();
+                }
             }
-
-            StartCoroutine(DamageCooldownRoutine(spikesDamageCooldown));
         }
-    }
 
-    private void Die()
-    {
-        Debug.Log("Player died!");
-        Respawn();
-    }
-
-    public void Respawn()
-    {
-        Health = maxHealth;
-        transform.position = lastCheckpointPos;
-        OnHealthChanged?.Invoke(Health);
-
-        if (rb != null)
-        {
-            rb.linearVelocity = Vector2.zero;
-            rb.position = lastCheckpointPos;
-        }
-    }
-
-    public void UpdateCheckpoint(Vector3 newPos)
-    {
-        lastCheckpointPos = newPos;
-        Debug.Log("Checkpoint updated");
-    }
-
-
-    private IEnumerator DamageCooldownRoutine(float cooldown)
-    {
-        canTakeDamage = false;
-        yield return new WaitForSeconds(cooldown);
-        canTakeDamage = true;
+        if (!isWallSticking) HandleWallSliding();
     }
 
     private void FixedUpdate()
@@ -255,6 +211,66 @@ public class Player : MonoBehaviour
             PlayerPositionStorage.TargetSceneIndex = -1;
         }
     }
+
+    public Vector3 GetScreenPlayerPosition()
+    {
+        Vector3 playerScreenPos = camera.WorldToScreenPoint(transform.position);
+        return playerScreenPos;
+    }
+
+    public void TakeDamage(int damageAmount, Transform damageSource)
+    {
+        if (canTakeDamage && Health > 0)
+        {
+            Health -= damageAmount;
+            // needs knockback i think
+            //KnockBack.Instance.GetKnockedBack(damageSource);
+            if (Health <= 0)
+            {
+                Health = 0;
+                Debug.Log("player is dead no waay");
+                Die();
+            }
+
+            StartCoroutine(DamageCooldownRoutine(spikesDamageCooldown));
+        }
+    }
+
+    public bool IsAlive() => isAlive;
+
+    public bool IsRunning() => isRunning;
+
+    public void Respawn()
+    {
+        Health = maxHealth;
+        transform.position = lastCheckpointPos;
+
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+            rb.position = lastCheckpointPos;
+        }
+    }
+
+    public void UpdateCheckpoint(Vector3 newPos)
+    {
+        lastCheckpointPos = newPos;
+        Debug.Log("Checkpoint updated");
+    }
+
+
+    private IEnumerator DamageCooldownRoutine(float cooldown)
+    {
+        canTakeDamage = false;
+        yield return new WaitForSeconds(cooldown);
+        canTakeDamage = true;
+    }
+    private void Die()
+    {
+        Debug.Log("Player died!");
+        Respawn();
+    }
+
     private void Player_OnPlayerAttack(object sender, System.EventArgs e)
     {
         ActiveWeapon.Instance.GetActiveWeapon().Attack();
@@ -282,9 +298,7 @@ public class Player : MonoBehaviour
         isDashing = false;
     }
 
-    public bool IsAlive() => isAlive;
-
-    public bool IsRunning() => isRunning;
+    
 
     private void ApplyGravity()
     {
@@ -368,39 +382,31 @@ public class Player : MonoBehaviour
 
     private void TryWallPushOff()
     {
-        if (Time.time < lastWallActionTime + wallActionCooldown)
-            return;
+        if (Time.time < lastWallActionTime + wallActionCooldown) return;
 
-        var pushX = -wallDirection * (wallPushForce * 0.5f);
-        var pushY = Mathf.Max(rb.linearVelocity.y, 2f);
+        float pushX = -wallDirection * wallPushForce;
+        float pushY = weakWallJumpForceY; 
 
+        rb.linearVelocity = new Vector2(pushX, pushY);
 
-        Vector2 pushForce = new Vector2(pushX, pushY);
-        rb.linearVelocity = pushForce;
-        wallJumpControlWait = 0.1f;
-
-
+        wallJumpControlWait = 0.15f;
 
         isWallSliding = false;
         isWallSticking = false;
         ResetWallStick();
-        wallTouchRegistered = false;
 
         lastWallActionTime = Time.time;
-        lastWallJumpTime = Time.time;
     }
     private void HandleWallStickTimer()
     {
-        if (isTouchingWall && !isGrounded && !isWallSticking && !hasFinishedSticking && Mathf.Abs(inputVector.x) > 0.1f &&
-            Mathf.Sign(inputVector.x) == Mathf.Sign(wallDirection))
+        bool pressingTowardsWall = Mathf.Abs(inputVector.x) > 0.1f && Mathf.Sign(inputVector.x) == Mathf.Sign(wallDirection);
+
+        if (isTouchingWall && !isGrounded && pressingTowardsWall && !hasFinishedSticking)
         {
-            if (!wallTouchRegistered)
+            if (!isWallSticking)
             {
-                wallTouchStartTime = Time.time;
-                wallTouchRegistered = true;
-            }
-            else if (wallTouchRegistered && Time.time >= wallTouchStartTime + wallStickDelay)
                 StartWallStick();
+            }
         }
     }
     private void HandleMovement()
@@ -433,30 +439,36 @@ public class Player : MonoBehaviour
         if (isGrounded)
         {
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+            isJumping = true;
         }
-        else if (isTouchingWall)
+        else 
         {
-
             ResetWallStick();
 
             float jumpDir = -wallDirection;
             rb.linearVelocity = new Vector2(jumpDir * wallJumpForceX, wallJumpForceY);
 
+            // Блокируем управление чуть дольше для сочного прыжка
+            wallJumpControlWait = 0.2f;
+
             isWallSliding = false;
             isWallSticking = false;
-            wallTouchRegistered = false;
-            lastWallActionTime = Time.time;
-            lastWallJumpTime = Time.time;
-        }
+            hasFinishedSticking = true; 
 
+            lastWallJumpTime = Time.time;
+            isJumping = true;
+        }
     }
 
     private void CheckGrounded()
     {
 
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
+
         if (isGrounded)
         {
+            canJump = true;
+            isJumping = false;
             ResetWallStick();
             isWallSliding = false;
             hasFinishedSticking = false;
