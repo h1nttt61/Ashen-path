@@ -130,7 +130,6 @@ private void Update()
     {
         CheckGrounded();
         CheckWall();
-
         bool strictlyAtWall = isTouchingWall && !isGrounded;
         bool wallLogicActive = isTouchingWall;
 
@@ -155,16 +154,17 @@ private void Update()
             else if (wallLogicActive)
             {
                 float moveInput = inputVector.x;
-
-                // Если зажали кнопку ОТ стены (разные знаки направления стены и ввода)
                 if (Mathf.Abs(moveInput) > 0.1f && Mathf.Sign(moveInput) != Mathf.Sign(wallDirection))
+                {
                     TryWallPushOff();
+                }
                 else if (Mathf.Abs(moveInput) > 0.1f && Mathf.Sign(moveInput) == Mathf.Sign(wallDirection))
+                {
                     HandleWallStickTimer();
+                }
             }
         }
 
-        // Обработка скольжения, если не прилипли
         if (!isWallSticking) HandleWallSliding();
     }
 
