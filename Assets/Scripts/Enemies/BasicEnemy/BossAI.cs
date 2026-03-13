@@ -2,7 +2,7 @@ using System.Collections;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
-using static UnityEditor.ShaderGraph.Internal.KeywordDependentCollection;
+//using static UnityEditor.ShaderGraph.Internal.KeywordDependentCollection;
 
 public class BossAI : MonoBehaviour
 {
@@ -54,6 +54,23 @@ public class BossAI : MonoBehaviour
             StartCoroutine(SlamAttack());
         else if (distance > 10f)
             StartCoroutine(DashAttack());
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision) // дл€ 2D
+    {
+        // Ќе наносим урон, если босс мертв или в восстановлении
+        if (curState == BossState.Dead || curState == BossState.Recovering)
+            return;
+
+        if (collision.gameObject.CompareTag("Player"))
+        {
+            Player player = collision.gameObject.GetComponent<Player>();
+            if (player != null)
+            {
+                player.TakeDamage(20, transform); // 20 - урон от касани€
+                Debug.Log("Ѕосс задел игрока!");
+            }
+        }
     }
 
     IEnumerator SlamAttack()
