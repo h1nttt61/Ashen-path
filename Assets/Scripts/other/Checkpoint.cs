@@ -1,19 +1,25 @@
+using System.Collections;
 using UnityEngine;
 
 public class Checkpoint : MonoBehaviour
 {
-    [SerializeField] private GameObject visual;
+    [SerializeField] private CanvasGroup hintCanvasGroup;
+    [SerializeField] private GameObject activeVisual;
+    [SerializeField] private float fadeSpeed = 2f;
+
     private bool isPlayerInside = false;
+    private bool isActivated = false;
+    private Coroutine fadeCoroutine;
 
     private void Start()
     {
-        if (visual != null)
-            visual.SetActive(false);
+        if (hintCanvasGroup != null) hintCanvasGroup.alpha = 0;
+        if (activeVisual != null) activeVisual.SetActive(false);
     }
 
     private void Update()
     {
-        if (isPlayerInside && Input.GetKeyDown(KeyCode.T))
+        if (isPlayerInside && Input.GetKeyDown(KeyCode.T) && !isActivated)
             ActiveCheck();
     }
 
@@ -21,11 +27,13 @@ public class Checkpoint : MonoBehaviour
     {
         if (Player.Instance != null)
         {
-            isPlayerInside = true;
             Player.Instance.UpdateCheckpoint(transform.position);
+            isActivated = true;
 
-            Debug.Log("Checkpoint saved");
-            visual.SetActive(false);
+            StartFade(0);
+
+            if (activeVisual != null) activeVisual.SetActive(true);
+
         }
     }
 
@@ -34,8 +42,7 @@ public class Checkpoint : MonoBehaviour
         if (collision.CompareTag("Player"))
         {
             isPlayerInside = true;
-            if (visual != null)
-                visual.SetActive(true);
+            StartFade(1);
         }
     }
 
@@ -44,8 +51,22 @@ public class Checkpoint : MonoBehaviour
         if (collision.CompareTag("Player"))
         {
             isPlayerInside = false;
-            if (visual != null)
-                visual.SetActive(false);
+            StartFade(0);
+        }
+    }
+
+    private void StartFade(float targetAlpha)
+    {
+        if (fadeCoroutine != null) StopCoroutine(fadeCoroutine);
+        fadeCoroutine = StartCoroutine(FadeCoroutine(targetAlpha));
+    }
+
+    private IEnumerator FadeCoroutine(float targe)
+    {
+        while (!Mathf.Approximately(hintCanvasGroup.alpha, targe))
+        {
+            hintCanvasGroup.alpha = Mathf.MoveTowards(hintCanvasGroup.alpha, targe, fadeSpeed * Time.deltaTime);
+            yield return null;
         }
     }
 }
