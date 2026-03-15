@@ -72,6 +72,9 @@ public class Player : MonoBehaviour
     [SerializeField] private float weakWallJumpForceX = 8f;
     [SerializeField] private float weakWallJumpForceY = 12f;
 
+    [Header("Skills Unlocked")]
+    public bool isDashUnlocked = false;
+
     private bool isDashing;
 
     private bool isAlive;
@@ -282,7 +285,7 @@ private void Update()
 
     private void Dash()
     {
-        if (!isDashing)
+        if (!isDashing && isDashUnlocked)
             StartCoroutine(DashRutine());
     }
 
