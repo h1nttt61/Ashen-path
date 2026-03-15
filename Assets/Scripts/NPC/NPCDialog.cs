@@ -7,10 +7,13 @@ public class NPCDialog : MonoBehaviour
     public string[] lines;
     public GameObject dialogPanel;
     public TextMeshProUGUI textDisplay;
-    public float timeBetweenLines = 2f;
 
     [Header("Reward settings")]
-    public bool giveDashOnEnd = true;
+    [SerializeField] public bool giveDashOnEnd = true;
+    [SerializeField] private float typingSpeed = 0.04f;
+    [SerializeField] public float timeBetweenLines = 2f;
+
+    
 
     private bool isPlayerNear;
     private bool isTalking = false;
@@ -26,9 +29,17 @@ public class NPCDialog : MonoBehaviour
     {
         isTalking = true;
         dialogPanel.SetActive(true);
-        for (int i = 0; i < lines.Length; i++)
+        
+        foreach (var line in lines)
         {
-            textDisplay.text = lines[i];
+            textDisplay.text = "";
+
+            foreach (var letter in line.ToCharArray())
+            {
+                textDisplay.text += letter;
+                yield return new WaitForSeconds(typingSpeed);
+            }
+
             yield return new WaitForSeconds(timeBetweenLines);
         }
 
