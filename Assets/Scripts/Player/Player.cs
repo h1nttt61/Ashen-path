@@ -74,6 +74,7 @@ public class Player : MonoBehaviour
 
     [Header("Skills Unlocked")]
     public bool isDashUnlocked = false;
+    public bool isWallJumpUnlocked = false;
 
     private bool isDashing;
 
@@ -154,7 +155,7 @@ private void Update()
                     Jump(); 
                 }
             }
-            else if (wallLogicActive)
+            else if (wallLogicActive && isWallJumpUnlocked)
             {
                 float moveInput = inputVector.x;
                 if (Mathf.Abs(moveInput) > 0.1f && Mathf.Sign(moveInput) != Mathf.Sign(wallDirection))
@@ -445,7 +446,7 @@ private void Update()
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
             isJumping = true;
         }
-        else 
+        else if (isTouchingWall && isWallJumpUnlocked)
         {
             ResetWallStick();
 

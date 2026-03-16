@@ -12,8 +12,8 @@ public class NPCDialog : MonoBehaviour
     [SerializeField] public bool giveDashOnEnd = true;
     [SerializeField] private float typingSpeed = 0.04f;
     [SerializeField] public float timeBetweenLines = 2f;
+    [SerializeField] public bool giveWallJumpOnEnd = false;
 
-    
 
     private bool isPlayerNear;
     private bool isTalking = false;
@@ -23,6 +23,14 @@ public class NPCDialog : MonoBehaviour
         if (dialogPanel == null || textDisplay == null) return;
         if (isPlayerNear && Input.GetKeyDown(KeyCode.E) && !isTalking)
             StartCoroutine(DisplayFullDialog());
+    }
+
+    public void StartForcedDialog()
+    {
+        if (!isTalking)
+        {
+            StartCoroutine(DisplayFullDialog());
+        }
     }
 
     IEnumerator DisplayFullDialog()
@@ -48,13 +56,17 @@ public class NPCDialog : MonoBehaviour
 
     void EndDialog()
     {
-        if (giveDashOnEnd && Player.Instance != null)
+        if ( Player.Instance != null)
         {
-            Player.Instance.isDashUnlocked = true;
+            if (giveDashOnEnd) Player.Instance.isDashUnlocked = true;
+            if (giveWallJumpOnEnd) Player.Instance.isWallJumpUnlocked = true;
         }
 
         dialogPanel.SetActive(false);
         isTalking = false;
+
+        SpiritNPC spirit = GetComponent<SpiritNPC>();
+        if (spirit != null) spirit.FinalizeSpirit();
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
