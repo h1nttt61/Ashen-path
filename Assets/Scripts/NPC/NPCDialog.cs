@@ -1,39 +1,60 @@
 using UnityEngine;
 using TMPro;
+using Unity.VisualScripting;
+using System.Collections;
 public class NPCDialog : MonoBehaviour
 {
     public string[] lines;
     public GameObject dialogPanel;
     public TextMeshProUGUI textDisplay;
 
+    [Header("Reward settings")]
+    [SerializeField] public bool giveDashOnEnd = true;
+    [SerializeField] private float typingSpeed = 0.04f;
+    [SerializeField] public float timeBetweenLines = 2f;
+
+    
+
     private bool isPlayerNear;
-    private int lineIndex;
+    private bool isTalking = false;
 
     private void Update()
     {
-        if (isPlayerNear && Input.GetKeyDown(KeyCode.E))
-            if (!dialogPanel.activeSelf)
-                startDialog();
-            else
-                nextLine();
+        if (dialogPanel == null || textDisplay == null) return;
+        if (isPlayerNear && Input.GetKeyDown(KeyCode.E) && !isTalking)
+            StartCoroutine(DisplayFullDialog());
     }
 
-    void startDialog()
+    IEnumerator DisplayFullDialog()
     {
-        lineIndex = 0;
+        isTalking = true;
         dialogPanel.SetActive(true);
-        textDisplay.text = lines[lineIndex];
+        
+        foreach (var line in lines)
+        {
+            textDisplay.text = "";
+
+            foreach (var letter in line.ToCharArray())
+            {
+                textDisplay.text += letter;
+                yield return new WaitForSeconds(typingSpeed);
+            }
+
+            yield return new WaitForSeconds(timeBetweenLines);
+        }
+
+        EndDialog();
     }
 
-    void nextLine()
+    void EndDialog()
     {
-        if (lineIndex < lines.Length - 1)
+        if (giveDashOnEnd && Player.Instance != null)
         {
-            lineIndex++;
-            textDisplay.text = lines[lineIndex];
+            Player.Instance.isDashUnlocked = true;
         }
-        else
-            dialogPanel.SetActive(false);
+
+        dialogPanel.SetActive(false);
+        isTalking = false;
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -46,8 +67,10 @@ public class NPCDialog : MonoBehaviour
     {
         if (collision.CompareTag("Player"))
         {
-            isPlayerNear = true;
-            dialogPanel.SetActive(false);
+            isPlayerNear = false;
+            StopAllCoroutines();
+            if (dialogPanel != null) dialogPanel.SetActive(false);
+            isTalking = false;
         }
     }
 }

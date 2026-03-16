@@ -13,6 +13,8 @@ public class HealthUI : MonoBehaviour
     }
     private void UpdateUI(int currentHealth)
     {
+        UnityEngine.Debug.Log("health");
+        #pragma warning restore format
         float fill = (float)currentHealth / maxHealth;
         healthBar.fillAmount = fill;
     }
