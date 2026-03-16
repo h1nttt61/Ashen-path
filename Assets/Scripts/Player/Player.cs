@@ -226,12 +226,12 @@ private void Update()
         if (canTakeDamage && Health > 0)
         {
             Health -= damageAmount;
+            OnHealthChanged?.Invoke(Health);
             // needs knockback i think
             //KnockBack.Instance.GetKnockedBack(damageSource);
             if (Health <= 0)
             {
                 Health = 0;
-                Debug.Log("player is dead no waay");
                 Die();
             }
 
@@ -246,6 +246,7 @@ private void Update()
     public void Respawn()
     {
         Health = maxHealth;
+        OnHealthChanged?.Invoke(Health);
         transform.position = lastCheckpointPos;
 
         if (rb != null)
@@ -451,7 +452,7 @@ private void Update()
             float jumpDir = -wallDirection;
             rb.linearVelocity = new Vector2(jumpDir * wallJumpForceX, wallJumpForceY);
 
-            // Блокируем управление чуть дольше для сочного прыжка
+            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
             wallJumpControlWait = 0.2f;
 
             isWallSliding = false;
