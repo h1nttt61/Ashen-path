@@ -6,45 +6,47 @@ using static UnityEditor.ShaderGraph.Internal.KeywordDependentCollection;
 
 public class BossAI : MonoBehaviour
 {
+    [SerializeField] private EnemySO data;
     public enum BossState { Idle, Chasing, Dash, Slam, Enraged, Recovering, Dead, Roaring };
-    public BossState curState = BossState.Idle;
+    public BossState curState = BossState.Chasing;
 
-    [Header("Stats")]
-    public float health = 200f;
-    private float maxHealth;
-    public float dashSpeed = 20f;
-    public float normalSpeed = 3.5f;
 
     [Header("Settings")]
-    public Transform player;
-    public LayerMask playerLayer;
     private NavMeshAgent agent;
+    private float currentHealth;
     private bool isAttacking = false;
+    private float workingNormalSpeed;
 
     private void Start()
     {
-        maxHealth = health;
         agent = GetComponent<NavMeshAgent>();
-        agent.speed = normalSpeed;
-        curState = BossState.Chasing;
+        if (data != null)
+        {
+            currentHealth = data.enemyHealth;
+            workingNormalSpeed = data.normalSpeed;
+            agent.speed = workingNormalSpeed;
+        }
+
+        agent.updateRotation = false;
+        agent.updateUpAxis = false;
     }
 
     private void Update()
     {
-        if (curState == BossState.Dead || isAttacking) return;
-        float disctance = Vector3.Distance(transform.position, player.position);
+        if (curState == BossState.Dead || isAttacking || Player.Instance == null) return;
+        float disctance = Vector3.Distance(transform.position, Player.Instance.transform.position);
 
-        if (health < maxHealth * 0.5f && curState != BossState.Enraged)
+        if (currentHealth < data.enemyHealth * 0.5f && curState != BossState.Enraged)
             StartPhaseTwo();
 
-        switch (curState)
+        if (curState == BossState.Chasing)
         {
-            case BossState.Chasing:
-                HandleMovement(disctance);
-                break;
-            case BossState.Recovering:
-                //–≈¿À»«Œ¬¿“‹ ¿Õ»Ã¿÷»» ƒÀﬂ "œ≈–≈ƒ€ÿ » ¡Œ——¿"
-                break;
+            if (disctance <= data.attackRange)
+                StartCoroutine(SlamAttack());
+            else if (disctance > data.attackRange)
+                StartCoroutine(DashAttack());
+            else
+                agent.SetDestination(Player.Instance.transform.position);
         }
     }
 
@@ -61,39 +63,35 @@ public class BossAI : MonoBehaviour
         isAttacking = true;
         agent.isStopped = true;
 
-        GetComponent<Renderer>().material.color = Color.yellow;
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(1f); 
+        if (Vector3.Distance(transform.position, Player.Instance.transform.position) <= data.attackRange + 1f)
+        {
+            Player.Instance.TakeDamage(data.enemyDamageAmount, transform);
+            if (Player.Instance.TryGetComponent(out KnockBack kb)) kb.GetKnockedBack(transform);
+        }
 
-        Debug.Log("¡Œ—— ”ƒ¿–»À œŒ «≈ÃÀ≈");
-
-        //ƒÓ·‡‚ËÚ¸ ÛÓÌ ÔÓ ÔÂÒÛ!!!
-        GetComponent<Renderer>().material.color = Color.white;
-        yield return new WaitForSeconds(1.5f);
+        yield return StartCoroutine(Recover(1.5f));
     }
 
 
     IEnumerator DashAttack()
     {
         isAttacking = true;
-        agent.isStopped = true;
+        Vector3 dashDir = (Player.Instance.transform.position - transform.position).normalized;
 
-        Vector3 dashDir = (player.position - transform.position).normalized;
-
-        //«‡ÏË‡ÌËÂ ÔÂÂ‰ ‰Â¯ÂÏ
-        GetComponent<Renderer>().material.color = Color.blue;
-        yield return new WaitForSeconds(1.5f);
+        yield return new WaitForSeconds(1f); 
 
         float startTime = Time.time;
+        agent.speed = data.dashSpeed;
+
         while (Time.time < startTime + 0.4f)
         {
-            transform.Translate(dashDir * dashSpeed * Time.deltaTime, Space.World);
+            transform.Translate(dashDir * data.dashSpeed * Time.deltaTime, Space.World);
             yield return null;
         }
 
-        GetComponent<Renderer>().material.color = Color.white;
         yield return StartCoroutine(Recover(2f));
     }
-
     IEnumerator Recover(float time)
     {
         curState = BossState.Recovering;
@@ -111,13 +109,12 @@ public class BossAI : MonoBehaviour
 
     IEnumerator EnrageSequence()
     {
-
-        isAttacking = true; 
+        isAttacking = true;
         curState = BossState.Roaring;
         agent.isStopped = true;
 
-        Debug.Log("’¿’¿’¿’¿’¿’");
-        transform.localScale *= 1.2f; 
+        Debug.Log("¡Œ—— ¬ ﬂ–Œ—“»!");
+        transform.localScale *= 1.2f;
 
         float elapsed = 0;
         while (elapsed < 1.5f)
@@ -127,13 +124,21 @@ public class BossAI : MonoBehaviour
             yield return null;
         }
 
-     
-        normalSpeed *= 1.6f;
-        agent.speed = normalSpeed;
-        GetComponent<Renderer>().material.color = Color.red; 
+        workingNormalSpeed = data.normalSpeed * 1.6f; 
+        agent.speed = workingNormalSpeed;
+        GetComponent<Renderer>().material.color = Color.red;
 
         isAttacking = false;
         agent.isStopped = false;
-        curState = BossState.Chasing;
+        curState = BossState.Enraged;
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Player"))
+        {
+            Player.Instance.TakeDamage(data.enemyDamageAmount, transform);
+            if (collision.gameObject.TryGetComponent(out KnockBack kb)) kb.GetKnockedBack(transform);
+        }
     }
 }

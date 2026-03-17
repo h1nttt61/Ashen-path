@@ -428,6 +428,9 @@ private void Update()
             return;
         }
 
+        KnockBack kb = GetComponent<KnockBack>();
+        if (kb != null && kb.isGettingKnock) return;
+
         float targetVelocityX = inputVector.x * speed;
 
         float acceliration = isGrounded ? 100f : 50f;
