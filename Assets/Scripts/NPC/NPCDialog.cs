@@ -93,9 +93,19 @@ public class NPCDialog : MonoBehaviour
         if (collision.CompareTag("Player"))
         {
             isPlayerNear = false;
-            StopAllCoroutines();
-            if (dialogPanel != null) dialogPanel.SetActive(false);
-            isTalking = false;
+
+            if (isTalking)
+            {
+                StopAllCoroutines();
+                if (dialogPanel != null) dialogPanel.SetActive(false);
+                isTalking = false; 
+
+                SpiritNPC spirit = GetComponent<SpiritNPC>();
+                if (spirit != null)
+                {
+                    spirit.ResumeChase();
+                }
+            }
         }
     }
 }

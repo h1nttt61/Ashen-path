@@ -11,6 +11,9 @@ public class SpiritNPC : MonoBehaviour
     [SerializeField] private GameObject visualModel;
     [SerializeField] private NPCDialog npcDialog;
 
+    [SerializeField] private float stopDistance = 3f;
+    private bool isChasing = false;
+
     private bool isMoving = false;
     private Vector3 targetPosition;
     private bool hasFinishedLife = false;
@@ -70,5 +73,41 @@ public class SpiritNPC : MonoBehaviour
     public void FinalizeSpirit()
     {
         hasFinishedLife = true;
+    }
+
+    public void ResumeChase()
+    {
+        if (!hasFinishedLife && !isChasing)
+        {
+            StartCoroutine(ChaseAndRestartDialog());
+        }
+    }
+
+    private IEnumerator ChaseAndRestartDialog()
+    {
+
+
+        isChasing = true;
+
+        if (npcDialog != null && npcDialog.textDisplay != null)
+        {
+            npcDialog.dialogPanel.SetActive(true);
+            npcDialog.textDisplay.text = "Ёй, стой! я еще не закончил!";
+        }
+
+        while (Vector3.Distance(transform.position, Player.Instance.transform.position) > 2f)
+        {
+            float directionOffset = Player.Instance.transform.localScale.x > 0 ? -2f : 2f;
+            targetPosition = Player.Instance.transform.position + new Vector3(directionOffset, 1.5f, 0);
+
+            transform.position = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * 2f * Time.deltaTime);
+            yield return null;
+        }
+
+        isChasing = false;
+        if (npcDialog != null)
+        {
+            npcDialog.StartForcedDialog();
+        }
     }
 }
