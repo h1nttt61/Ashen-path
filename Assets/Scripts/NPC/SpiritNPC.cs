@@ -23,10 +23,21 @@ public class SpiritNPC : MonoBehaviour
 
     private IEnumerator ArrivalRoutine()
     {
+
         yield return new WaitForSeconds(delay);
 
-        if (Player.Instance != null)
+        if (Player.Instance != null && npcDialog != null)
         {
+
+            bool alreadyHasDash = npcDialog.giveDashOnEnd && Player.Instance.isDashUnlocked;
+            bool alreadyHasWallJump = npcDialog.giveWallJumpOnEnd && Player.Instance.isWallJumpUnlocked;
+
+            if (alreadyHasDash || alreadyHasWallJump)
+            {
+                gameObject.SetActive(false);
+                yield break;
+            }
+
             transform.position = Player.Instance.transform.position + new Vector3(-10f, 5f, 0);
             visualModel.SetActive(true);
 

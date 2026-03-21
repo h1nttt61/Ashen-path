@@ -185,6 +185,7 @@ private void Update()
 
     public void Start()
     {
+        SaveManager.LoadGame();
         GameInput.Instance.OnPlayerDash += OnPlayerDashh;
         GameInput.Instance.OnPlayerAttack += Player_OnPlayerAttack;
         isAlive = true;

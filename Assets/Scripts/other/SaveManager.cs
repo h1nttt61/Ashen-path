@@ -1,8 +1,9 @@
 using UnityEngine;
 
-public static class SaveManager 
+public static class SaveManager
 {
     private const string DASH_KEY = "DashUnlocked";
+    private const string WALL_JUMP_KEY = "WallJumpUnlocked"; 
     private const string POS_X = "PlayerX";
     private const string POS_Y = "PlayerY";
     private const string HEALTH_KEY = "PlayerHealth";
@@ -11,6 +12,7 @@ public static class SaveManager
     {
         if (Player.Instance == null) return;
         PlayerPrefs.SetInt(DASH_KEY, Player.Instance.isDashUnlocked ? 1 : 0);
+        PlayerPrefs.SetInt(WALL_JUMP_KEY, Player.Instance.isWallJumpUnlocked ? 1 : 0); 
         PlayerPrefs.SetInt(HEALTH_KEY, Player.Instance.Health);
 
         PlayerPrefs.SetFloat(POS_X, Player.Instance.transform.position.x);
@@ -21,15 +23,13 @@ public static class SaveManager
 
     public static void LoadGame()
     {
-        if (Player.Instance == null)
-        {
-            return;
-        }
+        if (Player.Instance == null) return;
 
         if (PlayerPrefs.HasKey(DASH_KEY))
-        {
             Player.Instance.isDashUnlocked = PlayerPrefs.GetInt(DASH_KEY) == 1;
-        }
+
+        if (PlayerPrefs.HasKey(WALL_JUMP_KEY)) // Загружаем Wall Jump
+            Player.Instance.isWallJumpUnlocked = PlayerPrefs.GetInt(WALL_JUMP_KEY) == 1;
 
         if (PlayerPrefs.HasKey(POS_X) && PlayerPrefs.HasKey(POS_Y))
         {
@@ -42,5 +42,6 @@ public static class SaveManager
     public static void ResetProgress()
     {
         PlayerPrefs.DeleteAll();
+        PlayerPrefs.Save();
     }
 }

@@ -21,8 +21,19 @@ public class NPCDialog : MonoBehaviour
     private void Update()
     {
         if (dialogPanel == null || textDisplay == null) return;
+
         if (isPlayerNear && Input.GetKeyDown(KeyCode.E) && !isTalking)
+        {
+            bool rewardAlreadyObtained = (giveDashOnEnd && Player.Instance.isDashUnlocked) ||
+                                         (giveWallJumpOnEnd && Player.Instance.isWallJumpUnlocked);
+
+            if (rewardAlreadyObtained)
+            {
+                lines = new string[] { "Я уже обучил тебя всему, что знал. Береги себя!" };
+            }
+
             StartCoroutine(DisplayFullDialog());
+        }
     }
 
     public void StartForcedDialog()
@@ -60,6 +71,8 @@ public class NPCDialog : MonoBehaviour
         {
             if (giveDashOnEnd) Player.Instance.isDashUnlocked = true;
             if (giveWallJumpOnEnd) Player.Instance.isWallJumpUnlocked = true;
+            SaveManager.SaveGame();
+            Debug.Log("Игра сохранена");
         }
 
         dialogPanel.SetActive(false);
