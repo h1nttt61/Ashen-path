@@ -1,160 +1,160 @@
 using System.Collections;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.AI;
-using static UnityEditor.ShaderGraph.Internal.KeywordDependentCollection;
 
+[RequireComponent(typeof(Rigidbody2D))]
 public class BossAI : MonoBehaviour
 {
     [SerializeField] private EnemySO data;
     public enum BossState { Idle, Chasing, Dash, Slam, Enraged, Recovering, Dead, Roaring };
     public BossState curState = BossState.Chasing;
 
-
-    [Header("Settings")]
-    private NavMeshAgent agent;
+    private Rigidbody2D rb;
     private float currentHealth;
     private bool isAttacking = false;
     private float workingNormalSpeed;
+    private int facingDirection = 1;
 
     private void Start()
     {
-        agent = GetComponent<NavMeshAgent>();
+        rb = GetComponent<Rigidbody2D>();
+        rb.interpolation = RigidbodyInterpolation2D.Interpolate;
+
         if (data != null)
         {
             currentHealth = data.enemyHealth;
             workingNormalSpeed = data.normalSpeed;
-            agent.speed = workingNormalSpeed;
+        }
+    }
+
+    private void FixedUpdate() 
+    {
+        if (curState == BossState.Dead || isAttacking || Player.Instance == null)
+        {
+            if (!isAttacking && curState != BossState.Dead)
+                rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
+            return;
         }
 
-        agent.updateRotation = false;
-        agent.updateUpAxis = false;
+        if (curState == BossState.Chasing || curState == BossState.Enraged)
+        {
+            float moveDir = Player.Instance.transform.position.x > transform.position.x ? 1 : -1;
+            rb.linearVelocity = new Vector2(moveDir * workingNormalSpeed, rb.linearVelocity.y);
+            Flip(moveDir);
+        }
     }
 
     private void Update()
     {
         if (curState == BossState.Dead || isAttacking || Player.Instance == null) return;
 
-        float distance = Vector3.Distance(transform.position, Player.Instance.transform.position);
+        float distance = Vector2.Distance(transform.position, Player.Instance.transform.position);
+
+        // Р¤Р°Р·Р° СЏСЂРѕСЃС‚Рё
         if (currentHealth < data.enemyHealth * 0.5f && curState != BossState.Enraged && curState != BossState.Roaring)
         {
-            StartPhaseTwo();
-            return;
+            StartCoroutine(EnrageSequence());
         }
 
-        switch (curState)
-        {
-            case BossState.Chasing:
-                LogicChasing(distance);
-                break;
-            case BossState.Enraged:
-                LogicChasing(distance); 
-                break;
-        }
-    }
-
-    private void LogicChasing(float distance)
-    {
         if (distance <= data.attackRange)
         {
             StartCoroutine(SlamAttack());
         }
-        else if (distance > data.attackRange + 2f) 
-        {
-            StartCoroutine(DashAttack());
-        }
-        else
-        {
-            agent.SetDestination(Player.Instance.transform.position);
-        }
     }
 
-    private void HandleMovement(float distance)
+    private void Flip(float dir)
     {
-        if (distance <= 4)
-            StartCoroutine(SlamAttack());
-        else if (distance > 10f)
-            StartCoroutine(DashAttack());
+        if ((dir > 0 && facingDirection < 0) || (dir < 0 && facingDirection > 0))
+        {
+            facingDirection *= -1;
+            transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x) * facingDirection, transform.localScale.y, transform.localScale.z);
+        }
     }
 
     IEnumerator SlamAttack()
     {
         isAttacking = true;
-        agent.isStopped = true;
+        rb.linearVelocity = Vector2.zero;
 
-        yield return new WaitForSeconds(1f); 
-        if (Vector3.Distance(transform.position, Player.Instance.transform.position) <= data.attackRange + 1f)
+        yield return new WaitForSeconds(0.6f); 
+
+        if (Vector2.Distance(transform.position, Player.Instance.transform.position) <= data.attackRange + 1f)
         {
             Player.Instance.TakeDamage(data.enemyDamageAmount, transform);
             if (Player.Instance.TryGetComponent(out KnockBack kb)) kb.GetKnockedBack(transform);
         }
 
-        yield return StartCoroutine(Recover(1.5f));
+        yield return StartCoroutine(Recover(1f));
     }
-
 
     IEnumerator DashAttack()
     {
         isAttacking = true;
-        Vector3 dashDir = (Player.Instance.transform.position - transform.position).normalized;
+        rb.linearVelocity = Vector2.zero;
 
-        yield return new WaitForSeconds(1f); 
+        float dashDir = Player.Instance.transform.position.x > transform.position.x ? 1 : -1;
+        Flip(dashDir);
+
+        yield return new WaitForSeconds(0.5f);
 
         float startTime = Time.time;
-        agent.speed = data.dashSpeed;
-
-        while (Time.time < startTime + 0.4f)
+        while (Time.time < startTime + 0.3f) 
         {
-            transform.Translate(dashDir * data.dashSpeed * Time.deltaTime, Space.World);
+            rb.linearVelocity = new Vector2(dashDir * data.dashSpeed, rb.linearVelocity.y);
             yield return null;
         }
 
-        yield return StartCoroutine(Recover(2f));
+        yield return StartCoroutine(Recover(1.5f));
     }
+
     IEnumerator Recover(float time)
     {
         curState = BossState.Recovering;
+        rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
         yield return new WaitForSeconds(time);
 
         isAttacking = false;
-
-        if (agent.isOnNavMesh)
-        {
-            agent.isStopped = false;
-        }
-
         curState = BossState.Chasing;
-    }
-
-    void StartPhaseTwo()
-    {
-        StartCoroutine(EnrageSequence());
     }
 
     IEnumerator EnrageSequence()
     {
         isAttacking = true;
         curState = BossState.Roaring;
-        agent.isStopped = true;
+        rb.linearVelocity = Vector2.zero;
 
-        Debug.Log("БОСС В ЯРОСТИ!");
+        Debug.Log("пїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ!");
         transform.localScale *= 1.2f;
 
         float elapsed = 0;
+        Renderer rend = GetComponent<Renderer>();
         while (elapsed < 1.5f)
         {
-            GetComponent<Renderer>().material.color = Color.Lerp(Color.white, Color.red, Mathf.PingPong(Time.time * 5, 1));
+            rend.material.color = Color.Lerp(Color.white, Color.red, Mathf.PingPong(Time.time * 5, 1));
             elapsed += Time.deltaTime;
             yield return null;
         }
 
-        workingNormalSpeed = data.normalSpeed * 1.6f; 
-        agent.speed = workingNormalSpeed;
-        GetComponent<Renderer>().material.color = Color.red;
+        workingNormalSpeed = data.normalSpeed * 1.5f;
+        rend.material.color = Color.red;
 
         isAttacking = false;
-        agent.isStopped = false;
         curState = BossState.Enraged;
+    }
+
+    public void TakeDamage(float damage)
+    {
+        if (curState == BossState.Dead) return;
+        currentHealth -= damage;
+        if (currentHealth <= 0) Die();
+    }
+
+    private void Die()
+    {
+        curState = BossState.Dead;
+        rb.linearVelocity = Vector2.zero;
+        StopAllCoroutines();
+        GetComponent<Renderer>().material.color = Color.gray;
+        Debug.Log("пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ!");
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -162,32 +162,6 @@ public class BossAI : MonoBehaviour
         if (collision.gameObject.CompareTag("Player"))
         {
             Player.Instance.TakeDamage(data.enemyDamageAmount, transform);
-            if (collision.gameObject.TryGetComponent(out KnockBack kb)) kb.GetKnockedBack(transform);
         }
-    }
-
-    public void TakeDamage(float damage)
-    {
-        if (curState == BossState.Dead) return;
-
-        currentHealth -= damage;
-        Debug.Log($"У босса осталось HP: {currentHealth}");
-
-        if (currentHealth <= 0)
-        {
-            currentHealth = 0;
-            Die();
-        }
-    }
-
-    private void Die()
-    {
-        curState = BossState.Dead;
-        agent.isStopped = true;
-        StopAllCoroutines();
-
-        GetComponent<Renderer>().material.color = Color.black;
-
-        Debug.Log("Босс повержен!");
     }
 }

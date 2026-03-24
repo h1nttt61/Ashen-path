@@ -1,6 +1,5 @@
 using System.Collections;
 using UnityEngine;
-using UnityEngine.AI;
 
 public class BossRoomController : MonoBehaviour
 {
@@ -8,21 +7,20 @@ public class BossRoomController : MonoBehaviour
     public struct DoorData
     {
         public Transform doorTransform;
-        public Vector3 openPosition;   
-        public Vector3 closedPosition;  
+        public Vector3 openPosition;
+        public Vector3 closedPosition;
     }
 
     [Header("Settings")]
     [SerializeField] private DoorData[] doors;
     [SerializeField] private float doorSpeed = 3f;
-    [SerializeField] private BossAI boss;
     [SerializeField] private GameObject entryTrigger;
 
     [Header("Spawning")]
     [SerializeField] private GameObject bossPrefab; 
-    [SerializeField] private Transform spawnPoint;
+    [SerializeField] private Transform spawnPoint;  
 
-
+    private BossAI spawnedBoss;
     private bool bossFightStarted = false;
 
     private void Start()
@@ -35,7 +33,7 @@ public class BossRoomController : MonoBehaviour
 
     private void Update()
     {
-        if (bossFightStarted && boss != null && boss.curState == BossAI.BossState.Dead)
+        if (bossFightStarted && spawnedBoss != null && spawnedBoss.curState == BossAI.BossState.Dead)
         {
             EndFight();
         }
@@ -49,19 +47,14 @@ public class BossRoomController : MonoBehaviour
         if (entryTrigger != null) entryTrigger.SetActive(false);
 
         GameObject bossInstance = Instantiate(bossPrefab, spawnPoint.position, Quaternion.identity);
-        boss = bossInstance.GetComponent<BossAI>();
+        spawnedBoss = bossInstance.GetComponent<BossAI>();
 
-        NavMeshAgent agent = bossInstance.GetComponent<NavMeshAgent>();
-        if (agent != null)
-        {
-            agent.Warp(spawnPoint.position);
-        }
-
-        // 3. Закрываем двери
         foreach (var door in doors)
         {
             StartCoroutine(MoveDoor(door.doorTransform, door.closedPosition));
         }
+
+        Debug.Log("Двери заперты, босс пробудился!");
     }
 
     private void EndFight()
@@ -71,6 +64,8 @@ public class BossRoomController : MonoBehaviour
         {
             StartCoroutine(MoveDoor(door.doorTransform, door.openPosition));
         }
+
+        Debug.Log("Путь свободен.");
         this.enabled = false;
     }
 
@@ -81,6 +76,6 @@ public class BossRoomController : MonoBehaviour
             door.position = Vector3.MoveTowards(door.position, targetPos, doorSpeed * Time.deltaTime);
             yield return null;
         }
-        door.position = targetPos; 
+        door.position = targetPos;
     }
 }
