@@ -175,9 +175,15 @@ private void Update()
     private void FixedUpdate()
     {
 
-        HandleWallStickTimer();
+        if (isWallJumpUnlocked)
+        {
+            HandleWallStickTimer();
+        }
 
-        if (!isWallSticking) HandleWallSliding();
+        if (!isWallSticking)
+        {
+            HandleWallSliding();
+        }
 
         HandleMovement();
         ApplyGravity();
@@ -185,6 +191,7 @@ private void Update()
 
     public void Start()
     {
+        SaveManager.LoadGame();
         GameInput.Instance.OnPlayerDash += OnPlayerDashh;
         GameInput.Instance.OnPlayerAttack += Player_OnPlayerAttack;
         isAlive = true;
@@ -362,7 +369,8 @@ private void Update()
             yield return null;
         }
 
-        EndWallStick();
+        isWallSticking = false;
+        wallStickCoroutine = null;
 
     }
 
@@ -406,7 +414,7 @@ private void Update()
     {
         bool pressingTowardsWall = Mathf.Abs(inputVector.x) > 0.1f && Mathf.Sign(inputVector.x) == Mathf.Sign(wallDirection);
 
-        if (isTouchingWall && !isGrounded && pressingTowardsWall && !hasFinishedSticking)
+        if (isTouchingWall && !isGrounded && pressingTowardsWall && !hasFinishedSticking && rb.linearVelocity.y <= 0.01f)
         {
             if (!isWallSticking)
             {
@@ -498,10 +506,9 @@ private void Update()
     {
         wasTouchingWall = isTouchingWall;
         float rayDistance = wallCheckDistatnce + (boxCollider.size.x / 2);
-        LayerMask combinedLayer = walllayer | groundLayer;
 
-        RaycastHit2D rightHit = Physics2D.Raycast(transform.position, Vector2.right, rayDistance, combinedLayer);
-        RaycastHit2D leftHit = Physics2D.Raycast(transform.position, Vector2.left, rayDistance, combinedLayer);
+        RaycastHit2D rightHit = Physics2D.Raycast(transform.position, Vector2.right, rayDistance, walllayer);
+        RaycastHit2D leftHit = Physics2D.Raycast(transform.position, Vector2.left, rayDistance, walllayer);
 
         isTouchingWall = rightHit.collider != null || leftHit.collider != null;
 

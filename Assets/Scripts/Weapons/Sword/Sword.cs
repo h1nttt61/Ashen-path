@@ -30,20 +30,7 @@ public class Sword : MonoBehaviour
         //will be added after the first version of the mob
         if (collision.gameObject != Player.Instance?.gameObject) // Игнорируем игрока
         {
-            //Debug.Log($"Попадание в: {collision.gameObject.name}");
-
-            StartCoroutine(HitEffect(collision.transform));
-        }
-    }
-
-    private System.Collections.IEnumerator HitEffect(Transform target)
-    {
-        if (target.TryGetComponent<SpriteRenderer>(out SpriteRenderer sprite))
-        {
-            Color originalColor = sprite.color;
-            sprite.color = Color.red;
-            yield return new WaitForSeconds(0.2f);
-            sprite.color = originalColor;
+            Debug.Log($"Попадание в: {collision.gameObject.name}");
         }
     }
 

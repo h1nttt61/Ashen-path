@@ -34,19 +34,38 @@ public class BossAI : MonoBehaviour
     private void Update()
     {
         if (curState == BossState.Dead || isAttacking || Player.Instance == null) return;
-        float disctance = Vector3.Distance(transform.position, Player.Instance.transform.position);
 
-        if (currentHealth < data.enemyHealth * 0.5f && curState != BossState.Enraged)
-            StartPhaseTwo();
-
-        if (curState == BossState.Chasing)
+        float distance = Vector3.Distance(transform.position, Player.Instance.transform.position);
+        if (currentHealth < data.enemyHealth * 0.5f && curState != BossState.Enraged && curState != BossState.Roaring)
         {
-            if (disctance <= data.attackRange)
-                StartCoroutine(SlamAttack());
-            else if (disctance > data.attackRange)
-                StartCoroutine(DashAttack());
-            else
-                agent.SetDestination(Player.Instance.transform.position);
+            StartPhaseTwo();
+            return;
+        }
+
+        switch (curState)
+        {
+            case BossState.Chasing:
+                LogicChasing(distance);
+                break;
+            case BossState.Enraged:
+                LogicChasing(distance); 
+                break;
+        }
+    }
+
+    private void LogicChasing(float distance)
+    {
+        if (distance <= data.attackRange)
+        {
+            StartCoroutine(SlamAttack());
+        }
+        else if (distance > data.attackRange + 2f) 
+        {
+            StartCoroutine(DashAttack());
+        }
+        else
+        {
+            agent.SetDestination(Player.Instance.transform.position);
         }
     }
 
@@ -98,7 +117,12 @@ public class BossAI : MonoBehaviour
         yield return new WaitForSeconds(time);
 
         isAttacking = false;
-        agent.isStopped = false;
+
+        if (agent.isOnNavMesh)
+        {
+            agent.isStopped = false;
+        }
+
         curState = BossState.Chasing;
     }
 
@@ -140,5 +164,30 @@ public class BossAI : MonoBehaviour
             Player.Instance.TakeDamage(data.enemyDamageAmount, transform);
             if (collision.gameObject.TryGetComponent(out KnockBack kb)) kb.GetKnockedBack(transform);
         }
+    }
+
+    public void TakeDamage(float damage)
+    {
+        if (curState == BossState.Dead) return;
+
+        currentHealth -= damage;
+        Debug.Log($"У босса осталось HP: {currentHealth}");
+
+        if (currentHealth <= 0)
+        {
+            currentHealth = 0;
+            Die();
+        }
+    }
+
+    private void Die()
+    {
+        curState = BossState.Dead;
+        agent.isStopped = true;
+        StopAllCoroutines();
+
+        GetComponent<Renderer>().material.color = Color.black;
+
+        Debug.Log("Босс повержен!");
     }
 }

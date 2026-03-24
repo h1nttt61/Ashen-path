@@ -29,7 +29,7 @@ public class Checkpoint : MonoBehaviour
         {
             Player.Instance.UpdateCheckpoint(transform.position);
             isActivated = true;
-
+            SaveManager.SaveGame();
             StartFade(0);
 
             if (activeVisual != null) activeVisual.SetActive(true);
