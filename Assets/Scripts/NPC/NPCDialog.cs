@@ -18,6 +18,9 @@ public class NPCDialog : MonoBehaviour
     private bool isPlayerNear;
     private bool isTalking = false;
     private int currentLineIndex = 0;
+    private Coroutine dialogCoroutine;
+
+
     private void Update()
     {
         if (dialogPanel == null || textDisplay == null) return;
@@ -32,7 +35,8 @@ public class NPCDialog : MonoBehaviour
                 lines = new string[] { "Я уже обучил тебя всему, что знал. Береги себя!" };
             }
 
-            StartCoroutine(DisplayFullDialog());
+            if (dialogCoroutine != null) StopCoroutine(dialogCoroutine);
+            dialogCoroutine = StartCoroutine(DisplayFullDialog());
         }
     }
 
@@ -48,7 +52,7 @@ public class NPCDialog : MonoBehaviour
     {
         isTalking = true;
         dialogPanel.SetActive(true);
-        
+
         for (int i = currentLineIndex; i < lines.Length; i++)
         {
             currentLineIndex = i;
@@ -66,18 +70,22 @@ public class NPCDialog : MonoBehaviour
         EndDialog();
     }
 
+
+
     void EndDialog()
     {
-        if ( Player.Instance != null)
+        
+        if (Player.Instance != null)
         {
             if (giveDashOnEnd) Player.Instance.isDashUnlocked = true;
             if (giveWallJumpOnEnd) Player.Instance.isWallJumpUnlocked = true;
             SaveManager.SaveGame();
-            Debug.Log("Игра сохранена");
         }
 
         dialogPanel.SetActive(false);
-        isTalking = false;
+        isTalking = false; 
+        currentLineIndex = 0; 
+        dialogCoroutine = null;
 
         SpiritNPC spirit = GetComponent<SpiritNPC>();
         if (spirit != null) spirit.FinalizeSpirit();
@@ -97,15 +105,18 @@ public class NPCDialog : MonoBehaviour
 
             if (isTalking)
             {
-                StopAllCoroutines();
-                if (dialogPanel != null) dialogPanel.SetActive(false);
-                if (textDisplay != null) textDisplay.text = ""; 
-                isTalking = false;
+                if (dialogCoroutine != null) StopCoroutine(dialogCoroutine);
+                isTalking = false; 
 
                 SpiritNPC spirit = GetComponent<SpiritNPC>();
                 if (spirit != null)
                 {
                     spirit.ResumeChase();
+                }
+                else
+                {
+                    if (dialogPanel != null) dialogPanel.SetActive(false);
+                    currentLineIndex = 0;
                 }
             }
         }

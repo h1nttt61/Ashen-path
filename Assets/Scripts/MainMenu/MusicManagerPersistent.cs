@@ -8,7 +8,6 @@ public class MusicManagerPersistent : MonoBehaviour
 
     void Awake()
     {
-        // Делаем музыку вечной между сценами
         if (Instance == null)
         {
             Instance = this;
@@ -35,5 +34,14 @@ public class MusicManagerPersistent : MonoBehaviour
         }
         audioSource.Stop();
         audioSource.volume = startVolume; 
+    }
+
+    public void PlayMusic()
+    {
+        if (audioSource != null && !audioSource.isPlaying)
+        {
+            audioSource.Play();
+            audioSource.volume = 1f; 
+        }
     }
 }

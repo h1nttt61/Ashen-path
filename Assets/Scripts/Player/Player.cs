@@ -448,6 +448,7 @@ public class Player : MonoBehaviour
     {
         if (isGrounded)
         {
+            ResetWallStick();
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
             isJumping = true;
         }
@@ -458,7 +459,6 @@ public class Player : MonoBehaviour
             float jumpDir = -wallDirection;
             rb.linearVelocity = new Vector2(jumpDir * wallJumpForceX, wallJumpForceY);
 
-            // ��������� ���������� ���� ������ ��� ������� ������
             wallJumpControlWait = 0.2f;
 
             isWallSliding = false;
@@ -472,8 +472,12 @@ public class Player : MonoBehaviour
 
     private void CheckGrounded()
     {
+        Vector2 boxSize = new Vector2(boxCollider.size.x - 0.04f, 0.05f);
 
-        isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
+        Vector2 boxCenter = new Vector2(boxCollider.bounds.center.x, boxCollider.bounds.min.y);
+
+        // Проверяем наличие земли
+        isGrounded = Physics2D.OverlapBox(boxCenter, boxSize, 0f, groundLayer);
 
         if (isGrounded)
         {

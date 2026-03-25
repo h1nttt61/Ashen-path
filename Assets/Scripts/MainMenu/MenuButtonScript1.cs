@@ -4,6 +4,15 @@ using System.Collections;
 
 public class MenuButtonScript : MonoBehaviour
 {
+
+    private void Start()
+    {
+        if (MusicManagerPersistent.Instance != null)
+        {
+            MusicManagerPersistent.Instance.PlayMusic();
+        }
+    }
+
     public void NewGame()
     {
         SaveManager.ResetProgress(); 

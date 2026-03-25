@@ -2,16 +2,16 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
-using System.Security.Cryptography.X509Certificates;
-using NUnit.Framework;
-using UnityEngine.Rendering;
+using UnityEngine.Audio;
 
 public class SettingsScript : MonoBehaviour
 {
     public Dropdown resolutionDropdown;
-    public Dropdown qualityDropdown;
+    public AudioMixer audioMixer;
+    public Slider musicSlider;
 
     Resolution[] resolutions;
+
     void Start()
     {
         resolutionDropdown.ClearOptions();
@@ -21,61 +21,59 @@ public class SettingsScript : MonoBehaviour
 
         for (int i = 0; i < resolutions.Length; i++)
         {
-            string option = resolutions[i].width + "x" + resolutions[i].height + " " + resolutions[i].refreshRateRatio + "Hz";
+            string option = resolutions[i].width + "x" + resolutions[i].height;
             options.Add(option);
-            if (resolutions[i].width == Screen.currentResolution.width && resolutions[i].height == Screen.currentResolution.height)
+            if (resolutions[i].width == Screen.currentResolution.width &&
+                resolutions[i].height == Screen.currentResolution.height)
                 currentResolutionIndex = i;
-
         }
-
         resolutionDropdown.AddOptions(options);
         resolutionDropdown.RefreshShownValue();
-        LoadSettings(currentResolutionIndex);
 
+        LoadSettings(currentResolutionIndex);
+    }
+
+    public void OnSliderChanged(float value)
+    {
+        SetVolume(value);
+    }
+
+    public void SetVolume(float volume)
+    {
+        if (audioMixer == null) return;
+        float clampedVolume = Mathf.Clamp(volume, 0.0001f, 1f);
+        float dB = Mathf.Log10(clampedVolume) * 20;
+        audioMixer.SetFloat("MusicVol", dB);
+        PlayerPrefs.SetFloat("MusicVolumePreference", clampedVolume);
     }
 
     public void SetFullscreen(bool isFullscreen)
     {
         Screen.fullScreen = isFullscreen;
+        PlayerPrefs.SetInt("FullscreenPreference", isFullscreen ? 1 : 0);
     }
+
     public void SetResolution(int resolutionIndex)
     {
         Resolution resolution = resolutions[resolutionIndex];
         Screen.SetResolution(resolution.width, resolution.height, Screen.fullScreen);
+        PlayerPrefs.SetInt("ResolutionPreference", resolutionIndex);
     }
 
-    public void SetQuality(int qualityIndex)
-    {
-        QualitySettings.SetQualityLevel(qualityIndex);
-    }
     public void ExitSettings()
     {
+        PlayerPrefs.Save();
         SceneManager.LoadScene("MainMenu");
     }
-    public void SaveSettings()
+
+    public void LoadSettings(int currentResIndex)
     {
-        PlayerPrefs.SetInt("QualitySettingPreference", qualityDropdown.value);
-        PlayerPrefs.SetInt("ResolutionPreference", resolutionDropdown.value);
-        PlayerPrefs.SetInt("FullscreenPreference", System.Convert.ToInt32(Screen.fullScreen));
+        float savedVol = PlayerPrefs.GetFloat("MusicVolumePreference", 0.75f);
+        if (musicSlider != null) musicSlider.value = savedVol;
+        SetVolume(savedVol);
 
-    }
-    public void LoadSettings(int currentResolutionOIndex)
-    {
-        if (PlayerPrefs.HasKey("QualitySettingPreference"))
-            qualityDropdown.value = PlayerPrefs.GetInt("QualitySettingPreference");
-        else
-            qualityDropdown.value = 3;
+        resolutionDropdown.value = PlayerPrefs.GetInt("ResolutionPreference", currentResIndex);
 
-        if (PlayerPrefs.HasKey("ResolutionPreference"))
-            resolutionDropdown.value = PlayerPrefs.GetInt("ResolutionPreference");
-        else
-            resolutionDropdown.value = currentResolutionOIndex;
-
-        if (PlayerPrefs.HasKey("FullscreenPreference"))
-            Screen.fullScreen = System.Convert.ToBoolean(PlayerPrefs.GetInt("FullscreenPreference"));
-        else
-            Screen.fullScreen = true;
-
+        Screen.fullScreen = PlayerPrefs.GetInt("FullscreenPreference", 1) == 1;
     }
 }
-
