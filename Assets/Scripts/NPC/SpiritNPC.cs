@@ -4,12 +4,14 @@ using UnityEngine;
 public class SpiritNPC : MonoBehaviour
 {
     [Header("Timings")]
-    [SerializeField] private float delay = 30f;
+    [SerializeField] private float delay = 10f;
     [SerializeField] private float moveSpeed = 3f;
 
     [Header("References")]
     [SerializeField] private GameObject visualModel;
     [SerializeField] private NPCDialog npcDialog;
+    [SerializeField] private Animator anim;
+    [SerializeField] private SpriteRenderer spriteRenderer;
 
     [SerializeField] private float stopDistance = 3f;
     private bool isChasing = false;
@@ -20,18 +22,18 @@ public class SpiritNPC : MonoBehaviour
 
     public void Start()
     {
+        if (anim == null) anim = GetComponentInChildren<Animator>();
+        if (spriteRenderer == null) spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         visualModel.SetActive(false);
         StartCoroutine(ArrivalRoutine());
     }
 
     private IEnumerator ArrivalRoutine()
     {
-
         yield return new WaitForSeconds(delay);
 
         if (Player.Instance != null && npcDialog != null)
         {
-
             bool alreadyHasDash = npcDialog.giveDashOnEnd && Player.Instance.isDashUnlocked;
             bool alreadyHasWallJump = npcDialog.giveWallJumpOnEnd && Player.Instance.isWallJumpUnlocked;
 
@@ -42,9 +44,12 @@ public class SpiritNPC : MonoBehaviour
             }
 
             transform.position = Player.Instance.transform.position + new Vector3(-10f, 5f, 0);
+
             visualModel.SetActive(true);
 
-            targetPosition = Player.Instance.transform.position + new Vector3(-2f, 1.5f, 0);
+            if (anim != null) anim.SetBool("IsMoving", true);
+
+            targetPosition = Player.Instance.transform.position + new Vector3(-2f, 3f, 0);
             isMoving = true;
 
             while (Vector3.Distance(transform.position, targetPosition) > 0.1f)
@@ -52,7 +57,11 @@ public class SpiritNPC : MonoBehaviour
                 transform.position = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
                 yield return null;
             }
+
             isMoving = false;
+
+            if (anim != null) anim.SetBool("IsMoving", false);
+
             if (npcDialog != null)
             {
                 npcDialog.StartForcedDialog();
@@ -67,6 +76,13 @@ public class SpiritNPC : MonoBehaviour
             transform.Translate(Vector3.up * moveSpeed * Time.deltaTime);
 
             if (transform.position.y > 50f) Destroy(gameObject);
+        }
+        else
+        {
+            if (visualModel.activeSelf)
+            {
+                FacePlayer();
+            }
         }
     }
 
@@ -98,7 +114,7 @@ public class SpiritNPC : MonoBehaviour
         while (Vector3.Distance(transform.position, Player.Instance.transform.position) > 2f)
         {
             float directionOffset = Player.Instance.transform.localScale.x > 0 ? -2f : 2f;
-            targetPosition = Player.Instance.transform.position + new Vector3(directionOffset, 1.5f, 0);
+            targetPosition = Player.Instance.transform.position + new Vector3(directionOffset, 2f, 0);
 
             transform.position = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * 2f * Time.deltaTime);
             yield return null;
@@ -108,6 +124,22 @@ public class SpiritNPC : MonoBehaviour
         if (npcDialog != null)
         {
             npcDialog.StartForcedDialog();
+        }
+    }
+
+    private void FacePlayer()
+    {
+        if (Player.Instance == null || spriteRenderer == null) return;
+
+        float direction = Player.Instance.transform.position.x - transform.position.x;
+
+        if (direction > 0.1f)
+        {
+            spriteRenderer.flipX = true;
+        }
+        else if (direction < -0.1f)
+        {
+            spriteRenderer.flipX = false;
         }
     }
 }

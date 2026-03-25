@@ -130,7 +130,7 @@ public class Player : MonoBehaviour
     }
 
 
-private void Update()
+    private void Update()
     {
         CheckGrounded();
         CheckWall();
@@ -148,11 +148,11 @@ private void Update()
             {
                 if (isTouchingWall)
                 {
-                    Jump(); 
+                    Jump();
                 }
                 else if (isGrounded)
                 {
-                    Jump(); 
+                    Jump();
                 }
             }
             else if (wallLogicActive && isWallJumpUnlocked)
@@ -310,7 +310,7 @@ private void Update()
         isDashing = false;
     }
 
-    
+
 
     private void ApplyGravity()
     {
@@ -374,12 +374,6 @@ private void Update()
 
     }
 
-    private void EndWallStick()
-    {
-        isWallSticking = false;
-        wallStickTimer = 0f;
-        hasFinishedSticking = true;
-    }
 
     private void ResetWallStick()
     {
@@ -398,7 +392,7 @@ private void Update()
         if (Time.time < lastWallActionTime + wallActionCooldown) return;
 
         float pushX = -wallDirection * wallPushForce;
-        float pushY = weakWallJumpForceY; 
+        float pushY = weakWallJumpForceY;
 
         rb.linearVelocity = new Vector2(pushX, pushY);
 
@@ -469,7 +463,7 @@ private void Update()
 
             isWallSliding = false;
             isWallSticking = false;
-            hasFinishedSticking = true; 
+            hasFinishedSticking = true;
 
             lastWallJumpTime = Time.time;
             isJumping = true;
@@ -504,11 +498,11 @@ private void Update()
 
     private void CheckWall()
     {
-        wasTouchingWall = isTouchingWall;
-        float rayDistance = wallCheckDistatnce + (boxCollider.size.x / 2);
-
-        RaycastHit2D rightHit = Physics2D.Raycast(transform.position, Vector2.right, rayDistance, walllayer);
-        RaycastHit2D leftHit = Physics2D.Raycast(transform.position, Vector2.left, rayDistance, walllayer);
+        float rayDistance = wallCheckDistatnce;
+        RaycastHit2D rightHit = Physics2D.BoxCast(boxCollider.bounds.center,
+            new Vector2(boxCollider.size.x, boxCollider.size.y * 0.9f), 0f, Vector2.right, rayDistance, walllayer);
+        RaycastHit2D leftHit = Physics2D.BoxCast(boxCollider.bounds.center,
+            new Vector2(boxCollider.size.x, boxCollider.size.y * 0.9f), 0f, Vector2.left, rayDistance, walllayer);
 
         isTouchingWall = rightHit.collider != null || leftHit.collider != null;
 

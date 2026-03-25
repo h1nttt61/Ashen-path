@@ -57,8 +57,11 @@ public class Checkpoint : MonoBehaviour
 
     private void StartFade(float targetAlpha)
     {
-        if (fadeCoroutine != null) StopCoroutine(fadeCoroutine);
-        fadeCoroutine = StartCoroutine(FadeCoroutine(targetAlpha));
+        if (gameObject.activeInHierarchy)
+        {
+            if (fadeCoroutine != null) StopCoroutine(fadeCoroutine);
+            fadeCoroutine = StartCoroutine(FadeCoroutine(targetAlpha));
+        }
     }
 
     private IEnumerator FadeCoroutine(float targe)

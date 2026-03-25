@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: e904c3b31a732694f93f403c47b07623
+guid: 26a7cf48d2e671447bdbe99c2a72fc95
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -7365859777482418519
-    second: "\u043A\u0430\u0434\u04400002_0"
+      213: 2978689060559385067
+    second: bat0007_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -96,30 +96,17 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
-    buildTarget: WebGL
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: "\u043A\u0430\u0434\u04400002_0"
+      name: bat0007_0
       rect:
         serializedVersion: 2
-        x: 781
-        y: 568
-        width: 1963
-        height: 1118
+        x: 866
+        y: 709
+        width: 1837
+        height: 1108
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 9a692d1fe8537c990800000000000000
-      internalID: -7365859777482418519
+      spriteID: be1fbf63bed665920800000000000000
+      internalID: 2978689060559385067
       vertices: []
       indices: 
       edges: []
@@ -148,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      "\u043A\u0430\u0434\u04400002_0": -7365859777482418519
+      bat0007_0: 2978689060559385067
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

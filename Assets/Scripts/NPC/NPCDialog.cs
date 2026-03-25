@@ -17,7 +17,7 @@ public class NPCDialog : MonoBehaviour
 
     private bool isPlayerNear;
     private bool isTalking = false;
-
+    private int currentLineIndex = 0;
     private void Update()
     {
         if (dialogPanel == null || textDisplay == null) return;
@@ -49,11 +49,12 @@ public class NPCDialog : MonoBehaviour
         isTalking = true;
         dialogPanel.SetActive(true);
         
-        foreach (var line in lines)
+        for (int i = currentLineIndex; i < lines.Length; i++)
         {
+            currentLineIndex = i;
             textDisplay.text = "";
 
-            foreach (var letter in line.ToCharArray())
+            foreach (var letter in lines[i].ToCharArray())
             {
                 textDisplay.text += letter;
                 yield return new WaitForSeconds(typingSpeed);
@@ -98,7 +99,8 @@ public class NPCDialog : MonoBehaviour
             {
                 StopAllCoroutines();
                 if (dialogPanel != null) dialogPanel.SetActive(false);
-                isTalking = false; 
+                if (textDisplay != null) textDisplay.text = ""; 
+                isTalking = false;
 
                 SpiritNPC spirit = GetComponent<SpiritNPC>();
                 if (spirit != null)

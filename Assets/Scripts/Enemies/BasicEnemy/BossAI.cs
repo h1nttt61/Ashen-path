@@ -49,7 +49,6 @@ public class BossAI : MonoBehaviour
 
         float distance = Vector2.Distance(transform.position, Player.Instance.transform.position);
 
-        // Фаза ярости
         if (currentHealth < data.enemyHealth * 0.5f && curState != BossState.Enraged && curState != BossState.Roaring)
         {
             StartCoroutine(EnrageSequence());
@@ -154,7 +153,6 @@ public class BossAI : MonoBehaviour
         rb.linearVelocity = Vector2.zero;
         StopAllCoroutines();
         GetComponent<Renderer>().material.color = Color.gray;
-        Debug.Log("���� �����!");
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
