@@ -31,13 +31,13 @@ public class BossRoomController : MonoBehaviour
         }
     }
 
-    private void Update()
+   /* private void Update()
     {
         if (bossFightStarted && spawnedBoss != null && spawnedBoss.curState == BossAI.BossState.Dead)
         {
             EndFight();
         }
-    }
+    }*/
 
     public void StartBossFight()
     {

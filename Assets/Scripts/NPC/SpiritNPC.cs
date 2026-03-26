@@ -107,7 +107,7 @@ public class SpiritNPC : MonoBehaviour
         if (npcDialog != null && npcDialog.dialogPanel != null)
         {
             npcDialog.dialogPanel.SetActive(true);
-            npcDialog.textDisplay.text = "Эй, стой! Я еще не закончил!";
+            npcDialog.textDisplay.text = "пїЅпїЅ, пїЅпїЅпїЅпїЅ! пїЅ пїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ!";
         }
 
         while (Player.Instance != null && Vector3.Distance(transform.position, Player.Instance.transform.position) > stopDistance)

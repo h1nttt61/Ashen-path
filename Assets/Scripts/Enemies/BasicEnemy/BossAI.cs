@@ -1,14 +1,17 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.AI;
 
 [RequireComponent(typeof(Rigidbody2D))]
+[RequireComponent(typeof(NavMeshAgent))]
 public class BossAI : MonoBehaviour
 {
     [SerializeField] private EnemySO data;
     public enum BossState { Idle, Chasing, Dash, Slam, Enraged, Recovering, Dead, Roaring };
     public BossState curState = BossState.Chasing;
 
-    private Rigidbody2D rb;
+    [SerializeField] private Rigidbody2D rb;
+    [SerializeField] private NavMeshAgent agent;
     private float currentHealth;
     private bool isAttacking = false;
     private float workingNormalSpeed;
@@ -16,30 +19,55 @@ public class BossAI : MonoBehaviour
 
     private void Start()
     {
+        agent = GetComponent<NavMeshAgent>();
         rb = GetComponent<Rigidbody2D>();
-        rb.interpolation = RigidbodyInterpolation2D.Interpolate;
+
+        agent.enabled = false;
+
+        transform.position = new Vector3(transform.position.x, transform.position.y, 0f);
+
+        agent.updateRotation = false;
+        agent.updateUpAxis = false;
+
+        if (NavMesh.SamplePosition(transform.position, out NavMeshHit hit, 5.0f, NavMesh.AllAreas))
+        {
+            transform.position = hit.position; 
+            agent.enabled = true;             
+            agent.Warp(hit.position);          
+        }
+        else
+        {
+            Debug.LogError("Босс не нашел NavMesh! Проверь Z-координату сетки.");
+        }
+
+        rb.simulated = true;
 
         if (data != null)
         {
             currentHealth = data.enemyHealth;
             workingNormalSpeed = data.normalSpeed;
+            agent.speed = workingNormalSpeed;
         }
     }
 
-    private void FixedUpdate() 
+    private void FixedUpdate()
     {
+        if (!agent.enabled || !agent.isOnNavMesh) return;
+
         if (curState == BossState.Dead || isAttacking || Player.Instance == null)
         {
             if (!isAttacking && curState != BossState.Dead)
-                rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
+                StopAgent();
             return;
         }
 
         if (curState == BossState.Chasing || curState == BossState.Enraged)
         {
-            float moveDir = Player.Instance.transform.position.x > transform.position.x ? 1 : -1;
-            rb.linearVelocity = new Vector2(moveDir * workingNormalSpeed, rb.linearVelocity.y);
-            Flip(moveDir);
+            agent.isStopped = false;
+            agent.SetDestination(Player.Instance.transform.position);
+
+            if (agent.velocity.sqrMagnitude > 0.01f)
+                Flip(agent.velocity.x);
         }
     }
 
@@ -69,12 +97,19 @@ public class BossAI : MonoBehaviour
         }
     }
 
+    private void StopAgent()
+    {
+        agent.isStopped = true;
+        agent.velocity = Vector3.zero;
+        agent.ResetPath();
+    }
+
     IEnumerator SlamAttack()
     {
         isAttacking = true;
-        rb.linearVelocity = Vector2.zero;
+        StopAgent();
 
-        yield return new WaitForSeconds(0.6f); 
+        yield return new WaitForSeconds(0.6f);
 
         if (Vector2.Distance(transform.position, Player.Instance.transform.position) <= data.attackRange + 1f)
         {
@@ -88,19 +123,22 @@ public class BossAI : MonoBehaviour
     IEnumerator DashAttack()
     {
         isAttacking = true;
-        rb.linearVelocity = Vector2.zero;
+        StopAgent();
 
         float dashDir = Player.Instance.transform.position.x > transform.position.x ? 1 : -1;
         Flip(dashDir);
 
         yield return new WaitForSeconds(0.5f);
 
+        rb.simulated = true;
         float startTime = Time.time;
-        while (Time.time < startTime + 0.3f) 
+        while (Time.time < startTime + 0.3f)
         {
             rb.linearVelocity = new Vector2(dashDir * data.dashSpeed, rb.linearVelocity.y);
             yield return null;
         }
+        rb.linearVelocity = Vector2.zero;
+        rb.simulated = false;
 
         yield return StartCoroutine(Recover(1.5f));
     }
@@ -108,10 +146,11 @@ public class BossAI : MonoBehaviour
     IEnumerator Recover(float time)
     {
         curState = BossState.Recovering;
-        rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
+        StopAgent();
         yield return new WaitForSeconds(time);
 
         isAttacking = false;
+        agent.isStopped = false;
         curState = BossState.Chasing;
     }
 
@@ -119,9 +158,9 @@ public class BossAI : MonoBehaviour
     {
         isAttacking = true;
         curState = BossState.Roaring;
-        rb.linearVelocity = Vector2.zero;
+        StopAgent();
 
-        Debug.Log("пїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ!");
+        Debug.Log("Босс в ярости!");
         transform.localScale *= 1.2f;
 
         float elapsed = 0;
@@ -134,9 +173,11 @@ public class BossAI : MonoBehaviour
         }
 
         workingNormalSpeed = data.normalSpeed * 1.5f;
+        agent.speed = workingNormalSpeed;
         rend.material.color = Color.red;
 
         isAttacking = false;
+        agent.isStopped = false;
         curState = BossState.Enraged;
     }
 
@@ -150,7 +191,8 @@ public class BossAI : MonoBehaviour
     private void Die()
     {
         curState = BossState.Dead;
-        rb.linearVelocity = Vector2.zero;
+        StopAgent();
+        agent.enabled = false;
         StopAllCoroutines();
         GetComponent<Renderer>().material.color = Color.gray;
     }
