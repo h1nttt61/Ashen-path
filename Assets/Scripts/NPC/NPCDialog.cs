@@ -32,7 +32,7 @@ public class NPCDialog : MonoBehaviour
 
             if (rewardAlreadyObtained)
             {
-                lines = new string[] { "Я уже обучил тебя всему, что знал. Береги себя!" };
+                lines = new string[] { "пїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ. пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ!" };
             }
 
             if (dialogCoroutine != null) StopCoroutine(dialogCoroutine);
@@ -52,7 +52,6 @@ public class NPCDialog : MonoBehaviour
     {
         isTalking = true;
         dialogPanel.SetActive(true);
-
         for (int i = currentLineIndex; i < lines.Length; i++)
         {
             currentLineIndex = i;
