@@ -1,13 +1,13 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
-public class Spikes : MonoBehaviour
+public class InstaKill : MonoBehaviour
 {
-    private int damageAmount = 1;
     void OnTriggerStay2D(Collider2D collision)
     {
         if (collision.gameObject.CompareTag("Player"))
         {
-            Player.Instance.TakeDamage(damageAmount, transform);
+            Player.Instance.Die();
         }
     }
 }

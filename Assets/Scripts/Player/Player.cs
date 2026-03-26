@@ -277,7 +277,7 @@ public class Player : MonoBehaviour
         yield return new WaitForSeconds(cooldown);
         canTakeDamage = true;
     }
-    private void Die()
+    public void Die()
     {
         Debug.Log("Player died!");
         Respawn();

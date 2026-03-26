@@ -19,7 +19,7 @@ public static class SaveManager
         PlayerPrefs.SetFloat(CHECKPOINT_Y, Player.Instance.transform.position.y);
 
         PlayerPrefs.Save();
-        Debug.Log("Игра сохранена!");
+        Debug.Log("пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ!");
     }
 
     public static void LoadGame()
@@ -47,6 +47,6 @@ public static class SaveManager
     {
         PlayerPrefs.DeleteAll();    
         PlayerPrefs.Save();
-        Debug.Log("Прогресс сброшен");
+        Debug.Log("пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ");
     }
 }
