@@ -2,6 +2,7 @@ using UnityEngine;
 using System;
 using System.Collections;
 using System.ComponentModel.Design;
+using System.Runtime.CompilerServices;
 
 
 
@@ -30,6 +31,7 @@ public class Player : MonoBehaviour
     private Camera camera;
     private readonly float minSpeed = 0.1f;
     private bool isRunning = false;
+
 
     [Header("Jump settings")]
     [SerializeField] private float jumpForce = 14f;
@@ -80,7 +82,7 @@ public class Player : MonoBehaviour
 
     private bool isAlive;
 
-    private bool isGrounded;
+    public bool isGrounded;
 
     private float initialSpeed;
 
@@ -118,6 +120,11 @@ public class Player : MonoBehaviour
 
     private void Awake()
     {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
         Instance = this;
         rb = GetComponent<Rigidbody2D>();
         boxCollider = GetComponent<BoxCollider2D>();
@@ -250,6 +257,10 @@ public class Player : MonoBehaviour
     public bool IsAlive() => isAlive;
 
     public bool IsRunning() => isRunning;
+
+    public bool isJump() => isJumping;
+
+    public bool isGrouned() => isGrounded;
 
     public void Respawn()
     {
@@ -446,11 +457,13 @@ public class Player : MonoBehaviour
 
     private void Jump()
     {
+        
         if (isGrounded)
         {
             ResetWallStick();
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
             isJumping = true;
+
         }
         else if (isTouchingWall && isWallJumpUnlocked)
         {
@@ -469,7 +482,6 @@ public class Player : MonoBehaviour
             isJumping = true;
         }
     }
-
     private void CheckGrounded()
     {
         Vector2 boxSize = new Vector2(boxCollider.size.x - 0.04f, 0.05f);
