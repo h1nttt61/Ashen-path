@@ -131,17 +131,14 @@ public class AspidAI : MonoBehaviour
     void RangedAttack()
     {
         lastAttackTime = Time.time;
-        Debug.Log("Attempt atatck");
         if (projectilePrefab != null)
         {
-            Debug.Log("Attempt create");
             // Создаем снаряд
             GameObject projectile = Instantiate(projectilePrefab, transform.position, Quaternion.identity);
             Projectile projectileScript = projectile.GetComponent<Projectile>();
 
             if (projectileScript != null)
             {
-                Debug.Log("Attempt sms");
                 // Вычисляем направление на игрока
                 Vector3 direction = (playerTransform.position - transform.position).normalized;
                 projectileScript.Initialize(direction, damage);
@@ -150,7 +147,6 @@ public class AspidAI : MonoBehaviour
             {
                 Debug.Log("У снаряда отсутствует компонент Projectile!");
             }
-            Debug.Log($"Летучая мышь выпустила снаряд в сторону игрока!");
         }
         else
         {

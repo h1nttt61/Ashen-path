@@ -28,7 +28,7 @@ public class Projectile : MonoBehaviour
 
     void Update()
     {
-        // Движение снаряда
+        // Движение снаряда (при изменении speed почему то скорость не меняется поэтом прям здесь умножил её на 5)
         transform.position += direction * speed * Time.deltaTime * 5;
     }
 
@@ -43,7 +43,6 @@ public class Projectile : MonoBehaviour
             Player.Instance.TakeDamage(damage, transform);
         }
 
-        // Уничтожаем снаряд
         if (destroyOnHit)
         {
             Destroy(gameObject);
