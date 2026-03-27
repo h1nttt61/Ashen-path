@@ -4132,7 +4132,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 4
   m_TargetDisplay: 0
 --- !u!224 &77709869
 RectTransform:
@@ -5709,7 +5709,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 4
   m_TargetDisplay: 0
 --- !u!225 &119129487
 CanvasGroup:
@@ -7575,8 +7575,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "[ T ] \u0437\u0430\u0436\u0435\u0447\u044C \u043F\u043B\u0430\u043C\u044F"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: af8c5ee61fcff854d92df88a1a3d90b1, type: 2}
+  m_sharedMaterial: {fileID: -8159214540973779232, guid: af8c5ee61fcff854d92df88a1a3d90b1, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -28559,8 +28559,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "[ T ] \u0437\u0430\u0436\u0435\u0447\u044C \u043F\u043B\u0430\u043C\u044F"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: af8c5ee61fcff854d92df88a1a3d90b1, type: 2}
+  m_sharedMaterial: {fileID: -8159214540973779232, guid: af8c5ee61fcff854d92df88a1a3d90b1, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -30365,7 +30365,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 4
   m_TargetDisplay: 0
 --- !u!224 &554626545
 RectTransform:
@@ -67878,8 +67878,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "[ T ] \u0437\u0430\u0436\u0435\u0447\u044C \u043F\u043B\u0430\u043C\u044F"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: af8c5ee61fcff854d92df88a1a3d90b1, type: 2}
+  m_sharedMaterial: {fileID: -8159214540973779232, guid: af8c5ee61fcff854d92df88a1a3d90b1, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -83460,8 +83460,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "[ T ] \u0437\u0430\u0436\u0435\u0447\u044C \u043F\u043B\u0430\u043C\u044F"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: af8c5ee61fcff854d92df88a1a3d90b1, type: 2}
+  m_sharedMaterial: {fileID: -8159214540973779232, guid: af8c5ee61fcff854d92df88a1a3d90b1, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -96707,7 +96707,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 4
   m_TargetDisplay: 0
 --- !u!224 &1778622717
 RectTransform:
