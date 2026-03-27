@@ -20,13 +20,14 @@ public class Sword : MonoBehaviour
     }
     public void Attack()
     {
-        AttackColliderTurnOffOn();
+        AttackColliderTurnOffOn(); 
         OnSwordSwing?.Invoke(this, EventArgs.Empty);
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.TryGetComponent(out BossAI boss))
+        BossAI boss = collision.GetComponentInParent<BossAI>();
+        if (boss != null)
         {
             boss.TakeDamage(damageAmount);
         }

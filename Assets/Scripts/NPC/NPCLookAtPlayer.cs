@@ -19,11 +19,5 @@ public class NPCLookAtPlayer : MonoBehaviour
 
         if (direction > 0.1f) sr.flipX = false;
         else if (direction < -0.1f) sr.flipX = true;
-
-        float distance = Vector2.Distance(transform.position, Player.Instance.transform.position);
-        if (anim != null)
-        {
-            anim.SetBool("PlayerNear", distance < 5f);
-        }
     }
 }

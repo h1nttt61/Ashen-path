@@ -1,4 +1,4 @@
-using System.Collections;
+Ôªøusing System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -7,84 +7,63 @@ using UnityEngine.AI;
 public class BossAI : MonoBehaviour
 {
     [SerializeField] private EnemySO data;
-    public enum BossState { Idle, Chasing, Dash, Slam, Enraged, Recovering, Dead, Roaring };
+    public enum BossState { Idle, Chasing, Dead, Recovering };
     public BossState curState = BossState.Chasing;
 
     [SerializeField] private Rigidbody2D rb;
     [SerializeField] private NavMeshAgent agent;
+    private SpriteRenderer spriteRenderer;
+
     private float currentHealth;
     private bool isAttacking = false;
-    private float workingNormalSpeed;
     private int facingDirection = 1;
 
-    private void Start()
+    private void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
         rb = GetComponent<Rigidbody2D>();
-
-        agent.enabled = false;
-
-        transform.position = new Vector3(transform.position.x, transform.position.y, 0f);
+        spriteRenderer = GetComponent<SpriteRenderer>();
 
         agent.updateRotation = false;
         agent.updateUpAxis = false;
-
-        if (NavMesh.SamplePosition(transform.position, out NavMeshHit hit, 5.0f, NavMesh.AllAreas))
-        {
-            transform.position = hit.position; 
-            agent.enabled = true;             
-            agent.Warp(hit.position);          
-        }
-        else
-        {
-            Debug.LogError("¡ÓÒÒ ÌÂ Ì‡¯ÂÎ NavMesh! œÓ‚Â¸ Z-ÍÓÓ‰ËÌ‡ÚÛ ÒÂÚÍË.");
-        }
-
-        rb.simulated = true;
-
-        if (data != null)
-        {
-            currentHealth = data.enemyHealth;
-            workingNormalSpeed = data.normalSpeed;
-            agent.speed = workingNormalSpeed;
-        }
     }
 
-    private void FixedUpdate()
+    private void Start()
     {
-        if (!agent.enabled || !agent.isOnNavMesh) return;
+        if (data != null)
+            currentHealth = data.enemyHealth;
 
-        if (curState == BossState.Dead || isAttacking || Player.Instance == null)
-        {
-            if (!isAttacking && curState != BossState.Dead)
-                StopAgent();
-            return;
-        }
+        transform.position = new Vector3(transform.position.x, transform.position.y, 0f);
 
-        if (curState == BossState.Chasing || curState == BossState.Enraged)
-        {
-            agent.isStopped = false;
-            agent.SetDestination(Player.Instance.transform.position);
+        agent.enabled = true;
+        agent.speed = data.normalSpeed;
 
-            if (agent.velocity.sqrMagnitude > 0.01f)
-                Flip(agent.velocity.x);
-        }
+        rb.gravityScale = 0;
+        rb.bodyType = RigidbodyType2D.Kinematic;
     }
 
     private void Update()
     {
-        if (curState == BossState.Dead || isAttacking || Player.Instance == null) return;
+        if (curState == BossState.Dead || Player.Instance == null) return;
 
-        float distance = Vector2.Distance(transform.position, Player.Instance.transform.position);
-
-        if (currentHealth < data.enemyHealth * 0.5f && curState != BossState.Enraged && curState != BossState.Roaring)
+        if (curState == BossState.Chasing && !isAttacking)
         {
-            StartCoroutine(EnrageSequence());
+            MoveToPlayer();
         }
 
-        if (distance <= data.attackRange)
+        float distance = Vector2.Distance(transform.position, Player.Instance.transform.position);
+        if (distance <= data.attackRange && !isAttacking)
         {
-            StartCoroutine(SlamAttack());
+            StartCoroutine(SimpleAttack());
+        }
+    }
+
+    private void MoveToPlayer()
+    {
+        if (agent.enabled && agent.isOnNavMesh)
+        {
+            agent.SetDestination(Player.Instance.transform.position);
+            Flip(agent.velocity.x);
         }
     }
 
@@ -97,111 +76,39 @@ public class BossAI : MonoBehaviour
         }
     }
 
-    private void StopAgent()
+    IEnumerator SimpleAttack()
     {
+        isAttacking = true;
         agent.isStopped = true;
-        agent.velocity = Vector3.zero;
-        agent.ResetPath();
-    }
-
-    IEnumerator SlamAttack()
-    {
-        isAttacking = true;
-        StopAgent();
-
-        yield return new WaitForSeconds(0.6f);
-
-        if (Vector2.Distance(transform.position, Player.Instance.transform.position) <= data.attackRange + 1f)
-        {
-            Player.Instance.TakeDamage(data.enemyDamageAmount, transform);
-            if (Player.Instance.TryGetComponent(out KnockBack kb)) kb.GetKnockedBack(transform);
-        }
-
-        yield return StartCoroutine(Recover(1f));
-    }
-
-    IEnumerator DashAttack()
-    {
-        isAttacking = true;
-        StopAgent();
-
-        float dashDir = Player.Instance.transform.position.x > transform.position.x ? 1 : -1;
-        Flip(dashDir);
 
         yield return new WaitForSeconds(0.5f);
 
-        rb.simulated = true;
-        float startTime = Time.time;
-        while (Time.time < startTime + 0.3f)
+        if (Vector2.Distance(transform.position, Player.Instance.transform.position) <= data.attackRange + 0.5f)
         {
-            rb.linearVelocity = new Vector2(dashDir * data.dashSpeed, rb.linearVelocity.y);
-            yield return null;
-        }
-        rb.linearVelocity = Vector2.zero;
-        rb.simulated = false;
-
-        yield return StartCoroutine(Recover(1.5f));
-    }
-
-    IEnumerator Recover(float time)
-    {
-        curState = BossState.Recovering;
-        StopAgent();
-        yield return new WaitForSeconds(time);
-
-        isAttacking = false;
-        agent.isStopped = false;
-        curState = BossState.Chasing;
-    }
-
-    IEnumerator EnrageSequence()
-    {
-        isAttacking = true;
-        curState = BossState.Roaring;
-        StopAgent();
-
-        Debug.Log("¡ÓÒÒ ‚ ˇÓÒÚË!");
-        transform.localScale *= 1.2f;
-
-        float elapsed = 0;
-        Renderer rend = GetComponent<Renderer>();
-        while (elapsed < 1.5f)
-        {
-            rend.material.color = Color.Lerp(Color.white, Color.red, Mathf.PingPong(Time.time * 5, 1));
-            elapsed += Time.deltaTime;
-            yield return null;
+            Player.Instance.TakeDamage(data.enemyDamageAmount, transform);
         }
 
-        workingNormalSpeed = data.normalSpeed * 1.5f;
-        agent.speed = workingNormalSpeed;
-        rend.material.color = Color.red;
+        yield return new WaitForSeconds(0.5f); 
 
-        isAttacking = false;
         agent.isStopped = false;
-        curState = BossState.Enraged;
+        isAttacking = false;
     }
 
     public void TakeDamage(float damage)
     {
-        if (curState == BossState.Dead) return;
+        if (curState == BossState.Dead) return; 
+
         currentHealth -= damage;
+        Debug.Log($"–ë–æ—Å—Å –ø–æ–ª—É—á–∏–ª —É—Ä–æ–Ω! –û—Å—Ç–∞–ª–æ—Å—å HP: {currentHealth}");
+
         if (currentHealth <= 0) Die();
     }
 
     private void Die()
     {
         curState = BossState.Dead;
-        StopAgent();
         agent.enabled = false;
-        StopAllCoroutines();
-        GetComponent<Renderer>().material.color = Color.gray;
-    }
-
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        if (collision.gameObject.CompareTag("Player"))
-        {
-            Player.Instance.TakeDamage(data.enemyDamageAmount, transform);
-        }
+        if (spriteRenderer != null) spriteRenderer.color = Color.gray;
+        Debug.Log("–ë–æ—Å—Å –ø–æ–≤–µ—Ä–∂–µ–Ω");
     }
 }
