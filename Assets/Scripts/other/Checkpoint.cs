@@ -52,7 +52,6 @@ public class Checkpoint : MonoBehaviour
             isActivated = true;
             StartFade(0);
 
-            // 3. Обновляем все чекпоинты на сцене
             Checkpoint[] allCheckpoints = FindObjectsOfType<Checkpoint>();
             foreach (Checkpoint cp in allCheckpoints)
             {
