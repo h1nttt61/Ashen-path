@@ -103,12 +103,12 @@ TextureImporter:
       name: camp_fire0011_0
       rect:
         serializedVersion: 2
-        x: 1257
-        y: 703
+        x: 1264
+        y: 706
         width: 1234
         height: 826
-      alignment: 0
-      pivot: {x: 0, y: 0}
+      alignment: 9
+      pivot: {x: 0.49444512, y: 0.022832174}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -125,7 +125,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 63d8a70795ae9844da2a9ad9c6b3f2ad
     internalID: 0
     vertices: []
     indices: 

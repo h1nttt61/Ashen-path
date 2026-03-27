@@ -39,42 +39,36 @@ public class BossAI : MonoBehaviour
         agent.enabled = true;
         agent.speed = data.normalSpeed;
         rb.bodyType = RigidbodyType2D.Kinematic;
-        rb.useFullKinematicContacts = true; // Чтобы касания работали на Kinematic
+        rb.useFullKinematicContacts = true; 
     }
 
     private void Update()
     {
         if (curState == BossState.Dead || Player.Instance == null) return;
 
-        // 1. УСИЛЕННЫЙ РЕГЕН (срабатывает на 40% HP)
         if (currentHealth < data.enemyHealth * 0.4f && !isHealing)
         {
             StartCoroutine(HealRoutine());
         }
 
-        // 2. АНИМАТОР (Chasing)
         if (animator != null)
         {
-            // Если босс движется, включаем Chasing
             bool isMoving = agent.enabled && agent.velocity.magnitude > 0.1f && !agent.isStopped;
             animator.SetBool("isChasing", isMoving);
         }
 
-        // 3. ПЕРЕМЕЩЕНИЕ
         if (curState == BossState.Chasing)
         {
             MoveToPlayer();
         }
     }
 
-    // ЛОГИКА "ЛАВА" (Урон при касании)
     private void OnCollisionStay2D(Collision2D collision)
     {
         if (curState == BossState.Dead) return;
 
         if (collision.gameObject.CompareTag("Player") && canDamagePlayer)
         {
-            // Наносим урон игроку
             Player.Instance.TakeDamage(data.enemyDamageAmount, transform);
             StartCoroutine(TouchDamageCooldown());
         }
@@ -83,7 +77,7 @@ public class BossAI : MonoBehaviour
     private IEnumerator TouchDamageCooldown()
     {
         canDamagePlayer = false;
-        yield return new WaitForSeconds(1.0f); // Раз в секунду
+        yield return new WaitForSeconds(1.0f); 
         canDamagePlayer = true;
     }
 
@@ -92,7 +86,7 @@ public class BossAI : MonoBehaviour
         isHealing = true;
         while (currentHealth < data.enemyHealth * 0.7f && curState != BossState.Dead)
         {
-            currentHealth += 10; // Быстрый подъем HP
+            currentHealth += 5; 
             spriteRenderer.color = Color.green;
             yield return new WaitForSeconds(0.1f);
             spriteRenderer.color = Color.white;
@@ -141,21 +135,19 @@ public class BossAI : MonoBehaviour
     {
         curState = BossState.Dead;
 
-        // 1. ВЫКЛЮЧАЕМ ВСЁ ЛИШНЕЕ
         agent.isStopped = true;
         agent.enabled = false;
-        rb.simulated = false; // Чтобы больше не бил игрока и не толкался
+        rb.simulated = false; 
 
-        // 2. ВЫКЛЮЧАЕМ АНИМАЦИИ
         if (animator != null)
         {
             animator.SetBool("isChasing", false);
-            animator.enabled = false; // Полностью стопим аниматор
+            animator.enabled = false; 
         }
 
         SaveManager.SaveBossStatus(true);
         StopAllCoroutines();
-        StartCoroutine(DeathSequence()); // Возвращаем плавный уход
+        StartCoroutine(DeathSequence()); 
     }
 
     IEnumerator DeathSequence()
@@ -163,7 +155,6 @@ public class BossAI : MonoBehaviour
         Debug.Log("Босс плавно исчезает...");
         spriteRenderer.color = Color.gray;
 
-        // Плавное растворение (alpha)
         float elapsed = 0;
         float duration = 2f;
         Color startColor = spriteRenderer.color;

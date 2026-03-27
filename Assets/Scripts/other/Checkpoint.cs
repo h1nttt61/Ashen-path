@@ -3,10 +3,9 @@ using UnityEngine;
 
 public class Checkpoint : MonoBehaviour
 {
-    [SerializeField] private string checkpointID;
+    [SerializeField] private string checkpointID; 
     [SerializeField] private Animator animator;
     [SerializeField] private CanvasGroup hintCanvasGroup;
-    [SerializeField] private GameObject activeVisual;
     [SerializeField] private float fadeSpeed = 2f;
 
     private bool isPlayerInside = false;
@@ -21,14 +20,23 @@ public class Checkpoint : MonoBehaviour
 
         if (animator != null)
         {
-            if (isSaved) animator.Play("Burning");
-            else animator.Play("Idle_Off");
+            if (isSaved)
+            {
+                isActivated = true;
+                animator.SetBool("isLit", true);
+                animator.Play("Burning"); 
+            }
+            else
+            {
+                animator.SetBool("isLit", false);
+                animator.Play("idle_off");
+            }
         }
     }
 
     private void Update()
     {
-        if (isPlayerInside && Input.GetKeyDown(KeyCode.T) && !isActivated)
+        if (isPlayerInside && Input.GetKeyDown(KeyCode.T))
             ActiveCheck();
     }
 
@@ -37,28 +45,40 @@ public class Checkpoint : MonoBehaviour
         if (Player.Instance != null)
         {
             Player.Instance.UpdateCheckpoint(transform.position);
-            PlayerPrefs.SetString("LastCheckpointID", checkpointID);
-            SaveManager.SaveGame(); // Сохраняем прогресс
+
+            SaveManager.SaveCurrentCheckpoint(checkpointID);
+            SaveManager.SaveGame();
 
             isActivated = true;
-
             StartFade(0);
 
-            if (animator != null)
+            // 3. Обновляем все чекпоинты на сцене
+            Checkpoint[] allCheckpoints = FindObjectsOfType<Checkpoint>();
+            foreach (Checkpoint cp in allCheckpoints)
             {
-                animator.SetTrigger("IgniteTrigger");
-            }
-
-            foreach (Checkpoint cp in FindObjectsOfType<Checkpoint>())
-            {
-                if (cp != this) cp.Extinguish();
+                cp.UpdateVisualState(); 
             }
         }
     }
 
-    public void Extinguish()
+    public void UpdateVisualState()
     {
-        if (animator != null) animator.SetBool("isLit", false);
+        bool isSaved = SaveManager.GetLastCheckpointID() == checkpointID;
+        isActivated = isSaved;
+
+        if (animator != null)
+        {
+            animator.SetBool("isLit", isSaved);
+
+            if (isSaved)
+            {
+                animator.Play("Burning", 0, 0f);
+            }
+            else
+            {
+                animator.Play("idle_off", 0, 0f);
+            }
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
