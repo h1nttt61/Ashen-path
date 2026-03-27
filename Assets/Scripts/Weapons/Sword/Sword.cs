@@ -16,21 +16,19 @@ public class Sword : MonoBehaviour
 
     private void Start()
     {
-        AttackColliderTurnOffOn();
+        AttackColliderTurnOff();
     }
     public void Attack()
     {
+        AttackColliderTurnOffOn();
         OnSwordSwing?.Invoke(this, EventArgs.Empty);
-        //Debug.Log("Атака мечом!");
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        //function to deal damage to the enemy
-        //will be added after the first version of the mob
-        if (collision.gameObject != Player.Instance?.gameObject) // Игнорируем игрока
+        if (collision.TryGetComponent(out BossAI boss))
         {
-            Debug.Log($"Попадание в: {collision.gameObject.name}");
+            boss.TakeDamage(damageAmount);
         }
     }
 
