@@ -11868,7 +11868,7 @@ Transform:
   m_GameObject: {fileID: 265178037}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 38.7, y: -29.33, z: 0}
+  m_LocalPosition: {x: -107.2, y: -27.97, z: 0}
   m_LocalScale: {x: 0.88509, y: 0.88509, z: 0.88509}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -24005,7 +24005,7 @@ Transform:
   m_GameObject: {fileID: 423577406}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 7.2551994, y: -38.573772, z: 0}
+  m_LocalPosition: {x: 7.2551994, y: -50.4, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -29871,7 +29871,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 0
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 1
+  m_SortingOrder: 3
   m_TargetDisplay: 0
 --- !u!1 &541423234
 GameObject:
@@ -54426,6 +54426,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EscMenu
   pausePanel: {fileID: 1101769275}
+  isPause: 0
 --- !u!114 &1026701120
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -57739,7 +57740,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.000091552734, y: 7.5400085}
+  m_AnchoredPosition: {x: -0.00012207031, y: 7.5400085}
   m_SizeDelta: {x: 0, y: 15.09}
   m_Pivot: {x: 0.49999982, y: 0.49999997}
 --- !u!114 &1101769277
@@ -78074,7 +78075,7 @@ Transform:
   m_GameObject: {fileID: 1475057473}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 29.1, y: 9.7, z: 0}
+  m_LocalPosition: {x: 29.1, y: 0.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -119808,8 +119809,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\u041F\u0440\u043E\u0434\u043E\u043B\u0436\u0438\u0442\u044C"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: af8c5ee61fcff854d92df88a1a3d90b1, type: 2}
+  m_sharedMaterial: {fileID: -8159214540973779232, guid: af8c5ee61fcff854d92df88a1a3d90b1, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -119833,10 +119834,10 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 90
+  m_fontSize: 72
   m_fontSizeBase: 90
   m_fontWeight: 400
-  m_enableAutoSizing: 0
+  m_enableAutoSizing: 1
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0

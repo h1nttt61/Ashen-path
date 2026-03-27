@@ -4,10 +4,14 @@ using UnityEngine.SceneManagement;
 
 public class EscMenu : MonoBehaviour
 {
+    public static EscMenu Instance { get; private set; }
     [SerializeField] private GameObject pausePanel;
-    private bool isPause = false;
+    public bool isPause = false;
 
-
+    private void Awake()
+    {
+        Instance = this;
+    }
     private void Start()
     {
         pausePanel.SetActive(false);

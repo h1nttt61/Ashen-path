@@ -26,9 +26,11 @@ public class ActiveWeapon : MonoBehaviour
 
     private void FollowMousePosition()
     {
+        if (EscMenu.Instance == null || EscMenu.Instance.isPause) return;
+        
         Vector2 vector2 = GameInput.Instance.GetMovementVector();
 
-        if (vector2.x < 0.1f)
+        if (vector2.x < -0.1f)
         {
             transform.rotation = Quaternion.Euler(0, 180, 0);
             if (spriteRenderer != null) spriteRenderer.flipY = false;
