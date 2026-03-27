@@ -6136,9 +6136,8 @@ MonoBehaviour:
   - "\u0422\u0432\u043E\u0438 \u0434\u0432\u0438\u0436\u0435\u043D\u0438\u044F \u0441\u043A\u043E\u0432\u0430\u043D\u044B.."
   - "\u0412\u043E\u0437\u044C\u043C\u0438 \u044D\u0442\u0443 \u0438\u0441\u043A\u0440\u0443. "
   - "\u041E\u043D\u0430 \u0434\u0430\u0441\u0442 \u0442\u0435\u0431\u0435 \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u044C"
-  - "\u0420\u044B\u0432\u043E\u043A (L-Shift) \u043F\u043E\u0437\u0432\u043E\u043B\u0438\u0442
-    \u043F\u0440\u043E\u0441\u043A\u043E\u0447\u0438\u0442\u044C \u0441\u043A\u0432\u043E\u0437\u044C
-    \u043E\u043F\u0430\u0441\u043D\u043E\u0441\u0442\u044C."
+  - "\u0420\u044B\u0432\u043E\u043A (L-Shift) \u043F\u043E\u0437\u0432\u043E\u043B\u0438\u0442...."
+  - "\u041D\u0435 \u0432\u0430\u0436\u043D\u043E..."
   - "\u0418\u0441\u043F\u043E\u043B\u044C\u0437\u0443\u0439 \u044D\u0442\u043E \u0441
     \u0443\u043C\u043E\u043C, \u0441\u0442\u0440\u0430\u043D\u043D\u0438\u043A."
   dialogPanel: {fileID: 1115284493}
@@ -6147,8 +6146,8 @@ MonoBehaviour:
   typingSpeed: 0.04
   timeBetweenLines: 2
   giveWallJumpOnEnd: 0
-  alreadyObtainedText: "\u0423 \u0442\u0435\u0431\u044F \u0443\u0436\u0435 \u0435\u0441\u0442\u044C
-    \u044D\u0442\u0430 \u0441\u0438\u043B\u0430. \u0423\u0445\u043E\u0434\u0438!"
+  alreadyObtainedText: "\u0411\u043E\u043B\u044C\u0448\u0435 \u0443 \u043C\u0435\u043D\u044F
+    \u043D\u0438\u0447\u0435\u0433\u043E \u043D\u0435\u0442!"
 --- !u!61 &133904608
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -6188,7 +6187,7 @@ BoxCollider2D:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
     oldSize: {x: 11.219999, y: 20.702217}
-    newSize: {x: 1, y: 1}
+    newSize: {x: 11.219999, y: 20.702217}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
@@ -6242,12 +6241,12 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 7416090032073743775, guid: 5401d6f669211154393e233098d849b2, type: 3}
+  m_Sprite: {fileID: -569103146727792491, guid: 3a907078f15e348448d924d7a6040fd7, type: 3}
   m_Color: {r: 0.9716981, g: 0.9716981, b: 0.9716981, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 11.219999, y: 20.702217}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -12103,7 +12102,7 @@ Rigidbody2D:
     m_Bits: 0
   m_Interpolate: 0
   m_SleepingMode: 0
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
   m_Constraints: 0
 --- !u!4 &265178042
 Transform:
@@ -92858,7 +92857,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 24300002, guid: 0b12bf61261adda4da03ea930e5dd7ee, type: 2}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 8300000, guid: 07e748ddb05713445938727e7c1e360e, type: 3}
+  m_Resource: {fileID: 8300000, guid: 6dc752e0580055544bd8f7308fe37c4d, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 0.452
   m_Pitch: 1

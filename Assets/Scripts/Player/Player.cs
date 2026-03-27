@@ -313,19 +313,24 @@ public class Player : MonoBehaviour
     {
         isDashing = true;
 
-        int playerLayer = LayerMask.NameToLayer("Player");
-        int enemyLayer = LayerMask.NameToLayer("Enemy");
-        Physics2D.IgnoreLayerCollision(playerLayer, enemyLayer, true);
+        BossAI boss = FindFirstObjectByType<BossAI>();
+        Collider2D bossCol = null;
+
+        if (boss != null)
+        {
+            bossCol = boss.GetComponent<Collider2D>();
+            if (bossCol != null) bossCol.isTrigger = true; 
+        }
 
         speed *= dashSpeed;
         trailRenderer.emitting = true;
 
         yield return new WaitForSeconds(dashTime);
 
+        if (bossCol != null) bossCol.isTrigger = false;
+
         trailRenderer.emitting = false;
         speed = initialSpeed;
-
-        Physics2D.IgnoreLayerCollision(playerLayer, enemyLayer, false);
 
         yield return new WaitForSeconds(dashCooldown);
         isDashing = false;

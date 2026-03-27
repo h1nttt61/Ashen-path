@@ -13,17 +13,20 @@ public class BossAI : MonoBehaviour
     [SerializeField] private Rigidbody2D rb;
     [SerializeField] private NavMeshAgent agent;
     private SpriteRenderer spriteRenderer;
+    [SerializeField] private Animator animator;
 
     private float currentHealth;
     private bool isAttacking = false;
     private bool isHealing = false;
     private int facingDirection = 1;
+    private bool canDamagePlayer = true;
 
     private void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
         rb = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
+        if (animator == null) animator = GetComponent<Animator>();
 
         agent.updateRotation = false;
         agent.updateUpAxis = false;
@@ -31,16 +34,80 @@ public class BossAI : MonoBehaviour
 
     private void Start()
     {
-        if (data != null)
-            currentHealth = data.enemyHealth;
-
-        transform.position = new Vector3(transform.position.x, transform.position.y, 0f);
+        if (data != null) currentHealth = data.enemyHealth;
 
         agent.enabled = true;
         agent.speed = data.normalSpeed;
-
-        rb.gravityScale = 0;
         rb.bodyType = RigidbodyType2D.Kinematic;
+        rb.useFullKinematicContacts = true; // Чтобы касания работали на Kinematic
+    }
+
+    private void Update()
+    {
+        if (curState == BossState.Dead || Player.Instance == null) return;
+
+        // 1. УСИЛЕННЫЙ РЕГЕН (срабатывает на 40% HP)
+        if (currentHealth < data.enemyHealth * 0.4f && !isHealing)
+        {
+            StartCoroutine(HealRoutine());
+        }
+
+        // 2. АНИМАТОР (Chasing)
+        if (animator != null)
+        {
+            // Если босс движется, включаем Chasing
+            bool isMoving = agent.enabled && agent.velocity.magnitude > 0.1f && !agent.isStopped;
+            animator.SetBool("isChasing", isMoving);
+        }
+
+        // 3. ПЕРЕМЕЩЕНИЕ
+        if (curState == BossState.Chasing)
+        {
+            MoveToPlayer();
+        }
+    }
+
+    // ЛОГИКА "ЛАВА" (Урон при касании)
+    private void OnCollisionStay2D(Collision2D collision)
+    {
+        if (curState == BossState.Dead) return;
+
+        if (collision.gameObject.CompareTag("Player") && canDamagePlayer)
+        {
+            // Наносим урон игроку
+            Player.Instance.TakeDamage(data.enemyDamageAmount, transform);
+            StartCoroutine(TouchDamageCooldown());
+        }
+    }
+
+    private IEnumerator TouchDamageCooldown()
+    {
+        canDamagePlayer = false;
+        yield return new WaitForSeconds(1.0f); // Раз в секунду
+        canDamagePlayer = true;
+    }
+
+    private IEnumerator HealRoutine()
+    {
+        isHealing = true;
+        while (currentHealth < data.enemyHealth * 0.7f && curState != BossState.Dead)
+        {
+            currentHealth += 10; // Быстрый подъем HP
+            spriteRenderer.color = Color.green;
+            yield return new WaitForSeconds(0.1f);
+            spriteRenderer.color = Color.white;
+            yield return new WaitForSeconds(0.5f);
+        }
+        isHealing = false;
+    }
+
+    private void MoveToPlayer()
+    {
+        if (agent.enabled && agent.isOnNavMesh)
+        {
+            agent.SetDestination(Player.Instance.transform.position);
+            Flip(agent.velocity.x);
+        }
     }
 
     private void Flip(float dir)
@@ -51,122 +118,12 @@ public class BossAI : MonoBehaviour
             transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x) * facingDirection, transform.localScale.y, transform.localScale.z);
         }
     }
-    private void Update()
-    {
-        if (curState == BossState.Dead || Player.Instance == null) return;
-
-        // Лечение при низком HP
-        if (currentHealth < 20 && !isHealing && curState != BossState.Dead)
-        {
-            StartCoroutine(HealRoutine());
-        }
-
-        float distance = Vector2.Distance(transform.position, Player.Instance.transform.position);
-
-        switch (curState)
-        {
-            case BossState.Chasing:
-                // Если мы достаточно близко, останавливаемся и бьем
-                if (distance <= data.attackRange)
-                {
-                    StartCoroutine(CombatSequence());
-                }
-                else
-                {
-                    MoveToPlayer();
-                }
-                break;
-
-            case BossState.Retreating:
-                // В этом состоянии Update ничего не делает, ждем завершения RetreatRoutine
-                break;
-        }
-    }
-
-    private void MoveToPlayer()
-    {
-        if (agent.enabled && agent.isOnNavMesh)
-        {
-            agent.isStopped = false; // Убеждаемся, что он может идти
-            agent.SetDestination(Player.Instance.transform.position);
-            Flip(agent.velocity.x);
-        }
-    }
-
-    IEnumerator CombatSequence()
-    {
-        curState = BossState.Attacking;
-        isAttacking = true;
-        agent.isStopped = true;
-        agent.velocity = Vector2.zero;
-
-        yield return new WaitForSeconds(0.4f); // Замах
-
-        // Увеличиваем радиус проверки для большого босса (поставь 2.5f или больше)
-        float attackDistance = data.attackRange + 1.5f;
-        float currentDist = Vector2.Distance(transform.position, Player.Instance.transform.position);
-
-        if (currentDist <= attackDistance)
-        {
-            Debug.Log("БОСС ПОПАЛ!");
-            // Проверь, что метод TakeDamage в Player.cs ПУБЛИЧНЫЙ (public)
-            Player.Instance.TakeDamage(data.enemyDamageAmount, transform);
-        }
-        else
-        {
-            Debug.Log($"Промах! Дистанция: {currentDist}, нужно: {attackDistance}");
-        }
-
-        yield return new WaitForSeconds(0.6f);
-        StartCoroutine(RetreatRoutine());
-    }
-
-    IEnumerator RetreatRoutine()
-    {
-        curState = BossState.Retreating;
-        agent.isStopped = false;
-
-        // Отходим не просто "назад", а в случайную точку подальше от игрока
-        Vector3 directionAway = (transform.position - Player.Instance.transform.position).normalized;
-        Vector3 retreatTarget = transform.position + directionAway * 5f;
-
-        if (agent.enabled && agent.isOnNavMesh)
-        {
-            agent.SetDestination(retreatTarget);
-        }
-
-        yield return new WaitForSeconds(2.0f); // Время на "потупить" и отойти
-
-        isAttacking = false;
-        curState = BossState.Chasing;
-    }
-
-    IEnumerator HealRoutine()
-    {
-        isHealing = true;
-        Debug.Log("Босс начал лечиться...");
-
-        while (currentHealth < 20 && curState != BossState.Dead)
-        {
-            currentHealth += 2;
-            Debug.Log($"Регенерация... HP: {currentHealth}");
-
-            spriteRenderer.color = Color.green;
-            yield return new WaitForSeconds(0.2f);
-            spriteRenderer.color = Color.white;
-
-            yield return new WaitForSeconds(2f);
-        }
-
-        isHealing = false;
-    }
 
     public void TakeDamage(float damage)
     {
         if (curState == BossState.Dead) return;
 
         currentHealth -= damage;
-
         StopCoroutine(nameof(DamageFlash));
         StartCoroutine(DamageFlash());
 
@@ -180,31 +137,42 @@ public class BossAI : MonoBehaviour
         spriteRenderer.color = isHealing ? Color.green : Color.white;
     }
 
-  
     private void Die()
     {
         curState = BossState.Dead;
+
+        // 1. ВЫКЛЮЧАЕМ ВСЁ ЛИШНЕЕ
+        agent.isStopped = true;
         agent.enabled = false;
-        rb.simulated = false;
+        rb.simulated = false; // Чтобы больше не бил игрока и не толкался
+
+        // 2. ВЫКЛЮЧАЕМ АНИМАЦИИ
+        if (animator != null)
+        {
+            animator.SetBool("isChasing", false);
+            animator.enabled = false; // Полностью стопим аниматор
+        }
+
         SaveManager.SaveBossStatus(true);
-
         StopAllCoroutines();
-
-        StartCoroutine(DeathSequence());
+        StartCoroutine(DeathSequence()); // Возвращаем плавный уход
     }
 
     IEnumerator DeathSequence()
     {
+        Debug.Log("Босс плавно исчезает...");
         spriteRenderer.color = Color.gray;
-        Debug.Log("Босс повержен...");
 
-        yield return new WaitForSeconds(2f);
+        // Плавное растворение (alpha)
+        float elapsed = 0;
+        float duration = 2f;
+        Color startColor = spriteRenderer.color;
 
-        float alpha = 1f;
-        while (alpha > 0)
+        while (elapsed < duration)
         {
-            alpha -= Time.deltaTime;
-            spriteRenderer.color = new Color(0.5f, 0.5f, 0.5f, alpha);
+            elapsed += Time.deltaTime;
+            float alpha = Mathf.Lerp(1f, 0f, elapsed / duration);
+            spriteRenderer.color = new Color(startColor.r, startColor.g, startColor.b, alpha);
             yield return null;
         }
 
