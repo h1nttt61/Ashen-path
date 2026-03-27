@@ -1,3 +1,4 @@
+using System.Numerics;
 using UnityEngine;
 
 public class ActiveWeapon : MonoBehaviour
@@ -5,7 +6,6 @@ public class ActiveWeapon : MonoBehaviour
     public static ActiveWeapon Instance { get; private set; }
 
     [SerializeField] private SpriteRenderer spriteRenderer;
-
     [SerializeField] private Sword sword;
 
     private void Awake()
@@ -26,17 +26,18 @@ public class ActiveWeapon : MonoBehaviour
 
     private void FollowMousePosition()
     {
-        Vector2 vector2 = GameInput.Instance.GetMovementVector();
+        if (EscMenu.Instance == null || EscMenu.Instance.isPause) return;
+        UnityEngine.Vector2 vector2 = GameInput.Instance.GetMovementVector();
 
-        if (vector2.x < 0.1f)
+        if (vector2.x < -0.1f)
         {
-            transform.rotation = Quaternion.Euler(0, 180, 0);
+            transform.rotation = UnityEngine.Quaternion.Euler(0, 180, 0);
             if (spriteRenderer != null) spriteRenderer.flipY = false;
         }
         else if (vector2.x > 0.1f)
         {
-            transform.rotation = Quaternion.Euler(0, 0, 0);
+            transform.rotation = UnityEngine.Quaternion.Euler(0, 0, 0);
             if (spriteRenderer != null) spriteRenderer.flipY = true;
-        }
+        }    
     }
 }
