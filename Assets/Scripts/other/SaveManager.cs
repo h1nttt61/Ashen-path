@@ -6,6 +6,7 @@ public static class SaveManager
     private const string WALL_JUMP_KEY = "WallJumpUnlocked";
     private const string CHECKPOINT_X = "CheckpointX";
     private const string CHECKPOINT_Y = "CheckpointY";
+    private const string LAST_CHECKPOINT_ID = "LastCheckpointID";
     private const string HEALTH_KEY = "PlayerHealth";
     private const string BOSS_DEFEATED_KEY = "BossDefeated";
 
@@ -20,6 +21,17 @@ public static class SaveManager
         PlayerPrefs.SetFloat(CHECKPOINT_Y, Player.Instance.transform.position.y);
 
         PlayerPrefs.Save();
+    }
+
+    public static void SaveCurrentCheckpoint(string id)
+    {
+        PlayerPrefs.SetString(LAST_CHECKPOINT_ID, id);
+        PlayerPrefs.Save();
+    }
+
+    public static string GetLastCheckpointID()
+    {
+        return PlayerPrefs.GetString(LAST_CHECKPOINT_ID, "");
     }
 
     public static void LoadGame()

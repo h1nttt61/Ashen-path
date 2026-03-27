@@ -39,7 +39,13 @@ public class MenuButtonScript : MonoBehaviour
 
     public void Exit()
     {
-        Application.Quit();
+        PlayerPrefs.Save();
+
+        #if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+        #else
+            Application.Quit();
+        #endif
     }
 
     private IEnumerator LoadWithDelay(int sceneIndex, float delay)
