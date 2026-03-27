@@ -41,6 +41,8 @@ public class PlayerVisual : MonoBehaviour
 
     private void AdjustPlayerFacingDirection()
     {
+        if (EscMenu.Instance == null || EscMenu.Instance.isPause) return;
+        
         Vector2 movement = GameInput.Instance.GetMovementVector();
 
         if (Mathf.Abs(movement.x) > 0.1f)
