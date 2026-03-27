@@ -14,12 +14,14 @@ public class NPCDialog : MonoBehaviour
     [SerializeField] public float timeBetweenLines = 2f;
     [SerializeField] public bool giveWallJumpOnEnd = false;
 
+    [Header("Animation")]
 
     private bool isPlayerNear;
     private bool isTalking = false;
     private int currentLineIndex = 0;
     private Coroutine dialogCoroutine;
-
+    [SerializeField]
+    private string alreadyObtainedText;
 
     private void Update()
     {
@@ -32,7 +34,7 @@ public class NPCDialog : MonoBehaviour
 
             if (rewardAlreadyObtained)
             {
-                lines = new string[] { "� ��� ������ ���� �����, ��� ����. ������ ����!" };
+                lines = new string[] { alreadyObtainedText };
             }
 
             if (dialogCoroutine != null) StopCoroutine(dialogCoroutine);
