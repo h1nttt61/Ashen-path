@@ -7,6 +7,7 @@ public static class SaveManager
     private const string CHECKPOINT_X = "CheckpointX";
     private const string CHECKPOINT_Y = "CheckpointY";
     private const string HEALTH_KEY = "PlayerHealth";
+    private const string BOSS_DEFEATED_KEY = "BossDefeated";
 
     public static void SaveGame()
     {
@@ -46,5 +47,16 @@ public static class SaveManager
     {
         PlayerPrefs.DeleteAll();    
         PlayerPrefs.Save();
+    }
+
+    public static void SaveBossStatus(bool defeated)
+    {
+        PlayerPrefs.SetInt(BOSS_DEFEATED_KEY, defeated ? 1 : 0);
+        PlayerPrefs.Save();
+    }
+
+    public static bool IsBossDefeated()
+    {
+        return PlayerPrefs.GetInt(BOSS_DEFEATED_KEY, 0) == 1;
     }
 }

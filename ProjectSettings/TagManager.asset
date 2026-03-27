@@ -12,10 +12,10 @@ TagManager:
   - Water
   - UI
   - Wall
-  - BossLayer
+  - Enemy
   - Overlay
   - Trigger
-  - 
+  - Player
   - 
   - 
   - 

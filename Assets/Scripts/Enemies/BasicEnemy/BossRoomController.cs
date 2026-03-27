@@ -25,6 +25,12 @@ public class BossRoomController : MonoBehaviour
 
     private void Start()
     {
+        if (SaveManager.IsBossDefeated())
+        {
+            this.enabled = false;
+            if (entryTrigger != null) entryTrigger.SetActive(false);
+            return;
+        }
         Player.OnHealthChanged += CheckPlayerDeath;
         foreach (var door in doors)
         {

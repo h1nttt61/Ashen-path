@@ -306,17 +306,27 @@ public class Player : MonoBehaviour
     private void Dash()
     {
         if (!isDashing && isDashUnlocked)
-            StartCoroutine(DashRutine());
+            StartCoroutine(DashRoutine());
     }
 
-    private IEnumerator DashRutine()
+    private IEnumerator DashRoutine()
     {
         isDashing = true;
+
+        int playerLayer = LayerMask.NameToLayer("Player");
+        int enemyLayer = LayerMask.NameToLayer("Enemy");
+        Physics2D.IgnoreLayerCollision(playerLayer, enemyLayer, true);
+
         speed *= dashSpeed;
         trailRenderer.emitting = true;
+
         yield return new WaitForSeconds(dashTime);
+
         trailRenderer.emitting = false;
         speed = initialSpeed;
+
+        Physics2D.IgnoreLayerCollision(playerLayer, enemyLayer, false);
+
         yield return new WaitForSeconds(dashCooldown);
         isDashing = false;
     }

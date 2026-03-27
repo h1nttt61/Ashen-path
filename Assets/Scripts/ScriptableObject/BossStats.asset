@@ -15,7 +15,7 @@ MonoBehaviour:
   enemyName: Boss
   enemyHealth: 100
   enemyDamageAmount: 2
-  normalSpeed: 3.5
+  normalSpeed: 1.5
   dashSpeed: 12
   detectionRange: 7
-  attackRange: 1.5
+  attackRange: 2
