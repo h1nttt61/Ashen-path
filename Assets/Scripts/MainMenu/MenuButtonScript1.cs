@@ -50,7 +50,19 @@ public class MenuButtonScript : MonoBehaviour
 
     private IEnumerator LoadWithDelay(int sceneIndex, float delay)
     {
-        yield return new WaitForSeconds(delay);
-        SceneManager.LoadScene(sceneIndex);
+        if (MusicManagerPersistent.Instance != null)
+            MusicManagerPersistent.Instance.FadeOut(delay);
+
+        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(sceneIndex);
+        asyncLoad.allowSceneActivation = false; //
+
+        float timer = 0;
+        while (timer < delay || asyncLoad.progress < 0.9f)
+        {
+            timer += Time.unscaledDeltaTime;
+            yield return null; 
+        }
+
+        asyncLoad.allowSceneActivation = true;
     }
 }

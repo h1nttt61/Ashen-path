@@ -20,7 +20,7 @@ public static class SaveManager
         PlayerPrefs.SetFloat(CHECKPOINT_X, Player.Instance.transform.position.x);
         PlayerPrefs.SetFloat(CHECKPOINT_Y, Player.Instance.transform.position.y);
 
-        PlayerPrefs.Save();
+        //ayerPrefs.Save();
     }
 
     public static void SaveCurrentCheckpoint(string id)
@@ -58,7 +58,7 @@ public static class SaveManager
     public static void ResetProgress()
     {
         PlayerPrefs.DeleteAll();    
-        PlayerPrefs.Save();
+        //PlayerPrefs.Save();
     }
 
     public static void SaveBossStatus(bool defeated)
