@@ -1,5 +1,6 @@
 using UnityEngine;
 using System;
+using UnityEngine.InputSystem;
 
 public class GameInput : MonoBehaviour
 {
@@ -11,6 +12,11 @@ public class GameInput : MonoBehaviour
 
     public event EventHandler OnPlayerAttack;
 
+    public event EventHandler OnPlayerHealHoldStarted;
+
+    public event EventHandler OnPlayerHealHoldEnded;
+
+
     private void Awake()
     {
         Instance = this;
@@ -19,6 +25,19 @@ public class GameInput : MonoBehaviour
 
         playerInputAction.Combat.Attack.started += Attack_started;
         playerInputAction.Player.Dash.performed += Dash_performed;
+    }
+
+
+    private void Update()
+    {
+        if (Mouse.current.rightButton.wasPressedThisFrame)
+        {
+            OnPlayerHealHoldStarted?.Invoke(this, EventArgs.Empty);
+        }
+        if (Mouse.current.rightButton.wasReleasedThisFrame)
+        {
+            OnPlayerHealHoldEnded?.Invoke(this, EventArgs.Empty);
+        }
     }
 
     private void Attack_started(UnityEngine.InputSystem.InputAction.CallbackContext obj)

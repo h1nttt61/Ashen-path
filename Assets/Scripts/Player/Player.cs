@@ -14,6 +14,7 @@ public class Player : MonoBehaviour
     public event EventHandler OnPlayerDash;
 
     public static event Action<int> OnHealthChanged;
+    public static event Action<float> OnHealProgressChanged;
 
     private Rigidbody2D rb;
     [SerializeField] private float speed = 5f;
@@ -22,6 +23,13 @@ public class Player : MonoBehaviour
     [Header("Health & Respawn")]
     [SerializeField] public int maxHealth = 10;
     public int Health { get; private set; }
+    [SerializeField] private int lowHealthOnSpawn = 1;
+
+    [Header("Heal Settings (Charge System)")]
+    [SerializeField] private float chargeSpeed = 0.2f; 
+    [SerializeField] private float healFillSpeed = 1.5f;
+    private float currentHealCharge = 0f;
+    private bool isRegenerating = false;
 
     private Vector3 lastCheckpointPos;
     [SerializeField] private float spikesDamageCooldown = 2f;
@@ -175,6 +183,12 @@ public class Player : MonoBehaviour
                 }
             }
         }
+        if (!isRegenerating && currentHealCharge < maxHealth)
+        {
+            currentHealCharge += Time.deltaTime * chargeSpeed;
+            currentHealCharge = Mathf.Min(currentHealCharge, (float)maxHealth);
+            OnHealProgressChanged?.Invoke(currentHealCharge / maxHealth);
+        }
 
         if (!isWallSticking) HandleWallSliding();
     }
@@ -199,17 +213,32 @@ public class Player : MonoBehaviour
     public void Start()
     {
         SaveManager.LoadGame();
+
+        string lastCheckpoint = SaveManager.GetLastCheckpointID();
+
+        if (string.IsNullOrEmpty(lastCheckpoint))
+        {
+            Health = maxHealth;
+        }
+        else
+        {
+            Health = lowHealthOnSpawn;
+        }
+
+        OnHealthChanged?.Invoke(Health);
+
         GameInput.Instance.OnPlayerDash += OnPlayerDashh;
         GameInput.Instance.OnPlayerAttack += Player_OnPlayerAttack;
+
+        GameInput.Instance.OnPlayerHealHoldStarted += StartHealingFromInput;
+
         isAlive = true;
 
         int currentIndex = UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex;
-
         if (PlayerPositionStorage.TargetSceneIndex == currentIndex)
         {
             SpawnPoint[] allSpawns = FindObjectsOfType<SpawnPoint>();
             SpawnPoint spawn = null;
-
             foreach (var s in allSpawns)
             {
                 if (s.spawnId == PlayerPositionStorage.TargetSpawnId)
@@ -218,14 +247,12 @@ public class Player : MonoBehaviour
                     break;
                 }
             }
-
             if (spawn != null)
             {
                 Vector3 pos = spawn.transform.position;
                 transform.position = pos;
                 rb.position = pos;
             }
-
             PlayerPositionStorage.TargetSceneIndex = -1;
         }
     }
@@ -264,7 +291,7 @@ public class Player : MonoBehaviour
 
     public void Respawn()
     {
-        Health = maxHealth;
+        Health = lowHealthOnSpawn;
         OnHealthChanged?.Invoke(Health);
         transform.position = lastCheckpointPos;
 
@@ -359,8 +386,25 @@ public class Player : MonoBehaviour
     }
 
 
+    private void StartHealing()
+    {
+        int availableHeal = Mathf.FloorToInt(currentHealCharge);
 
+        if (availableHeal > 0 && Health < maxHealth)
+        {
+            int missingHealth = maxHealth - Health;
+            int amountToHeal = Mathf.Min(availableHeal, missingHealth);
 
+            Health += amountToHeal;
+            currentHealCharge -= amountToHeal;
+
+            OnHealthChanged?.Invoke(Health);
+            OnHealProgressChanged?.Invoke(currentHealCharge / maxHealth);
+
+            Debug.Log($"Healed for {amountToHeal}. Current Health: {Health}");
+        }
+    }
+    private void StopHealing() { }
     private void StartWallStick()
     {
         if (wallStickCoroutine != null)
@@ -503,7 +547,6 @@ public class Player : MonoBehaviour
 
         Vector2 boxCenter = new Vector2(boxCollider.bounds.center.x, boxCollider.bounds.min.y);
 
-        // РџСЂРѕРІРµСЂСЏРµРј РЅР°Р»РёС‡РёРµ Р·РµРјР»Рё
         isGrounded = Physics2D.OverlapBox(boxCenter, boxSize, 0f, groundLayer);
 
         if (isGrounded)
@@ -562,12 +605,53 @@ public class Player : MonoBehaviour
         else
             isWallSliding = false;
     }
+    private void StartHealingFromInput(object sender, EventArgs e)
+    {
+        // Начинаем реген только если: ХП не полные, есть заряд и мы уже не лечимся
+        if (Health < maxHealth && currentHealCharge >= 1f && !isRegenerating)
+        {
+            StartCoroutine(GradualHealRoutine());
+        }
+    }
+
+    private IEnumerator GradualHealRoutine()
+    {
+        isRegenerating = true;
+        while (currentHealCharge >= 1f && Health < maxHealth)
+        {
+            float timer = 0f;
+            float duration = 1f / healFillSpeed; 
+
+            while (timer < duration)
+            {
+                timer += Time.deltaTime;
+
+                float amountToSubtract = Time.deltaTime * healFillSpeed;
+                currentHealCharge -= amountToSubtract;
+
+                currentHealCharge = Mathf.Max(0, currentHealCharge);
+
+                OnHealProgressChanged?.Invoke(currentHealCharge / maxHealth);
+                yield return null;
+            }
+
+            Health = Mathf.Min(Health + 1, maxHealth);
+            OnHealthChanged?.Invoke(Health);
+
+            if (Health >= maxHealth) break;
+        }
+
+        isRegenerating = false;
+    }
     private void OnDestroy()
     {
         if (GameInput.Instance != null)
         {
             GameInput.Instance.OnPlayerDash -= OnPlayerDashh;
             GameInput.Instance.OnPlayerAttack -= Player_OnPlayerAttack;
+            GameInput.Instance.OnPlayerHealHoldStarted -= StartHealingFromInput;
         }
     }
+
+   
 }
