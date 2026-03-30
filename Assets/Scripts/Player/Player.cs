@@ -269,8 +269,16 @@ public class Player : MonoBehaviour
         {
             Health -= damageAmount;
             OnHealthChanged?.Invoke(Health);
-            // needs knockback i think
-            //KnockBack.Instance.GetKnockedBack(damageSource);
+            
+            KnockBack kb = GetComponent<KnockBack>();
+            if (kb != null)
+            {
+                float knockBackChance = 1.0f;
+                if (UnityEngine.Random.value <= knockBackChance)
+                {
+                    kb.GetKnockedBack(damageSource);
+                }
+            }
             if (Health <= 0)
             {
                 Health = 0;
@@ -616,6 +624,7 @@ public class Player : MonoBehaviour
 
     private IEnumerator GradualHealRoutine()
     {
+        if (Health >= maxHealth) yield break;
         isRegenerating = true;
         while (currentHealCharge >= 1f && Health < maxHealth)
         {

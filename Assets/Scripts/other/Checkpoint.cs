@@ -48,7 +48,10 @@ public class Checkpoint : MonoBehaviour
 
             SaveManager.SaveCurrentCheckpoint(checkpointID);
             SaveManager.SaveGame();
-
+            if (NotificationOfSave.Instance != null)
+            {
+                NotificationOfSave.Instance.Show();
+            }
             isActivated = true;
             StartFade(0);
 
