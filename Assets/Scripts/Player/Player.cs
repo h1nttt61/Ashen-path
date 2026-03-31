@@ -88,6 +88,8 @@ public class Player : MonoBehaviour
 
     private bool isDashing;
 
+    private bool isHealButtonHeld = false;
+
     private bool isAlive;
 
     public bool isGrounded;
@@ -231,6 +233,7 @@ public class Player : MonoBehaviour
         GameInput.Instance.OnPlayerAttack += Player_OnPlayerAttack;
 
         GameInput.Instance.OnPlayerHealHoldStarted += StartHealingFromInput;
+        GameInput.Instance.OnPlayerHealHoldEnded += StopHealingFromInput;
 
         isAlive = true;
 
@@ -392,27 +395,6 @@ public class Player : MonoBehaviour
         else
             rb.gravityScale = 1f;
     }
-
-
-    private void StartHealing()
-    {
-        int availableHeal = Mathf.FloorToInt(currentHealCharge);
-
-        if (availableHeal > 0 && Health < maxHealth)
-        {
-            int missingHealth = maxHealth - Health;
-            int amountToHeal = Mathf.Min(availableHeal, missingHealth);
-
-            Health += amountToHeal;
-            currentHealCharge -= amountToHeal;
-
-            OnHealthChanged?.Invoke(Health);
-            OnHealProgressChanged?.Invoke(currentHealCharge / maxHealth);
-
-            Debug.Log($"Healed for {amountToHeal}. Current Health: {Health}");
-        }
-    }
-    private void StopHealing() { }
     private void StartWallStick()
     {
         if (wallStickCoroutine != null)
@@ -427,23 +409,18 @@ public class Player : MonoBehaviour
 
     private IEnumerator WallStickCoroutine()
     {
-        float timer = wallStickTime;
+        float timer = wallStickTime; 
         isWallSticking = true;
 
         while (timer > 0 && isTouchingWall && !isGrounded)
         {
-
-            rb.linearVelocity = new Vector2(rb.linearVelocityX, 0);
+            rb.linearVelocity = new Vector2(0, 0); 
 
             bool stillHolding = Mathf.Abs(inputVector.x) > 0.05f && Mathf.Sign(inputVector.x) == Mathf.Sign(wallDirection);
 
-            if (!stillHolding)
-            {
-                break;
-            }
+            if (!stillHolding) break;
 
             timer -= Time.deltaTime;
-
             yield return null;
         }
 
@@ -496,11 +473,7 @@ public class Player : MonoBehaviour
     }
     private void HandleMovement()
     {
-        if (isWallSticking)
-        {
-            rb.linearVelocity = Vector2.zero;
-            return;
-        }
+        if (isWallSticking || isWallSliding) return;
 
         if (wallJumpControlWait > 0)
         {
@@ -512,13 +485,10 @@ public class Player : MonoBehaviour
         if (kb != null && kb.isGettingKnock) return;
 
         float targetVelocityX = inputVector.x * speed;
-
-        float acceliration = isGrounded ? 100f : 50f;
-
-        float newX = Mathf.MoveTowards(rb.linearVelocityX, targetVelocityX, acceliration * Time.fixedDeltaTime);
+        float acceleration = isGrounded ? 100f : 50f;
+        float newX = Mathf.MoveTowards(rb.linearVelocityX, targetVelocityX, acceleration * Time.fixedDeltaTime);
 
         rb.linearVelocity = new Vector2(newX, rb.linearVelocityY);
-
         isRunning = Mathf.Abs(inputVector.x) > minSpeed;
     }
 
@@ -580,13 +550,14 @@ public class Player : MonoBehaviour
 
     private void CheckWall()
     {
-        float rayDistance = wallCheckDistatnce;
-        RaycastHit2D rightHit = Physics2D.BoxCast(boxCollider.bounds.center,
-            new Vector2(boxCollider.size.x, boxCollider.size.y * 0.9f), 0f, Vector2.right, rayDistance, walllayer);
-        RaycastHit2D leftHit = Physics2D.BoxCast(boxCollider.bounds.center,
-            new Vector2(boxCollider.size.x, boxCollider.size.y * 0.9f), 0f, Vector2.left, rayDistance, walllayer);
+        Vector2 boxSize = new Vector2(boxCollider.size.x, boxCollider.size.y * 0.8f);
+        RaycastHit2D rightHit = Physics2D.BoxCast(boxCollider.bounds.center, boxSize, 0f, Vector2.right, wallCheckDistatnce, walllayer);
+        RaycastHit2D leftHit = Physics2D.BoxCast(boxCollider.bounds.center, boxSize, 0f, Vector2.left, wallCheckDistatnce, walllayer);
 
         isTouchingWall = rightHit.collider != null || leftHit.collider != null;
+
+        // DEBUG: Если не скользит, посмотри в консоль, видит ли он стену
+        if (isTouchingWall) Debug.Log("Touching Wall: " + (rightHit.collider ? rightHit.collider.name : leftHit.collider.name));
 
         if (rightHit.collider != null) wallDirection = 1;
         else if (leftHit.collider != null) wallDirection = -1;
@@ -594,60 +565,67 @@ public class Player : MonoBehaviour
 
     private void HandleWallSliding()
     {
-
-        if (isWallSticking)
+        if (isWallSticking || isGrounded || !isTouchingWall)
         {
             isWallSliding = false;
             return;
         }
 
-        bool shouldSlide = Mathf.Abs(inputVector.x) > 0.05f && Mathf.Sign(inputVector.x) == Mathf.Sign(wallDirection);
-        if (isTouchingWall && !isGrounded && shouldSlide && rb.linearVelocity.y <= 0)
+        bool inputTowardsWall = Mathf.Abs(inputVector.x) > 0.05f && Mathf.Sign(inputVector.x) == Mathf.Sign(wallDirection);
+
+        if (inputTowardsWall && rb.linearVelocity.y <= 0.1f)
         {
-            if (Time.time > wallTouchStartTime + wallStickDelay)
-            {
-                isWallSliding = true;
-                rb.linearVelocity = new Vector2(rb.linearVelocity.x, -wallSlideSpeed);
-            }
+            isWallSliding = true;
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, -wallSlideSpeed);
         }
         else
+        {
             isWallSliding = false;
+        }
     }
     private void StartHealingFromInput(object sender, EventArgs e)
     {
-        // Начинаем реген только если: ХП не полные, есть заряд и мы уже не лечимся
-        if (Health < maxHealth && currentHealCharge >= 1f && !isRegenerating)
+        if (Health >= maxHealth)
+        {
+            Debug.Log("Health is already FULL. Blocking heal.");
+            return;
+        }
+
+        isHealButtonHeld = true;
+        if (currentHealCharge >= 1f && !isRegenerating)
         {
             StartCoroutine(GradualHealRoutine());
         }
     }
+    private void StopHealingFromInput(object sender, EventArgs e)
+    {
+        isHealButtonHeld = false;
+    }
 
     private IEnumerator GradualHealRoutine()
     {
-        if (Health >= maxHealth) yield break;
         isRegenerating = true;
-        while (currentHealCharge >= 1f && Health < maxHealth)
+        while (isHealButtonHeld && currentHealCharge >= 1f && Health < maxHealth)
         {
             float timer = 0f;
-            float duration = 1f / healFillSpeed; 
+            float duration = 1f / healFillSpeed;
 
-            while (timer < duration)
+            while (timer < duration && isHealButtonHeld)
             {
                 timer += Time.deltaTime;
-
                 float amountToSubtract = Time.deltaTime * healFillSpeed;
                 currentHealCharge -= amountToSubtract;
-
                 currentHealCharge = Mathf.Max(0, currentHealCharge);
 
                 OnHealProgressChanged?.Invoke(currentHealCharge / maxHealth);
                 yield return null;
             }
 
-            Health = Mathf.Min(Health + 1, maxHealth);
-            OnHealthChanged?.Invoke(Health);
-
-            if (Health >= maxHealth) break;
+            if (isHealButtonHeld && Health < maxHealth)
+            {
+                Health = Mathf.Min(Health + 1, maxHealth);
+                OnHealthChanged?.Invoke(Health);
+            }
         }
 
         isRegenerating = false;
