@@ -53,6 +53,13 @@ public static class SaveManager
             Player.Instance.transform.position = savedPos;
             Player.Instance.UpdateCheckpoint(savedPos);
         }
+        if (PlayerPrefs.HasKey(HEALTH_KEY))
+        {
+            int savedHealth = PlayerPrefs.GetInt(HEALTH_KEY);
+            // Используем рефлексию или публичный метод, если Health private set
+            // Но проще всего в Player.cs сделать метод SetHealth(int val)
+            Player.Instance.InitializeHealth(savedHealth);
+        }
     }
 
     public static void ResetProgress()

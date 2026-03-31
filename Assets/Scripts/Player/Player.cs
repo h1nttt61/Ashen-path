@@ -193,6 +193,7 @@ public class Player : MonoBehaviour
         }
 
         if (!isWallSticking) HandleWallSliding();
+        Debug.Log($"{Health}, {maxHealth}");
     }
 
     private void FixedUpdate()
@@ -216,18 +217,21 @@ public class Player : MonoBehaviour
     {
         SaveManager.LoadGame();
 
-        string lastCheckpoint = SaveManager.GetLastCheckpointID();
 
-        if (string.IsNullOrEmpty(lastCheckpoint))
-        {
-            Health = maxHealth;
-        }
-        else
-        {
-            Health = lowHealthOnSpawn;
-        }
 
-        OnHealthChanged?.Invoke(Health);
+        if (!PlayerPrefs.HasKey("PlayerHealth"))
+        {
+            string lastCheckpoint = SaveManager.GetLastCheckpointID();
+            if (string.IsNullOrEmpty(lastCheckpoint))
+            {
+                Health = maxHealth;
+            }
+            else
+            {
+                Health = lowHealthOnSpawn;
+            }
+            OnHealthChanged?.Invoke(Health);
+        }
 
         GameInput.Instance.OnPlayerDash += OnPlayerDashh;
         GameInput.Instance.OnPlayerAttack += Player_OnPlayerAttack;
@@ -259,7 +263,11 @@ public class Player : MonoBehaviour
             PlayerPositionStorage.TargetSceneIndex = -1;
         }
     }
-
+    public void InitializeHealth(int value)
+    {
+        Health = value;
+        OnHealthChanged?.Invoke(Health); 
+    }
     public Vector3 GetScreenPlayerPosition()
     {
         Vector3 playerScreenPos = camera.WorldToScreenPoint(transform.position);
@@ -555,8 +563,6 @@ public class Player : MonoBehaviour
         RaycastHit2D leftHit = Physics2D.BoxCast(boxCollider.bounds.center, boxSize, 0f, Vector2.left, wallCheckDistatnce, walllayer);
 
         isTouchingWall = rightHit.collider != null || leftHit.collider != null;
-
-        // DEBUG: Если не скользит, посмотри в консоль, видит ли он стену
         if (isTouchingWall) Debug.Log("Touching Wall: " + (rightHit.collider ? rightHit.collider.name : leftHit.collider.name));
 
         if (rightHit.collider != null) wallDirection = 1;
@@ -587,7 +593,6 @@ public class Player : MonoBehaviour
     {
         if (Health >= maxHealth)
         {
-            Debug.Log("Health is already FULL. Blocking heal.");
             return;
         }
 
