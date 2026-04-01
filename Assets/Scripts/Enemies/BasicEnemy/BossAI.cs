@@ -7,7 +7,7 @@ using UnityEngine.AI;
 public class BossAI : MonoBehaviour
 {
     [SerializeField] private EnemySO data;
-    public enum BossState { Idle, Chasing, Attacking, Retreating, Healing, Dead };
+    public enum BossState { Idle, Chasing, Attacking, Retreating, Healing, Dead, Enranged};
     public BossState curState = BossState.Chasing;
 
     [SerializeField] private Rigidbody2D rb;
@@ -21,7 +21,8 @@ public class BossAI : MonoBehaviour
     private int facingDirection = 1;
     private bool canDamagePlayer = true;
     private bool isIntroDone = false;
-
+    private float delayLavaAttack;
+ 
     private void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
@@ -90,9 +91,9 @@ public class BossAI : MonoBehaviour
     private IEnumerator HealRoutine()
     {
         isHealing = true;
-        while (currentHealth < data.enemyHealth * 0.7f && curState != BossState.Dead)
+        while (currentHealth < data.enemyHealth && curState != BossState.Dead)
         {
-            currentHealth += 5; 
+            currentHealth += 1; 
             spriteRenderer.color = Color.green;
             yield return new WaitForSeconds(0.1f);
             spriteRenderer.color = Color.white;
@@ -119,6 +120,40 @@ public class BossAI : MonoBehaviour
         }
     }
 
+
+    private void Enreged()
+    {
+
+        if (currentHealth < data.enemyHealth * 0.3f)
+        {
+            StartCoroutine(LavaAttack(1f));
+            StartCoroutine(OverHeal());
+        }
+    }
+
+    private IEnumerator LavaAttack(float delay)
+    {
+
+        delayLavaAttack = (float)Random.Range(2, 4);
+        while (delay < delayLavaAttack)
+        {
+            Player.Instance.TakeDamage(1, Player.Instance.transform);
+            yield return null;
+        }
+        yield return new WaitForSeconds(8); //каждые 8 секунды можеты
+    }
+    private IEnumerator OverHeal()
+    {
+        while (currentHealth < data.enemyHealth && curState != BossState.Dead)
+        {
+            currentHealth += 3;
+            spriteRenderer.color = Color.green;
+            yield return new WaitForSeconds(0.5f);
+            spriteRenderer.color = Color.white;
+            yield return new WaitForSeconds(0.01f);
+        }
+        isHealing = false;
+    }
     public void TakeDamage(float damage)
     {
         if (curState == BossState.Dead) return;

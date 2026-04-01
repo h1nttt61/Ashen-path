@@ -50,15 +50,21 @@ public class BossRoomController : MonoBehaviour
 
     private void Update()
     {
+        if (spawnedBoss != null)
+        {
+            if (spawnedBoss.curState == BossAI.BossState.Dead)
+                Debug.Log("Босс умер");
+            else
+                Debug.Log("Босс жив");
+        }
+        Debug.Log($"{bossFightStarted} {spawnedBoss}");
         if (bossFightStarted && spawnedBoss != null && spawnedBoss.curState == BossAI.BossState.Dead)
         {
             EndFight();
         }
     }
 
-    public void StartBossFight()
-    {
-        Debug.Log("Битва началась!");
+    public void StartBossFight(){
         if (bossFightStarted) return;
         bossFightStarted = true;
 
@@ -169,6 +175,7 @@ public class BossRoomController : MonoBehaviour
 
     private void EndFight()
     {
+        Debug.Log("Босс мертв");
         bossFightStarted = false;
         foreach (var door in doors)
         {
