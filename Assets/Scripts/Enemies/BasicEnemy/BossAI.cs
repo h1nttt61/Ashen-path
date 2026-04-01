@@ -19,9 +19,11 @@ public class BossAI : MonoBehaviour
     private bool isAttacking = false;
     private bool isHealing = false;
     private int facingDirection = 1;
-    private bool canDamagePlayer = true;
+    private bool canDamagePlayer = false;
     private bool isIntroDone = false;
     private float delayLavaAttack;
+    private float attackRange = 4.5f;
+    private GameObject bossDoor;
  
     private void Awake()
     {
@@ -29,6 +31,7 @@ public class BossAI : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         if (animator == null) animator = GetComponent<Animator>();
+        bossDoor = GameObject.Find("BoosDoor");
 
         agent.updateRotation = false;
         agent.updateUpAxis = false;
@@ -40,6 +43,7 @@ public class BossAI : MonoBehaviour
 
         agent.enabled = true;
         agent.speed = data.normalSpeed;
+        agent.stoppingDistance = 4.0f;
         rb.bodyType = RigidbodyType2D.Kinematic;
         rb.useFullKinematicContacts = true; 
     }
@@ -67,6 +71,7 @@ public class BossAI : MonoBehaviour
     public void ActivateBoss()
     {
         isIntroDone = true;
+        canDamagePlayer = true;
         curState = BossState.Chasing;
     }
 
@@ -106,7 +111,35 @@ public class BossAI : MonoBehaviour
     {
         if (agent.enabled && agent.isOnNavMesh)
         {
-            agent.SetDestination(Player.Instance.transform.position);
+            Vector2 playerPos = Player.Instance.transform.position;
+            LayerMask wallLayer = LayerMask.GetMask("Wall");
+                        
+            float distanceToPlayer = Vector3.Distance(transform.position, playerPos);
+            float distToDoor = (bossDoor != null) ? Vector2.Distance(transform.position, bossDoor.transform.position) : 100f;
+
+            //agent.SetDestination(playerPos);
+            //Flip(agent.velocity.x);
+            Vector2 directionToPlayer = (playerPos - (Vector2)transform.position).normalized;
+            RaycastHit2D wallCheck = Physics2D.Raycast(playerPos, directionToPlayer, 2.0f, wallLayer);
+
+            if ((wallCheck.collider != null && distanceToPlayer < attackRange + 1.0f) || distToDoor < attackRange * 1.5f)
+            {
+                // 2. The player is near a wall! Move the boss BACKWARD.
+                Vector2 retreatPos = (Vector2)transform.position - (directionToPlayer * attackRange * 1.5f);
+                agent.SetDestination(retreatPos);
+            }
+            else if (distanceToPlayer > attackRange)
+            {
+                // 3. Normal follow behavior
+                agent.isStopped = false;
+                agent.SetDestination(playerPos);
+            }
+            else
+            {
+                // 4. Close enough to attack, stop moving
+                agent.isStopped = true;
+                agent.velocity = Vector3.zero;
+            }
             Flip(agent.velocity.x);
         }
     }
@@ -156,7 +189,7 @@ public class BossAI : MonoBehaviour
     }
     public void TakeDamage(float damage)
     {
-        if (curState == BossState.Dead) return;
+        if (curState == BossState.Dead || !isIntroDone) return;
 
         currentHealth -= damage;
         StopCoroutine(nameof(DamageFlash));
