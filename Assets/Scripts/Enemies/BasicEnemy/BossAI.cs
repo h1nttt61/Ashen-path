@@ -158,7 +158,6 @@ public class BossAI : MonoBehaviour
 
     IEnumerator DeathSequence()
     {
-        Debug.Log("Босс плавно исчезает...");
         spriteRenderer.color = Color.gray;
 
         float elapsed = 0;

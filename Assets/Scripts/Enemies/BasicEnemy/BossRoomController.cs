@@ -110,7 +110,7 @@ public class BossRoomController : MonoBehaviour
 
         float elapsed = 0;
         float growDuration = 1.5f;
-        Vector3 mediumScale = new Vector3(0.2f, 0.15f, 1f);
+        Vector3 mediumScale = new Vector3(0.1f, 0.1f, 1f);
         Vector3 finalScale = new Vector3(0.4345f, 0.3435f, 1f);
         while (elapsed < growDuration)
         {
