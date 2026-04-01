@@ -18,7 +18,17 @@ public class BossRoomController : MonoBehaviour
 
     [Header("Spawning")]
     [SerializeField] private GameObject bossPrefab; 
-    [SerializeField] private Transform spawnPoint;  
+    [SerializeField] private Transform spawnPoint;
+
+    [Header("Intro Settings")]
+    [SerializeField] private GameObject smallSlimePrefab;
+    [SerializeField] private int slimeCount = 12;
+    [SerializeField] private float gatherDuration = 2.0f;
+
+    [Header("Camera Settings")]
+    [SerializeField] private Camera mainCamera; 
+    [SerializeField] private float cameraMoveSpeed = 2f;
+    [SerializeField] private float bossCameraYOffset = 2.5f;
 
     private BossAI spawnedBoss;
     private bool bossFightStarted = false;
@@ -58,20 +68,80 @@ public class BossRoomController : MonoBehaviour
 
     private IEnumerator SequenceStart()
     {
-        bool doorsMoving = true;
         foreach (var door in doors)
         {
             StartCoroutine(MoveDoor(door.doorTransform, door.closedPosition, () => {
-                CameraShake.Instance.Shake(0.3f, 0.2f);
+                CameraShake.Instance.Shake(0.2f, 0.1f);
             }));
         }
 
-        yield return new WaitForSeconds(1.0f);
+        Vector3 originalCamPos = mainCamera.transform.position;
+        Vector3 targetCamPos = new Vector3(spawnPoint.position.x, spawnPoint.position.y + bossCameraYOffset, originalCamPos.z);
+
+        float camT = 0;
+        while (camT < 1f)
+        {
+            camT += Time.deltaTime * cameraMoveSpeed;
+            mainCamera.transform.position = Vector3.Lerp(originalCamPos, targetCamPos, camT);
+            yield return null;
+        }
 
         GameObject bossInstance = Instantiate(bossPrefab, spawnPoint.position, Quaternion.identity);
-        spawnedBoss = bossInstance.GetComponent<BossAI>();
+        BossAI bossScript = bossInstance.GetComponent<BossAI>();
+        SpriteRenderer bossSR = bossInstance.GetComponent<SpriteRenderer>();
 
-        CameraShake.Instance.Shake(0.5f, 0.4f);
+        bossInstance.transform.localScale = Vector3.one * 1.5f;
+        Color startColor = bossSR.color;
+        bossSR.color = new Color(startColor.r, startColor.g, startColor.b, 0.5f);
+
+        for (int i = 0; i < slimeCount; i++)
+        {
+            float randomX = Random.Range(-6f, 6f);
+            Vector3 spawnPos = spawnPoint.position + new Vector3(randomX, 0, 0);
+
+            GameObject s = Instantiate(smallSlimePrefab, spawnPos, Quaternion.identity);
+            if (s.TryGetComponent(out IntroSlime intro))
+            {
+                intro.StartGathering(spawnPoint.position, gatherDuration);
+            }
+        }
+
+        yield return new WaitForSeconds(gatherDuration);
+
+        float elapsed = 0;
+        float growDuration = 1.5f;
+        Vector3 mediumScale = new Vector3(0.2f, 0.15f, 1f);
+        Vector3 finalScale = new Vector3(0.4345f, 0.3435f, 1f);
+        while (elapsed < growDuration)
+        {
+            elapsed += Time.deltaTime;
+            float percent = elapsed / growDuration;
+
+            bossInstance.transform.localScale = Vector3.Lerp(mediumScale, finalScale, percent);
+            bossSR.color = Color.Lerp(new Color(startColor.r, startColor.g, startColor.b, 0.5f), startColor, percent);
+
+            yield return null;
+        }
+
+        CameraShake.Instance.Shake(0.6f, 0.4f);
+        float returnThreshold = 0.1f; 
+        bool cameraReturned = false;
+
+        while (!cameraReturned)
+        {
+            Vector3 playerPos = Player.Instance.transform.position;
+            Vector3 targetPos = new Vector3(playerPos.x, playerPos.y, mainCamera.transform.position.z);
+
+            mainCamera.transform.position = Vector3.Lerp(mainCamera.transform.position, targetPos, Time.deltaTime * cameraMoveSpeed);
+
+            if (Vector3.Distance(mainCamera.transform.position, targetPos) < returnThreshold)
+            {
+                cameraReturned = true;
+            }
+            yield return null;
+        }
+
+        bossScript.ActivateBoss();
     }
 
     private void CheckPlayerDeath(int currentHealth)

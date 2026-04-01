@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.ComponentModel.Design;
 using System.Runtime.CompilerServices;
+using System.Diagnostics.Tracing;
 
 
 
@@ -360,11 +361,11 @@ public class Player : MonoBehaviour
         isDashing = true;
 
         BossAI boss = FindFirstObjectByType<BossAI>();
-        Collider2D bossCol = null;
+        PolygonCollider2D bossCol = null;
 
         if (boss != null)
         {
-            bossCol = boss.GetComponent<Collider2D>();
+            bossCol = boss.GetComponent<PolygonCollider2D>();
             if (bossCol != null) bossCol.isTrigger = true; 
         }
 

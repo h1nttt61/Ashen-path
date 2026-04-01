@@ -20,6 +20,7 @@ public class BossAI : MonoBehaviour
     private bool isHealing = false;
     private int facingDirection = 1;
     private bool canDamagePlayer = true;
+    private bool isIntroDone = false;
 
     private void Awake()
     {
@@ -44,7 +45,7 @@ public class BossAI : MonoBehaviour
 
     private void Update()
     {
-        if (curState == BossState.Dead || Player.Instance == null) return;
+        if (!isIntroDone || curState == BossState.Dead || Player.Instance == null) return;
 
         if (currentHealth < data.enemyHealth * 0.4f && !isHealing)
         {
@@ -61,6 +62,11 @@ public class BossAI : MonoBehaviour
         {
             MoveToPlayer();
         }
+    }
+    public void ActivateBoss()
+    {
+        isIntroDone = true;
+        curState = BossState.Chasing;
     }
 
     private void OnCollisionStay2D(Collision2D collision)

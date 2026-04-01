@@ -72845,7 +72845,7 @@ Transform:
   m_GameObject: {fileID: 1266996744}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 116.6016, y: 20.1562, z: 0}
+  m_LocalPosition: {x: 116.4, y: 17.6, z: 0}
   m_LocalScale: {x: 0.4888, y: 0.4406, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -89112,7 +89112,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -1.9, y: 0.26}
+  m_AnchoredPosition: {x: -1, y: 0.9}
   m_SizeDelta: {x: 350.8791, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!82 &1668490476
@@ -102366,6 +102366,11 @@ MonoBehaviour:
   entryTrigger: {fileID: 1340944581}
   bossPrefab: {fileID: 7687028918508034170, guid: dca4fb33782052344aee6090e343612a, type: 3}
   spawnPoint: {fileID: 1266996745}
+  smallSlimePrefab: {fileID: 7759143041533576283, guid: b7fe112b9641c2840b563e9cde5cb5b5, type: 3}
+  slimeCount: 12
+  gatherDuration: 2
+  mainCamera: {fileID: 866432751}
+  cameraMoveSpeed: 2
 --- !u!61 &1969776326
 BoxCollider2D:
   m_ObjectHideFlags: 0
