@@ -76,6 +76,8 @@ public class BossRoomController : MonoBehaviour
 
     private IEnumerator SequenceStart()
     {
+        
+        
         foreach (var door in doors)
         {
             StartCoroutine(MoveDoor(door.doorTransform, door.closedPosition, () => {
@@ -95,11 +97,14 @@ public class BossRoomController : MonoBehaviour
         }
 
         GameObject bossInstance = Instantiate(bossPrefab, spawnPoint.position, Quaternion.identity);
+        
         spawnedBoss = bossInstance.GetComponent<BossAI>();
         BossAI bossScript = bossInstance.GetComponent<BossAI>();
         SpriteRenderer bossSR = bossInstance.GetComponent<SpriteRenderer>();
 
-        bossInstance.transform.localScale = Vector3.one * 1.5f;
+
+
+        bossInstance.transform.localScale = Vector3.one * 0.3f;
         Color startColor = bossSR.color;
         bossSR.color = new Color(startColor.r, startColor.g, startColor.b, 0.5f);
 
@@ -119,8 +124,9 @@ public class BossRoomController : MonoBehaviour
 
         float elapsed = 0;
         float growDuration = 1.5f;
-        Vector3 mediumScale = new Vector3(0.1f, 0.1f, 1f);
-        Vector3 finalScale = new Vector3(0.4345f, 0.3435f, 1f);
+
+        Vector3 mediumScale = Vector3.one * 0.3f;
+        Vector3 finalScale = Vector3.one * 0.4f;
         while (elapsed < growDuration)
         {
             elapsed += Time.deltaTime;

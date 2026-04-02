@@ -5643,6 +5643,7 @@ GameObject:
   - component: {fileID: 133904607}
   - component: {fileID: 133904612}
   - component: {fileID: 133904611}
+  - component: {fileID: 133904613}
   m_Layer: 0
   m_Name: NPC
   m_TagString: Untagged
@@ -5712,7 +5713,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 4.354185, y: 3.526164}
+  m_Offset: {x: 7.6535835, y: 14.157564}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -5722,7 +5723,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 80.96591, y: 27.08433}
+  m_Size: {x: 87.564705, y: 48.347134}
   m_EdgeRadius: 0
 --- !u!212 &133904609
 SpriteRenderer:
@@ -5770,7 +5771,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 3
   m_Sprite: {fileID: -569103146727792491, guid: 3a907078f15e348448d924d7a6040fd7, type: 3}
   m_Color: {r: 0.9716981, g: 0.9716981, b: 0.9716981, a: 1}
   m_FlipX: 0
@@ -5831,6 +5832,33 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 71776bfbf8c6667449f5e7409dd32306, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NPCLookAtPlayer
+--- !u!50 &133904613
+Rigidbody2D:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 133904606}
+  m_BodyType: 0
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_GravityScale: 0
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0
 --- !u!1 &137914620
 GameObject:
   m_ObjectHideFlags: 0
