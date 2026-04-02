@@ -102371,6 +102371,7 @@ MonoBehaviour:
   gatherDuration: 2
   mainCamera: {fileID: 866432751}
   cameraMoveSpeed: 2
+  bossCameraYOffset: 2.5
 --- !u!61 &1969776326
 BoxCollider2D:
   m_ObjectHideFlags: 0

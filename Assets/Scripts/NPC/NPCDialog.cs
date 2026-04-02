@@ -20,8 +20,7 @@ public class NPCDialog : MonoBehaviour
     private bool isTalking = false;
     private int currentLineIndex = 0;
     private Coroutine dialogCoroutine;
-    [SerializeField]
-    private string alreadyObtainedText;
+    [SerializeField] private string alreadyObtainedText;
 
     private void Update()
     {
@@ -80,6 +79,10 @@ public class NPCDialog : MonoBehaviour
         {
             if (giveDashOnEnd) Player.Instance.isDashUnlocked = true;
             if (giveWallJumpOnEnd) Player.Instance.isWallJumpUnlocked = true;
+            if (NotificationOfSave.Instance != null)
+            {
+                NotificationOfSave.Instance.Show();
+            }
             SaveManager.SaveGame();
         }
 

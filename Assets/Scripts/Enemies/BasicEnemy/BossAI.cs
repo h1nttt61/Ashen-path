@@ -7,7 +7,7 @@ using UnityEngine.AI;
 public class BossAI : MonoBehaviour
 {
     [SerializeField] private EnemySO data;
-    public enum BossState { Idle, Chasing, Attacking, Retreating, Healing, Dead };
+    public enum BossState { Idle, Chasing, Attacking, Retreating, Healing, Dead, Enranged};
     public BossState curState = BossState.Chasing;
 
     [SerializeField] private Rigidbody2D rb;
@@ -19,15 +19,19 @@ public class BossAI : MonoBehaviour
     private bool isAttacking = false;
     private bool isHealing = false;
     private int facingDirection = 1;
-    private bool canDamagePlayer = true;
+    private bool canDamagePlayer = false;
     private bool isIntroDone = false;
-
+    private float delayLavaAttack;
+    private float attackRange = 4.5f;
+    private GameObject bossDoor;
+ 
     private void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
         rb = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         if (animator == null) animator = GetComponent<Animator>();
+        bossDoor = GameObject.Find("BoosDoor");
 
         agent.updateRotation = false;
         agent.updateUpAxis = false;
@@ -39,6 +43,7 @@ public class BossAI : MonoBehaviour
 
         agent.enabled = true;
         agent.speed = data.normalSpeed;
+        agent.stoppingDistance = 4.0f;
         rb.bodyType = RigidbodyType2D.Kinematic;
         rb.useFullKinematicContacts = true; 
     }
@@ -66,6 +71,7 @@ public class BossAI : MonoBehaviour
     public void ActivateBoss()
     {
         isIntroDone = true;
+        canDamagePlayer = true;
         curState = BossState.Chasing;
     }
 
@@ -90,9 +96,9 @@ public class BossAI : MonoBehaviour
     private IEnumerator HealRoutine()
     {
         isHealing = true;
-        while (currentHealth < data.enemyHealth * 0.7f && curState != BossState.Dead)
+        while (currentHealth < data.enemyHealth && curState != BossState.Dead)
         {
-            currentHealth += 5; 
+            currentHealth += 1; 
             spriteRenderer.color = Color.green;
             yield return new WaitForSeconds(0.1f);
             spriteRenderer.color = Color.white;
@@ -105,7 +111,35 @@ public class BossAI : MonoBehaviour
     {
         if (agent.enabled && agent.isOnNavMesh)
         {
-            agent.SetDestination(Player.Instance.transform.position);
+            Vector2 playerPos = Player.Instance.transform.position;
+            LayerMask wallLayer = LayerMask.GetMask("Wall");
+                        
+            float distanceToPlayer = Vector3.Distance(transform.position, playerPos);
+            float distToDoor = (bossDoor != null) ? Vector2.Distance(transform.position, bossDoor.transform.position) : 100f;
+
+            //agent.SetDestination(playerPos);
+            //Flip(agent.velocity.x);
+            Vector2 directionToPlayer = (playerPos - (Vector2)transform.position).normalized;
+            RaycastHit2D wallCheck = Physics2D.Raycast(playerPos, directionToPlayer, 2.0f, wallLayer);
+
+            if ((wallCheck.collider != null && distanceToPlayer < attackRange + 1.0f) || distToDoor < attackRange * 1.5f)
+            {
+                // 2. The player is near a wall! Move the boss BACKWARD.
+                Vector2 retreatPos = (Vector2)transform.position - (directionToPlayer * attackRange * 1.5f);
+                agent.SetDestination(retreatPos);
+            }
+            else if (distanceToPlayer > attackRange)
+            {
+                // 3. Normal follow behavior
+                agent.isStopped = false;
+                agent.SetDestination(playerPos);
+            }
+            else
+            {
+                // 4. Close enough to attack, stop moving
+                agent.isStopped = true;
+                agent.velocity = Vector3.zero;
+            }
             Flip(agent.velocity.x);
         }
     }
@@ -119,9 +153,43 @@ public class BossAI : MonoBehaviour
         }
     }
 
+
+    private void Enreged()
+    {
+
+        if (currentHealth < data.enemyHealth * 0.3f)
+        {
+            StartCoroutine(LavaAttack(1f));
+            StartCoroutine(OverHeal());
+        }
+    }
+
+    private IEnumerator LavaAttack(float delay)
+    {
+
+        delayLavaAttack = (float)Random.Range(2, 4);
+        while (delay < delayLavaAttack)
+        {
+            Player.Instance.TakeDamage(1, Player.Instance.transform);
+            yield return null;
+        }
+        yield return new WaitForSeconds(8); //каждые 8 секунды можеты
+    }
+    private IEnumerator OverHeal()
+    {
+        while (currentHealth < data.enemyHealth && curState != BossState.Dead)
+        {
+            currentHealth += 3;
+            spriteRenderer.color = Color.green;
+            yield return new WaitForSeconds(0.5f);
+            spriteRenderer.color = Color.white;
+            yield return new WaitForSeconds(0.01f);
+        }
+        isHealing = false;
+    }
     public void TakeDamage(float damage)
     {
-        if (curState == BossState.Dead) return;
+        if (curState == BossState.Dead || !isIntroDone) return;
 
         currentHealth -= damage;
         StopCoroutine(nameof(DamageFlash));

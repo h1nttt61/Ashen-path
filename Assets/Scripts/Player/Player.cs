@@ -194,7 +194,6 @@ public class Player : MonoBehaviour
         }
 
         if (!isWallSticking) HandleWallSliding();
-        Debug.Log($"{Health}, {maxHealth}");
     }
 
     private void FixedUpdate()
@@ -337,7 +336,6 @@ public class Player : MonoBehaviour
     }
     public void Die()
     {
-        Debug.Log("Player died!");
         Respawn();
     }
 
@@ -564,7 +562,7 @@ public class Player : MonoBehaviour
         RaycastHit2D leftHit = Physics2D.BoxCast(boxCollider.bounds.center, boxSize, 0f, Vector2.left, wallCheckDistatnce, walllayer);
 
         isTouchingWall = rightHit.collider != null || leftHit.collider != null;
-        if (isTouchingWall) Debug.Log("Touching Wall: " + (rightHit.collider ? rightHit.collider.name : leftHit.collider.name));
+       
 
         if (rightHit.collider != null) wallDirection = 1;
         else if (leftHit.collider != null) wallDirection = -1;

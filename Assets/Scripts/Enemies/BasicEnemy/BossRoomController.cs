@@ -50,15 +50,23 @@ public class BossRoomController : MonoBehaviour
 
     private void Update()
     {
+        if (spawnedBoss != null)
+        {
+            /*
+            if (spawnedBoss.curState == BossAI.BossState.Dead)
+                Debug.Log("пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ");
+            else
+                Debug.Log("пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ");
+            */
+        }
+        //Debug.Log($"boss fight : {bossFightStarted}");
         if (bossFightStarted && spawnedBoss != null && spawnedBoss.curState == BossAI.BossState.Dead)
         {
             EndFight();
         }
     }
 
-    public void StartBossFight()
-    {
-        Debug.Log("Битва началась!");
+    public void StartBossFight(){
         if (bossFightStarted) return;
         bossFightStarted = true;
 
@@ -87,6 +95,7 @@ public class BossRoomController : MonoBehaviour
         }
 
         GameObject bossInstance = Instantiate(bossPrefab, spawnPoint.position, Quaternion.identity);
+        spawnedBoss = bossInstance.GetComponent<BossAI>();
         BossAI bossScript = bossInstance.GetComponent<BossAI>();
         SpriteRenderer bossSR = bossInstance.GetComponent<SpriteRenderer>();
 
@@ -157,8 +166,13 @@ public class BossRoomController : MonoBehaviour
         StopAllCoroutines();
         bossFightStarted = false;
 
-        if (spawnedBoss != null) Destroy(spawnedBoss.gameObject);
-
+        if (spawnedBoss != null) 
+        {
+            Destroy(spawnedBoss.gameObject);
+            Debug.Log("Destryoed boss");
+        }
+        else Debug.Log("boss is null");
+        
         foreach (var door in doors)
         {
             door.doorTransform.position = door.openPosition;
@@ -169,6 +183,7 @@ public class BossRoomController : MonoBehaviour
 
     private void EndFight()
     {
+        Debug.Log("пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ");
         bossFightStarted = false;
         foreach (var door in doors)
         {
