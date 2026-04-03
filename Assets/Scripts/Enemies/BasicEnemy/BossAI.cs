@@ -124,19 +124,16 @@ public class BossAI : MonoBehaviour
 
             if ((wallCheck.collider != null && distanceToPlayer < attackRange + 1.0f) || distToDoor < attackRange * 1.5f)
             {
-                // 2. The player is near a wall! Move the boss BACKWARD.
                 Vector2 retreatPos = (Vector2)transform.position - (directionToPlayer * attackRange * 1.5f);
                 agent.SetDestination(retreatPos);
             }
             else if (distanceToPlayer > attackRange)
             {
-                // 3. Normal follow behavior
                 agent.isStopped = false;
                 agent.SetDestination(playerPos);
             }
             else
             {
-                // 4. Close enough to attack, stop moving
                 agent.isStopped = true;
                 agent.velocity = Vector3.zero;
             }

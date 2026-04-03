@@ -93,6 +93,8 @@ public class NPCDialog : MonoBehaviour
 
         SpiritNPC spirit = GetComponent<SpiritNPC>();
         if (spirit != null) spirit.FinalizeSpirit();
+        if (SpiritDIalogManager.Instance != null)
+            SpiritDIalogManager.Instance.UnfreezePlayer();
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
