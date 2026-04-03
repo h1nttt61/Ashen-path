@@ -6,7 +6,7 @@ public class SpiritDIalogManager : MonoBehaviour
     public static SpiritDIalogManager Instance { get; private set; }
 
     [Header("Settings")]
-    [SerializeField] private int killReq = 5;
+    [SerializeField] private int killReq = 1;
     [SerializeField] private float fadeDuration = 2f;
 
     [Header("Referens")]
