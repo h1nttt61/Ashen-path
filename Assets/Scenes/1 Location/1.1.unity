@@ -11402,6 +11402,9 @@ MonoBehaviour:
   dashTime: 0.5
   trailRenderer: {fileID: 1930046317}
   dashCooldown: 2
+  isSuperDashUnlocked: 0
+  superDashSpeed: 20
+  superDashConsumption: 3
   canWallClimb: 1
   wallCheckDistatnce: 0.6
   walllayer:

@@ -9,6 +9,7 @@ public static class SaveManager
     private const string LAST_CHECKPOINT_ID = "LastCheckpointID";
     private const string HEALTH_KEY = "PlayerHealth";
     private const string BOSS_DEFEATED_KEY = "BossDefeated";
+    private const string SUPER_DASH_KEY = "SuperDashUnlocked";
 
     public static void SaveGame()
     {
@@ -19,6 +20,7 @@ public static class SaveManager
 
         PlayerPrefs.SetFloat(CHECKPOINT_X, Player.Instance.transform.position.x);
         PlayerPrefs.SetFloat(CHECKPOINT_Y, Player.Instance.transform.position.y);
+        PlayerPrefs.SetInt(SUPER_DASH_KEY, Player.Instance.isSuperDashUnlocked ? 1 : 0);
 
         //ayerPrefs.Save();
     }
@@ -53,11 +55,11 @@ public static class SaveManager
             Player.Instance.transform.position = savedPos;
             Player.Instance.UpdateCheckpoint(savedPos);
         }
+        if (PlayerPrefs.HasKey(SUPER_DASH_KEY))
+            Player.Instance.isSuperDashUnlocked = PlayerPrefs.GetInt(SUPER_DASH_KEY) == 1;
         if (PlayerPrefs.HasKey(HEALTH_KEY))
         {
             int savedHealth = PlayerPrefs.GetInt(HEALTH_KEY);
-            // ���������� ��������� ��� ��������� �����, ���� Health private set
-            // �� ����� ����� � Player.cs ������� ����� SetHealth(int val)
             Player.Instance.InitializeHealth(savedHealth);
         }
     }

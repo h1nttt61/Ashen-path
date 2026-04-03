@@ -104,6 +104,8 @@ MonoBehaviour:
   rb: {fileID: 6446607371815153636}
   agent: {fileID: -473054571478568946}
   animator: {fileID: 2224085002830728690}
+  spriteRenderer: {fileID: 1434415001300412427}
+  rockPrefab: {fileID: 3938380847334500472, guid: b722e64d3a73fc544a8113fc86f85bb4, type: 3}
 --- !u!212 &1434415001300412427
 SpriteRenderer:
   m_ObjectHideFlags: 0

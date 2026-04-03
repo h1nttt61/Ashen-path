@@ -58,6 +58,14 @@ public class Player : MonoBehaviour
     [SerializeField] private TrailRenderer trailRenderer;
     [SerializeField] private float dashCooldown = 2f;
 
+    [Header("Super Dash Settings")]
+    public bool isSuperDashUnlocked = false;
+    private bool isSuperDashing = false;
+    [SerializeField] private float superDashSpeed = 20f;
+    [SerializeField] private float superDashConsumption = 3f;
+    private Color originalColor;
+    private float superDashDir;
+
     [Header("Wall Climb Settings")]
     [SerializeField] private bool canWallClimb = true;
     [SerializeField] private float wallCheckDistatnce = 0.15f;
@@ -129,6 +137,8 @@ public class Player : MonoBehaviour
 
     private bool hasFinishedSticking = false;
 
+    private SpriteRenderer spriteRenderer;
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -138,6 +148,8 @@ public class Player : MonoBehaviour
         }
         Instance = this;
         rb = GetComponent<Rigidbody2D>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        if (spriteRenderer != null) originalColor = spriteRenderer.color;
         boxCollider = GetComponent<BoxCollider2D>();
         if (rb != null)
             rb.freezeRotation = true;
@@ -154,6 +166,19 @@ public class Player : MonoBehaviour
         CheckWall();
         bool strictlyAtWall = isTouchingWall && !isGrounded;
         bool wallLogicActive = isTouchingWall;
+
+        if (isSuperDashUnlocked && Input.GetKey(KeyCode.W) && currentHealCharge > 0.1f)
+        {
+            if (!isSuperDashing) StartSuperDash();
+
+            currentHealCharge -= Time.deltaTime * superDashConsumption;
+            currentHealCharge = Mathf.Max(0, currentHealCharge);
+            OnHealProgressChanged?.Invoke(currentHealCharge / maxHealth);
+        }
+        else if (isSuperDashing)
+        {
+            StopSuperDash();
+        }
 
         if (GameInput.Instance != null)
         {
@@ -198,6 +223,11 @@ public class Player : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (isSuperDashing)
+        {
+            HandleSuperDashMovement();
+            return;
+        }
 
         if (isWallJumpUnlocked)
         {
@@ -274,6 +304,11 @@ public class Player : MonoBehaviour
         return playerScreenPos;
     }
 
+    public void UnlockSuperDash()
+    {
+        isSuperDashUnlocked = true;
+        PlayerPrefs.SetInt("SuperDashUnlocked", 1);
+    }
     public void TakeDamage(int damageAmount, Transform damageSource)
     {
         if (canTakeDamage && Health > 0)
@@ -634,6 +669,35 @@ public class Player : MonoBehaviour
 
         isRegenerating = false;
     }
+
+    private void StartSuperDash()
+    {
+        if (isSuperDashing) return;
+
+        isSuperDashing = true;
+        superDashDir = transform.localScale.x > 0 ? 1f : -1f;
+
+        if (spriteRenderer == null) spriteRenderer = GetComponent<SpriteRenderer>();
+        if (spriteRenderer != null) spriteRenderer.color = Color.black;
+
+        rb.gravityScale = 0;
+        rb.linearVelocity = Vector2.zero;
+    }
+
+    private void HandleSuperDashMovement()
+    {
+        rb.linearVelocity = new Vector2(superDashDir * superDashSpeed, 0);
+    }
+
+    private void StopSuperDash()
+    {
+        if (!isSuperDashing) return;
+
+        isSuperDashing = false;
+        if (spriteRenderer != null) spriteRenderer.color = originalColor;
+        rb.gravityScale = 3f;
+    }
+
     private void OnDestroy()
     {
         if (GameInput.Instance != null)
@@ -641,8 +705,7 @@ public class Player : MonoBehaviour
             GameInput.Instance.OnPlayerDash -= OnPlayerDashh;
             GameInput.Instance.OnPlayerAttack -= Player_OnPlayerAttack;
             GameInput.Instance.OnPlayerHealHoldStarted -= StartHealingFromInput;
+            GameInput.Instance.OnPlayerHealHoldEnded -= StopHealingFromInput; 
         }
     }
-
-   
 }
