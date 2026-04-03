@@ -25,49 +25,6 @@ public class SpiritNPC : MonoBehaviour
     {
         if (anim == null) anim = GetComponentInChildren<Animator>();
         if (spriteRenderer == null) spriteRenderer = GetComponentInChildren<SpriteRenderer>();
-        visualModel.SetActive(false);
-        StartCoroutine(ArrivalRoutine());
-    }
-
-    private IEnumerator ArrivalRoutine()
-    {
-        yield return new WaitForSeconds(delay);
-
-        if (Player.Instance != null && npcDialog != null)
-        {
-            bool alreadyHasDash = npcDialog.giveDashOnEnd && Player.Instance.isDashUnlocked;
-            bool alreadyHasWallJump = npcDialog.giveWallJumpOnEnd && Player.Instance.isWallJumpUnlocked;
-
-            if (alreadyHasDash || alreadyHasWallJump)
-            {
-                gameObject.SetActive(false);
-                yield break;
-            }
-
-            transform.position = Player.Instance.transform.position + new Vector3(-10f, 5f, 0);
-
-            visualModel.SetActive(true);
-
-            if (anim != null) anim.SetBool("IsMoving", true);
-
-            targetPosition = Player.Instance.transform.position + new Vector3(-2f, 3f, 0);
-            isMoving = true;
-
-            while (Vector3.Distance(transform.position, targetPosition) > 0.1f)
-            {
-                transform.position = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
-                yield return null;
-            }
-
-            isMoving = false;
-
-            if (anim != null) anim.SetBool("IsMoving", false);
-
-            if (npcDialog != null)
-            {
-                npcDialog.StartForcedDialog();
-            }
-        }
     }
 
     public void Update()

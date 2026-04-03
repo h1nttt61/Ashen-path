@@ -1,4 +1,6 @@
 using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
 
 public class SlimeSpawner : MonoBehaviour
 {
@@ -11,10 +13,11 @@ public class SlimeSpawner : MonoBehaviour
     private float timer;
     private bool isPlayerInside = false;
     private int currentEnemiesCount = 0;
+    private bool isPausedBySpirit = false;
 
     private void Update()
     {
-        if (!isPlayerInside || Player.Instance == null) return;
+        if (isPausedBySpirit || !isPlayerInside || Player.Instance == null) return;
 
         timer += Time.deltaTime;
 
@@ -36,6 +39,29 @@ public class SlimeSpawner : MonoBehaviour
         currentEnemiesCount++;
 
     }
+
+    public void DeactivateSpawner(float duration)
+    {
+        StartCoroutine(DisableRoutine(duration));
+    }
+
+    private IEnumerator DisableRoutine(float duration)
+    {
+        isPausedBySpirit = true;
+
+        SlimeAI[] activeSlimes = FindObjectsOfType<SlimeAI>();
+        foreach (SlimeAI slime in activeSlimes)
+        {
+            Destroy(slime.gameObject);
+        }
+
+        currentEnemiesCount = 0; 
+
+        yield return new WaitForSeconds(duration);
+
+        isPausedBySpirit = false;
+    }
+
 
     private void OnTriggerEnter2D(Collider2D other)
     {
