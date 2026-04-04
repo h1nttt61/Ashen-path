@@ -1,9 +1,10 @@
-using UnityEngine;
 using System;
 using System.Collections;
 using System.ComponentModel.Design;
-using System.Runtime.CompilerServices;
 using System.Diagnostics.Tracing;
+using System.Runtime.CompilerServices;
+using Unity.VisualScripting;
+using UnityEngine;
 
 
 
@@ -167,7 +168,7 @@ public class Player : MonoBehaviour
         bool strictlyAtWall = isTouchingWall && !isGrounded;
         bool wallLogicActive = isTouchingWall;
 
-        if (isSuperDashUnlocked && Input.GetKey(KeyCode.W) && currentHealCharge > 0.1f)
+        if (isSuperDashUnlocked && Input.GetKey(KeyCode.W) && currentHealCharge >= 0.5f)
         {
             if (!isSuperDashing) StartSuperDash();
 
@@ -675,18 +676,39 @@ public class Player : MonoBehaviour
         if (isSuperDashing) return;
 
         isSuperDashing = true;
-        superDashDir = transform.localScale.x > 0 ? 1f : -1f;
+        superDashDir = isFacingRight ? 1f : -1f;
 
-        if (spriteRenderer == null) spriteRenderer = GetComponent<SpriteRenderer>();
         if (spriteRenderer != null) spriteRenderer.color = Color.black;
 
         rb.gravityScale = 0;
-        rb.linearVelocity = Vector2.zero;
+        rb.linearVelocity = new Vector2(superDashDir * superDashSpeed, 0);
+
+        canTakeDamage = false;
     }
 
     private void HandleSuperDashMovement()
     {
         rb.linearVelocity = new Vector2(superDashDir * superDashSpeed, 0);
+
+        if (isTouchingWall)
+        {
+            StopSuperDash();
+            StartCoroutine(WallStunRoutine());
+        }
+    }
+
+    private IEnumerator WallStunRoutine()
+    {
+        isSuperDashing = false; 
+        float originalSpeed = speed;
+        speed = 0;
+        if (CameraShake.Instance != null) CameraShake.Instance.Shake(0.3f, 0.8f);
+
+        rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
+
+        yield return new WaitForSeconds(1.0f);
+
+        speed = originalSpeed;
     }
 
     private void StopSuperDash()
@@ -695,7 +717,11 @@ public class Player : MonoBehaviour
 
         isSuperDashing = false;
         if (spriteRenderer != null) spriteRenderer.color = originalColor;
-        rb.gravityScale = 3f;
+
+        rb.gravityScale = 3f; 
+        rb.linearVelocity = Vector2.zero; 
+
+        canTakeDamage = true;
     }
 
     private void OnDestroy()
