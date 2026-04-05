@@ -11441,9 +11441,9 @@ MonoBehaviour:
   weakWallJumpForceY: 12
   isDashUnlocked: 0
   isWallJumpUnlocked: 0
-  handCombatContainer: {fileID: 0}
-  leftHand: {fileID: 0}
-  rightHand: {fileID: 0}
+  handCombatContainer: {fileID: 811714867}
+  leftHand: {fileID: 888300288}
+  rightHand: {fileID: 1866764509}
   attackCooldown: 0.25
   activeColliderTime: 0.15
   isGrounded: 0
