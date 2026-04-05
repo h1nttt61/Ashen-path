@@ -36,18 +36,32 @@ public class PlayerVisual : MonoBehaviour
         animator.SetBool(IS_GROUND, Player.Instance.isGrouned());
         if (Player.Instance.IsAlive())
             AdjustPlayerFacingDirection();
-        
+
     }
 
     private void AdjustPlayerFacingDirection()
     {
         if (EscMenu.Instance == null || EscMenu.Instance.isPause) return;
-        
+
         Vector2 movement = GameInput.Instance.GetMovementVector();
 
         if (Mathf.Abs(movement.x) > 0.1f)
         {
-            spriteRenderer.flipX = movement.x < 0;
+            bool isLeft = movement.x < 0;
+            spriteRenderer.flipX = isLeft;
+            Transform handContainer = Player.Instance.transform.Find("HandCombatContainer");
+            if (handContainer != null)
+            {
+                Vector3 scale = handContainer.localScale;
+                scale.x = isLeft ? -1 : 1;
+                handContainer.localScale = scale;
+            }
         }
     }
+
+    public void EnableLeftHand() => Player.Instance.leftHand.EnableAttack();
+    public void DisableLeftHand() => Player.Instance.leftHand.DisableAttack();
+
+    public void EnableRightHand() => Player.Instance.rightHand.EnableAttack();
+    public void DisableRightHand() => Player.Instance.rightHand.DisableAttack();
 }

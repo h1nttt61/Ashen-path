@@ -87,6 +87,14 @@ public class Player : MonoBehaviour
     public bool isDashUnlocked = false;
     public bool isWallJumpUnlocked = false;
 
+    [Header("Melee Combat")]
+    [SerializeField] private Transform handCombatContainer;
+    [SerializeField] public HandAttack leftHand;
+    [SerializeField] public HandAttack rightHand;
+    [SerializeField] private float attackCooldown = 0.25f;
+    [SerializeField] private float activeColliderTime = 0.15f; 
+    private bool canAttack = true;
+
     private bool isDashing;
     private bool isHealButtonHeld = false;
     private bool isAlive;
@@ -178,8 +186,8 @@ public class Player : MonoBehaviour
             currentHealCharge = Mathf.Min(currentHealCharge, (float)maxHealth);
             OnHealProgressChanged?.Invoke(currentHealCharge / maxHealth);
         }
+      
     }
-
     private void FixedUpdate()
     {
         if (isSuperDashing)
@@ -323,9 +331,23 @@ public class Player : MonoBehaviour
 
     private void Player_OnPlayerAttack(object sender, System.EventArgs e)
     {
-        ActiveWeapon.Instance.GetActiveWeapon().Attack();
+        if (!canAttack || !isAlive) return;
+        StartCoroutine(AttackRoutine());
     }
 
+    private IEnumerator AttackRoutine()
+    {
+        canAttack = false;
+
+        float chance = UnityEngine.Random.value;
+        bool isRight = chance > 0.3f;
+
+        Animator anim = GetComponentInChildren<Animator>();
+        anim.SetTrigger(isRight ? "AttackRight" : "AttackLeft");
+
+        yield return new WaitForSeconds(0.25f); 
+        canAttack = true;
+    }
     private void OnPlayerDashh(object sender, EventArgs e)
     {
         Dash();
