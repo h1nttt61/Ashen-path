@@ -11423,18 +11423,16 @@ MonoBehaviour:
   superDashSpeed: 20
   superDashConsumption: 3
   canWallClimb: 1
-  wallCheckDistatnce: 0.6
+  wallCheckDistance: 0.15
   walllayer:
     serializedVersion: 2
     m_Bits: 64
-  wallSlideSpeed: 2
+  wallSlideSpeed: 2.5
   wallJumpForceX: 10
   wallJumpForceY: 15
-  wallPushForce: 8
-  wallStickTime: 2
-  wallStickGravity: 0.01
-  wallSlideGravity: 0.2
-  wallStickDelay: 0.5
+  wallPushForce: 12
+  wallStickTime: 1
+  wallSlideGravity: 0.3
   skinWidth: 0.05
   horizontalRays: 3
   verticalRays: 3
@@ -11524,8 +11522,8 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: -0.33959135, y: -0.47139078}
-  m_Size: {x: 1.2569675, y: 0.3122426}
+  m_Offset: {x: -0.37778965, y: -0.47139078}
+  m_Size: {x: 1.3333672, y: 0.3122426}
   m_Direction: 1
 --- !u!50 &265178041
 Rigidbody2D:
