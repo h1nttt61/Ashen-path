@@ -17,6 +17,12 @@ public class Rock : MonoBehaviour
         if (hasHit) return;
         hasHit = true;
 
+        rb.linearVelocity = Vector2.zero;
+        rb.angularVelocity = 0f;
+        rb.bodyType = RigidbodyType2D.Static;
+
+        GetComponent<Collider2D>().enabled = false;
+
         if (CameraShake.Instance != null)
         {
             CameraShake.Instance.Shake(0.2f, 0.6f);
@@ -27,9 +33,6 @@ public class Rock : MonoBehaviour
             Player.Instance.TakeDamage(damage, transform);
         }
 
-        rb.bodyType = RigidbodyType2D.Static;
-        GetComponent<Collider2D>().enabled = false;
-
-        Destroy(gameObject, 0.1f);
+        Destroy(gameObject, 0.5f);
     }
 }

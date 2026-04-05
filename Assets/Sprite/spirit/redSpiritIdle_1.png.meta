@@ -1,10 +1,17 @@
 fileFormatVersion: 2
-guid: 63f502b04f28ebe48bdbfc820a2e04fb
+<<<<<<< HEAD
+guid: 03b24cca9d6a9e84d9cd928b210c5456
+=======
+guid: d86efebadf83f6041ac442134552fa1f
+>>>>>>> da82e8a4bbbe3ea02ddde8a55fe9ec6e4cce7725
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 493630501661116529
-    second: blueSpiritidle_2_0
+      213: -4291969844132751551
+    second: redSpiritIdle_1_0
+  - first:
+      213: 3736762775864299553
+    second: redSpiritIdle_1_1
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -96,17 +103,33 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+<<<<<<< HEAD
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+=======
+>>>>>>> da82e8a4bbbe3ea02ddde8a55fe9ec6e4cce7725
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: blueSpiritidle_2_0
+      name: redSpiritIdle_1_0
       rect:
         serializedVersion: 2
-        x: 6
-        y: 3
-        width: 22
-        height: 26
+        x: 590
+        y: 885
+        width: 51
+        height: 67
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +138,30 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 1780fcd635ab9d600800000000000000
-      internalID: 493630501661116529
+      spriteID: 14757c5aa2cdf64c0800000000000000
+      internalID: -4291969844132751551
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redSpiritIdle_1_1
+      rect:
+        serializedVersion: 2
+        x: 258
+        y: 122
+        width: 554
+        height: 719
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1205b4942f5abd330800000000000000
+      internalID: 3736762775864299553
       vertices: []
       indices: 
       edges: []
@@ -135,7 +180,8 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      blueSpiritidle_2_0: 493630501661116529
+      redSpiritIdle_1_0: -4291969844132751551
+      redSpiritIdle_1_1: 3736762775864299553
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

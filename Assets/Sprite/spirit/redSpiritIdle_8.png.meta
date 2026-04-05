@@ -1,10 +1,14 @@
 fileFormatVersion: 2
-guid: 4d38a99b3e10779439cc8cff0c7d1b60
+<<<<<<< HEAD
+guid: 5ca9381cb8a1dfc41ad83efbb2c1cb38
+=======
+guid: 89ac502f702b48d4a90b68e0ff22a188
+>>>>>>> da82e8a4bbbe3ea02ddde8a55fe9ec6e4cce7725
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 3124512943316009437
-    second: blueSpiritidle_1_0
+      213: -6592377198931804773
+    second: redSpiritIdle_8_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -96,17 +100,33 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+<<<<<<< HEAD
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+=======
+>>>>>>> da82e8a4bbbe3ea02ddde8a55fe9ec6e4cce7725
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: blueSpiritidle_1_0
+      name: redSpiritIdle_8_0
       rect:
         serializedVersion: 2
-        x: 6
-        y: 2
-        width: 22
-        height: 26
+        x: 270
+        y: 154
+        width: 554
+        height: 719
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +135,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: dd10672b7ff7c5b20800000000000000
-      internalID: 3124512943316009437
+      spriteID: b9df8409ddb2384a0800000000000000
+      internalID: -6592377198931804773
       vertices: []
       indices: 
       edges: []
@@ -135,7 +155,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      blueSpiritidle_1_0: 3124512943316009437
+      redSpiritIdle_8_0: -6592377198931804773
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

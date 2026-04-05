@@ -76,7 +76,10 @@ public class SlimeAI : MonoBehaviour
 
         if (distance <= data.detectionRange && distance > 2f)
         {
-            agent.SetDestination(Player.Instance.transform.position);
+            if (agent.isActiveAndEnabled && agent.isOnNavMesh)
+            {
+                agent.SetDestination(Player.Instance.transform.position);
+            }
         }
         else if (distance <= 2f)
         {
@@ -107,9 +110,24 @@ public class SlimeAI : MonoBehaviour
         Vector3 playerPos = Player.Instance.transform.position;
         Vector3 flatPlayerPos = new Vector3(playerPos.x, transform.position.y, transform.position.z);
 
+        float maxDashDist = Vector3.Distance(transform.position, flatPlayerPos) + dashDistance;
         Vector3 dir = (flatPlayerPos - transform.position).normalized;
 
-        Vector3 dashTarget = transform.position + dir * (Vector3.Distance(transform.position, flatPlayerPos) + dashDistance);
+        LayerMask layerMask = LayerMask.GetMask("Wall");
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, dir, maxDashDist, layerMask);
+
+        Vector3 dashTarget;
+
+        if (hit.collider != null)
+        {
+            dashTarget = hit.point - (Vector2)dir * 0.2f;
+            Debug.Log("dash target range decreased");
+        }
+        else
+        {
+            dashTarget = transform.position + dir * maxDashDist;
+        }
+
         agent.enabled = false;
 
         Rigidbody2D rb = GetComponent<Rigidbody2D>();
