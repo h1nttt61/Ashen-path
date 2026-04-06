@@ -682,15 +682,11 @@ public class Player : MonoBehaviour
     private IEnumerator WallStunRoutine()
     {
         isSuperDashing = false;
-        float originalSpeed = speed;
-        speed = 0;
         if (CameraShake.Instance != null) CameraShake.Instance.Shake(0.3f, 0.8f);
 
         rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
 
-        yield return new WaitForSeconds(1.0f);
-
-        speed = originalSpeed;
+        yield return null;
     }
 
     private void StopSuperDash()
