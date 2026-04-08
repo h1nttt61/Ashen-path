@@ -13,8 +13,8 @@ GameObject:
   - component: {fileID: 5558226737076193290}
   - component: {fileID: 5322614215098025637}
   - component: {fileID: 4930122603393487356}
-  - component: {fileID: 3374980683432117661}
   - component: {fileID: 3449972471148161800}
+  - component: {fileID: 7989615955176062969}
   m_Layer: 0
   m_Name: MiniSlime
   m_TagString: Untagged
@@ -181,26 +181,6 @@ NavMeshAgent:
   m_BaseOffset: 10.42213
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
---- !u!114 &3374980683432117661
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 962421624495560132}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cb832dcb21e202c43b00463e035bb595, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SlimeAI
-  data: {fileID: 11400000, guid: e8094b502ebc09a4d9155d0fba653f54, type: 2}
-  animator: {fileID: 3449972471148161800}
-  spriteRenderer: {fileID: 4023756050348487122}
-  ghostPrefab: {fileID: 7688062752050110329, guid: 3cff8b498e348ec4fa9fcb2bcb940350, type: 3}
-  dashDistance: 5
-  dashSpeedMultiplier: 3
-  ghostDelay: 0.05
-  curState: 0
 --- !u!95 &3449972471148161800
 Animator:
   serializedVersion: 7
@@ -223,3 +203,26 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &7989615955176062969
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 962421624495560132}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb832dcb21e202c43b00463e035bb595, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SlimeAI
+  data: {fileID: 11400000, guid: e8094b502ebc09a4d9155d0fba653f54, type: 2}
+  animator: {fileID: 3449972471148161800}
+  spriteRenderer: {fileID: 4023756050348487122}
+  ghostPrefab: {fileID: 7688062752050110329, guid: 3cff8b498e348ec4fa9fcb2bcb940350, type: 3}
+  dashDistance: 5
+  dashSpeedMultiplier: 3
+  ghostDelay: 0.05
+  damageCooldown: 0.5
+  curState: 0
+  rb: {fileID: 5558226737076193290}
+  col: {fileID: 5322614215098025637}

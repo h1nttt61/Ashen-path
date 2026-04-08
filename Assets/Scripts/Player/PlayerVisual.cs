@@ -47,14 +47,15 @@ public class PlayerVisual : MonoBehaviour
 
         if (Mathf.Abs(movement.x) > 0.1f)
         {
-            bool isLeft = movement.x < 0;
-            spriteRenderer.flipX = isLeft;
+            bool isMovingLeft = movement.x < 0;
+
+            spriteRenderer.flipX = isMovingLeft;
+
             Transform handContainer = Player.Instance.transform.Find("HandCombatContainer");
             if (handContainer != null)
             {
-                Vector3 scale = handContainer.localScale;
-                scale.x = isLeft ? -1 : 1;
-                handContainer.localScale = scale;
+                float targetScaleX = isMovingLeft ? 1f : -1f;
+                handContainer.localScale = new Vector3(targetScaleX, 1f, 1f);
             }
         }
     }

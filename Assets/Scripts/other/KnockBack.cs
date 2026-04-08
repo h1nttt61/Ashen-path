@@ -22,23 +22,30 @@ public class KnockBack : MonoBehaviour
 
     private void Update()
     {
-        _knockBackMovingTimer -= Time.deltaTime;
-
-        if (_knockBackMovingTimer < 0)
-            StopKnockBackMovement();
+        if (isGettingKnock)
+        {
+            _knockBackMovingTimer -= Time.deltaTime;
+            if (_knockBackMovingTimer <= 0)
+            {
+                StopKnockBackMovement();
+            }
+        }
     }
 
     public void GetKnockedBack(Transform damageSource)
     {
         isGettingKnock = true;
         _knockBackMovingTimer = knockBackMovingTimerMax;
-        Vector2 difference = (transform.position - damageSource.position).normalized * knockBackForce / _rigidbody2d.mass;
-        _rigidbody2d.AddForce(difference, ForceMode2D.Impulse);
+
+        Vector2 direction = (transform.position - damageSource.position).normalized;
+
+        _rigidbody2d.linearVelocity = Vector2.zero;
+
+        _rigidbody2d.AddForce(direction * knockBackForce, ForceMode2D.Impulse);
     }
 
     private void StopKnockBackMovement()
     {
-        _rigidbody2d.linearVelocity = Vector2.zero;
         isGettingKnock = false;
     }
 }

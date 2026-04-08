@@ -8,28 +8,37 @@ public class SlimeAI : MonoBehaviour
     [SerializeField] private Animator animator;
     [SerializeField] private SpriteRenderer spriteRenderer;
 
-    [Header("Dash and Effects")]
+    [Header("Effects")]
     [SerializeField] private GameObject ghostPrefab;
     [SerializeField] private float dashDistance = 5f;
     [SerializeField] private float dashSpeedMultiplier = 3f;
     [SerializeField] private float ghostDelay = 0.05f;
-
+    [Header("Damage Settings")]
+    [SerializeField] private float damageCooldown = 0.5f; 
+    private float lastDamageTime;
     public enum State { Idle, Chase, Dash, Cooldown };
     public State curState = State.Idle;
 
     private NavMeshAgent agent;
     private bool isActionActive = false; 
     private float currentHealth;
+    [SerializeField] private Rigidbody2D rb;
+    [SerializeField] private Collider2D col;
 
-    private void Start()
+    private void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
+        rb = GetComponent<Rigidbody2D>(); 
+        col = GetComponent<Collider2D>(); 
+
         if (animator == null) animator = GetComponentInChildren<Animator>();
         if (spriteRenderer == null) spriteRenderer = GetComponentInChildren<SpriteRenderer>();
 
         agent.updateRotation = false;
         agent.updateUpAxis = false;
-
+    }
+    private void Start()
+    {
         if (data != null)
         {
             agent.speed = data.normalSpeed;
@@ -39,53 +48,30 @@ public class SlimeAI : MonoBehaviour
 
     private void Update()
     {
-        if (Player.Instance == null || !Player.Instance.IsAlive()) return;
-
-        float distance = Vector3.Distance(transform.position, Player.Instance.transform.position);
-
-        if (animator != null)
-        {
-            bool isMoving = agent.enabled && agent.velocity.magnitude > 0.1f;
-            animator.SetBool("isMoving", isMoving);
-        }
-
-        if (curState != State.Dash)
-        {
-            float directionX = Player.Instance.transform.position.x - transform.position.x;
-
-            if (Mathf.Abs(directionX) > 0.1f)
-            {
-                spriteRenderer.flipX = (directionX < 0);
-            }
-        }
-
-        switch (curState)
-        {
-            case State.Idle:
-                if (distance < data.detectionRange) curState = State.Chase;
-                break;
-            case State.Chase:
-                HandleChase(distance);
-                break;
-        }
-    }
-
-    private void HandleChase(float distance)
-    {
+        if (Player.Instance == null || data == null || agent == null) return;
+        if (!Player.Instance.IsAlive()) return;
         if (isActionActive) return;
 
-        if (distance <= data.detectionRange && distance > 2f)
+        float distance = Vector2.Distance(transform.position, Player.Instance.transform.position);
+
+        if (curState == State.Idle || curState == State.Chase)
         {
             if (agent.isActiveAndEnabled && agent.isOnNavMesh)
             {
                 agent.SetDestination(Player.Instance.transform.position);
+                curState = State.Chase;
+            }
+
+            if (distance <= 3f)
+            {
+                StartCoroutine(DashRoutine());
             }
         }
-        else if (distance <= 2f)
-        {
-            StartCoroutine(PerformDash());
-        }
+
+        if (spriteRenderer != null)
+            spriteRenderer.flipX = Player.Instance.transform.position.x < transform.position.x;
     }
+
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
@@ -97,70 +83,35 @@ public class SlimeAI : MonoBehaviour
                 kb.GetKnockedBack(transform);
         }
     }
-    private IEnumerator PerformDash()
+    private IEnumerator DashRoutine()
     {
         isActionActive = true;
         curState = State.Dash;
-
-        if (animator != null) animator.SetTrigger("dashTrigger");
-
-        CapsuleCollider2D col = GetComponent<CapsuleCollider2D>();
-        if (col != null) col.isTrigger = true;
-
-        Vector3 playerPos = Player.Instance.transform.position;
-        Vector3 flatPlayerPos = new Vector3(playerPos.x, transform.position.y, transform.position.z);
-
-        float maxDashDist = Vector3.Distance(transform.position, flatPlayerPos) + dashDistance;
-        Vector3 dir = (flatPlayerPos - transform.position).normalized;
-
-        LayerMask layerMask = LayerMask.GetMask("Wall");
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, dir, maxDashDist, layerMask);
-
-        Vector3 dashTarget;
-
-        if (hit.collider != null)
-        {
-            dashTarget = hit.point - (Vector2)dir * 0.2f;
-            Debug.Log("dash target range decreased");
-        }
-        else
-        {
-            dashTarget = transform.position + dir * maxDashDist;
-        }
-
         agent.enabled = false;
 
-        Rigidbody2D rb = GetComponent<Rigidbody2D>();
-        float gravityBefore = 0;
-        if (rb != null)
-        {
-            gravityBefore = rb.gravityScale;
-            rb.gravityScale = 0; 
-            rb.linearVelocity = Vector2.zero; 
-        }
+        float gravityBefore = rb.gravityScale;
+        rb.gravityScale = 0; 
+        col.isTrigger = true;
+
+        Vector3 playerPos = Player.Instance.transform.position;
+        Vector3 dashTarget = new Vector3(playerPos.x, transform.position.y, transform.position.z);
 
         float elapsed = 0;
         float duration = 0.4f;
-        float ghostTimer = 0;
         Vector3 startPos = transform.position;
 
         while (elapsed < duration)
         {
             elapsed += Time.deltaTime;
-            ghostTimer += Time.deltaTime;
-
             transform.position = Vector3.Lerp(startPos, dashTarget, elapsed / duration);
-
-            if (ghostTimer >= ghostDelay)
-            {
-                SpawnGhost();
-                ghostTimer = 0;
-            }
+            SpawnGhost();
             yield return null;
         }
 
-        if (rb != null) rb.gravityScale = gravityBefore;
-        if (col != null) col.isTrigger = false;
+        rb.gravityScale = gravityBefore;
+        col.isTrigger = false;
+
+        yield return new WaitForFixedUpdate();
 
         agent.enabled = true;
         curState = State.Cooldown;
@@ -168,6 +119,26 @@ public class SlimeAI : MonoBehaviour
 
         isActionActive = false;
         curState = State.Chase;
+    }
+
+    private void ApplyDamageToPlayer()
+    {
+        if (Time.time >= lastDamageTime + damageCooldown)
+        {
+            Player.Instance.TakeDamage(data.enemyDamageAmount, transform);
+            lastDamageTime = Time.time;
+            Debug.Log("Слайм нанес урон!");
+        }
+    }
+
+    private void OnCollisionStay2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Player")) ApplyDamageToPlayer();
+    }
+
+    private void OnTriggerStay2D(Collider2D collision) 
+    {
+        if (collision.CompareTag("Player")) ApplyDamageToPlayer();
     }
 
     private void SpawnGhost()
@@ -184,6 +155,16 @@ public class SlimeAI : MonoBehaviour
         if (currentHealth <= 0)
         {
             Die();
+        }
+    }
+
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Player"))
+        {
+            Player.Instance.TakeDamage(data.enemyDamageAmount, transform);
+            Debug.Log("Слайм протаранил игрока в деше!");
         }
     }
 
