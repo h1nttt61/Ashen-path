@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Slime
   m_EditorClassIdentifier: Assembly-CSharp::EnemySO
   enemyName: MiniSlime
-  enemyHealth: 9
-  enemyDamageAmount: 2
+  enemyHealth: 2
+  enemyDamageAmount: 1
   normalSpeed: 3.5
   dashSpeed: 5
   detectionRange: 7
