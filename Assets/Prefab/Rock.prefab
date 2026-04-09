@@ -12,7 +12,8 @@ GameObject:
   - component: {fileID: 8439300306335194329}
   - component: {fileID: 3393507652444487240}
   - component: {fileID: 8091441620617337612}
-  m_Layer: 10
+  - component: {fileID: -585309700675362650}
+  m_Layer: 11
   m_Name: Rock
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -180,4 +181,17 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 1
-  m_Constraints: 0
+  m_Constraints: 5
+--- !u!114 &-585309700675362650
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3938380847334500472}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd6884644a52864468744fd19022e6d0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Rock
+  damage: 1
