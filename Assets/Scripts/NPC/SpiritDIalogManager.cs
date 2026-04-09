@@ -38,6 +38,16 @@ public class SpiritDIalogManager : MonoBehaviour
     {
         eventTrigger = true;
         SlimeSpawner[] spawners = FindObjectsOfType<SlimeSpawner>();
+        float clearRadius = 15f;
+        Collider2D[] colliders = Physics2D.OverlapCircleAll(Player.Instance.transform.position, clearRadius);
+
+        foreach (var col in colliders)
+        {
+            if (col.TryGetComponent(out BatAI bat))
+            {
+                Destroy(bat.gameObject);
+            }
+        }
         foreach (var s in spawners)
         {
             s.DeactivateSpawner(120f); 
@@ -45,11 +55,28 @@ public class SpiritDIalogManager : MonoBehaviour
         if (Player.Instance != null)
         {
             Player.Instance.enabled = false;
-            var rb = Player.Instance.GetComponent<Rigidbody2D>();
-            if (rb != null) rb.linearVelocity = Vector2.zero;
 
-            float side = Player.Instance.transform.localScale.x > 0 ? -4f : 4f;
-            spirit.transform.position = Player.Instance.transform.position + new Vector3(side, 2f, 0);
+            Rigidbody2D rb = Player.Instance.GetComponent<Rigidbody2D>();
+            Animator playerAnim = Player.Instance.GetComponentInChildren<Animator>();
+
+            while (Mathf.Abs(rb.linearVelocity.y) > 0.1f)
+            {
+                if (playerAnim != null) playerAnim.SetFloat("Speed", 0f);
+                yield return null;
+            }
+
+            
+            rb.linearVelocity = Vector2.zero;
+            rb.bodyType = RigidbodyType2D.Kinematic; 
+
+            if (playerAnim != null)
+            {
+                playerAnim.SetFloat("Speed", 0f);
+                playerAnim.SetBool("isRunning", false);
+            }
+
+            float side = Player.Instance.transform.localScale.x > 0 ? -3f : 3f;
+            spirit.transform.position = Player.Instance.transform.position + new Vector3(side, 1.5f, 0);
         }
 
         spirit.gameObject.SetActive(true);
@@ -80,6 +107,19 @@ public class SpiritDIalogManager : MonoBehaviour
     public void UnfreezePlayer()
     {
         if (Player.Instance != null)
+        {
+            Rigidbody2D rb = Player.Instance.GetComponent<Rigidbody2D>();
+            if (rb != null)
+            {
+                rb.bodyType = RigidbodyType2D.Dynamic;
+
+                rb.linearVelocity = Vector2.zero;
+                rb.angularVelocity = 0f;
+
+                rb.gravityScale = 3f;
+            }
+
             Player.Instance.enabled = true;
+        }
     }
 }

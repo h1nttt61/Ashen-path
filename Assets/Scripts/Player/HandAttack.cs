@@ -21,6 +21,8 @@ public class HandAttack : MonoBehaviour
 
         if (collision.TryGetComponent(out BossAI boss)) boss.TakeDamage(damage);
 
+        if (collision.TryGetComponent(out BatAI bat)) bat.TakeDamage(damage);
+
         if (collision.TryGetComponent(out KnockBack kb))
         {
             kb.GetKnockedBack(transform);
