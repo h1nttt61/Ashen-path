@@ -10,7 +10,7 @@ public class SlimeAI : MonoBehaviour
 
     [Header("Effects")]
     [SerializeField] private GameObject ghostPrefab;
-    [SerializeField] private float dashDistance = 5f;
+    [SerializeField] private float dashDistance = 4f;
     [SerializeField] private float dashSpeedMultiplier = 3f;
     [SerializeField] private float ghostDelay = 0.05f;
     [Header("Damage Settings")]
@@ -125,7 +125,7 @@ public class SlimeAI : MonoBehaviour
     {
         if (Time.time >= lastDamageTime + damageCooldown)
         {
-            Player.Instance.TakeDamage(data.enemyDamageAmount, transform);
+            Player.Instance.TakeDamage(data.enemyDamageAmount/3, transform);
             lastDamageTime = Time.time;
             Debug.Log("Слайм нанес урон!");
         }
@@ -163,7 +163,7 @@ public class SlimeAI : MonoBehaviour
     {
         if (collision.CompareTag("Player"))
         {
-            Player.Instance.TakeDamage(data.enemyDamageAmount, transform);
+            Player.Instance.TakeDamage(data.enemyDamageAmount/2, transform);
             Debug.Log("Слайм протаранил игрока в деше!");
         }
     }
