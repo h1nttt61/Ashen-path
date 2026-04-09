@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 3692168084952528076}
   - component: {fileID: 2994739854217839153}
   - component: {fileID: 2795278662611819174}
+  - component: {fileID: -73748250699954372}
   m_Layer: 5
   m_Name: SmallSLime
   m_TagString: Untagged
@@ -107,3 +108,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7dc02b74ed111c44b5554808d291444, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::IntroSlime
+--- !u!95 &-73748250699954372
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7759143041533576283}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 06d3c206018019546b2697b1178d8475, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0

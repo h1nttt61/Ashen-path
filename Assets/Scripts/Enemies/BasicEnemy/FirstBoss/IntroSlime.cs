@@ -3,6 +3,11 @@ using System.Collections;
 
 public class IntroSlime : MonoBehaviour
 {
+    private Animator animator;
+    void Awake()
+    {
+        animator = GetComponent<Animator>();
+    }
     public void StartGathering(Vector3 target, float duration)
     {
         StartCoroutine(MoveToCenter(target, duration));

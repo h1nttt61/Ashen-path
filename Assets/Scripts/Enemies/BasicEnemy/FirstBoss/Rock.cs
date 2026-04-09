@@ -16,23 +16,18 @@ public class Rock : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (hasHit) return;
-
         if (collision.gameObject.CompareTag("Player"))
         {
-            hasHit = true;
             Player.Instance.TakeDamage(damage, transform);
-            ShakeAndDestroy();
+
+            Physics2D.IgnoreCollision(GetComponent<Collider2D>(), collision.collider);
             return;
         }
-        if (collision.gameObject.CompareTag("Ground"))
+
+        if (collision.gameObject.CompareTag("Ground") && !hasHit)
         {
             hasHit = true;
-
-            rb.linearVelocity = Vector2.zero;
-            rb.angularVelocity = 0;
-            rb.constraints = RigidbodyConstraints2D.FreezeAll;
-
+            rb.bodyType = RigidbodyType2D.Static;
             ShakeAndDestroy();
         }
     }
