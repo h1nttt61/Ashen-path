@@ -1,133 +1,152 @@
 using System.Collections;
 using UnityEngine;
-using UnityEngine.AI;
 
+[RequireComponent(typeof(Rigidbody2D))]
 public class SlimeAI : MonoBehaviour
 {
     [SerializeField] private EnemySO data;
     [SerializeField] private Animator animator;
     [SerializeField] private SpriteRenderer spriteRenderer;
 
-    [Header("Effects")]
+    [Header("Movement (Physics-based)")]
+    [SerializeField] private float moveSpeed = 3f;
+    [SerializeField] private float acceleration = 40f;
+
+    [Header("Dash Settings")]
     [SerializeField] private GameObject ghostPrefab;
     [SerializeField] private float dashDistance = 4f;
-    [SerializeField] private float dashSpeedMultiplier = 3f;
-    [SerializeField] private float ghostDelay = 0.05f;
+    [SerializeField] private float dashDuration = 0.3f;
+    [SerializeField] private float dashCooldown = 3f; 
+    private float lastDashTime = -999f;
+
     [Header("Damage Settings")]
-    [SerializeField] private float damageCooldown = 0.5f; 
+    [SerializeField] private float damageCooldown = 0.5f;
     private float lastDamageTime;
+
     public enum State { Idle, Chase, Dash, Cooldown };
     public State curState = State.Idle;
 
-    private NavMeshAgent agent;
-    private bool isActionActive = false; 
+    private Rigidbody2D rb;
+    private Collider2D col;
+    private bool isActionActive = false;
     private float currentHealth;
-    [SerializeField] private Rigidbody2D rb;
-    [SerializeField] private Collider2D col;
 
     private void Awake()
     {
-        agent = GetComponent<NavMeshAgent>();
-        rb = GetComponent<Rigidbody2D>(); 
-        col = GetComponent<Collider2D>(); 
+        rb = GetComponent<Rigidbody2D>();
+        col = GetComponent<Collider2D>();
 
         if (animator == null) animator = GetComponentInChildren<Animator>();
         if (spriteRenderer == null) spriteRenderer = GetComponentInChildren<SpriteRenderer>();
 
-        agent.updateRotation = false;
-        agent.updateUpAxis = false;
-    }
-    private void Start()
-    {
-        if (data != null)
-        {
-            agent.speed = data.normalSpeed;
-            currentHealth = data.enemyHealth;
-        }
+        rb.freezeRotation = true;
     }
 
-    private void Update()
+    private void Start()
     {
-        if (Player.Instance == null || data == null || agent == null) return;
-        if (!Player.Instance.IsAlive()) return;
-        if (isActionActive) return;
+        if (data != null) currentHealth = data.enemyHealth;
+    }
+
+    private void FixedUpdate()
+    {
+        if (Player.Instance == null || !Player.Instance.IsAlive() || isActionActive)
+        {
+            if (!isActionActive)
+                rb.linearVelocity = new Vector2(Mathf.MoveTowards(rb.linearVelocity.x, 0, acceleration * Time.fixedDeltaTime), rb.linearVelocity.y);
+            return;
+        }
 
         float distance = Vector2.Distance(transform.position, Player.Instance.transform.position);
 
         if (curState == State.Idle || curState == State.Chase)
         {
-            if (agent.isActiveAndEnabled && agent.isOnNavMesh)
-            {
-                agent.SetDestination(Player.Instance.transform.position);
-                curState = State.Chase;
-            }
+            MoveTowardsPlayer();
 
-            if (distance <= 3f)
+            if (distance <= 3f && Time.time >= lastDashTime + dashCooldown)
             {
                 StartCoroutine(DashRoutine());
             }
         }
-
-        if (spriteRenderer != null)
-            spriteRenderer.flipX = Player.Instance.transform.position.x < transform.position.x;
     }
 
-
-    private void OnCollisionEnter2D(Collision2D collision)
+    private void MoveTowardsPlayer()
     {
-        if (collision.gameObject.CompareTag("Player"))
-        {
-            Player.Instance.TakeDamage(data.enemyDamageAmount, transform);
+        curState = State.Chase;
 
-            if (collision.gameObject.TryGetComponent(out KnockBack kb))
-                kb.GetKnockedBack(transform);
-        }
+        float moveDir = Mathf.Sign(Player.Instance.transform.position.x - transform.position.x);
+
+        float targetVelX = moveDir * moveSpeed;
+        float newVelX = Mathf.MoveTowards(rb.linearVelocity.x, targetVelX, acceleration * Time.fixedDeltaTime);
+
+        rb.linearVelocity = new Vector2(newVelX, rb.linearVelocity.y);
+
+        spriteRenderer.flipX = Player.Instance.transform.position.x < transform.position.x;
+
+        if (animator != null) animator.SetBool("isChasing", true);
     }
+
     private IEnumerator DashRoutine()
     {
         isActionActive = true;
         curState = State.Dash;
-        agent.enabled = false;
+        lastDashTime = Time.time; 
 
         float gravityBefore = rb.gravityScale;
         rb.gravityScale = 0; 
-        col.isTrigger = true;
+        col.isTrigger = true; 
 
-        Vector3 playerPos = Player.Instance.transform.position;
-        Vector3 dashTarget = new Vector3(playerPos.x, transform.position.y, transform.position.z);
+        Vector2 startPos = transform.position;
+        float dashDir = Mathf.Sign(Player.Instance.transform.position.x - transform.position.x);
+        Vector2 dashTarget = new Vector2(startPos.x + (dashDir * dashDistance), startPos.y);
 
         float elapsed = 0;
-        float duration = 0.4f;
-        Vector3 startPos = transform.position;
 
-        while (elapsed < duration)
+        while (elapsed < dashDuration)
         {
             elapsed += Time.deltaTime;
-            transform.position = Vector3.Lerp(startPos, dashTarget, elapsed / duration);
+            rb.MovePosition(Vector2.Lerp(startPos, dashTarget, elapsed / dashDuration));
+
             SpawnGhost();
             yield return null;
         }
 
+        // Возвращаем физику в норму
         rb.gravityScale = gravityBefore;
         col.isTrigger = false;
+        rb.linearVelocity = Vector2.zero;
 
-        yield return new WaitForFixedUpdate();
-
-        agent.enabled = true;
         curState = State.Cooldown;
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(0.5f); 
 
         isActionActive = false;
         curState = State.Chase;
+    }
+
+    private void SpawnGhost()
+    {
+        if (ghostPrefab == null) return;
+        GameObject ghost = Instantiate(ghostPrefab, transform.position, transform.rotation);
+        var gScript = ghost.GetComponent<TrailGhost>();
+        if (gScript != null) gScript.Init(spriteRenderer.sprite);
+        ghost.GetComponent<SpriteRenderer>().flipX = spriteRenderer.flipX;
     }
 
     private void ApplyDamageToPlayer()
     {
         if (Time.time >= lastDamageTime + damageCooldown)
         {
-            Player.Instance.TakeDamage(data.enemyDamageAmount/3, transform);
+            Player.Instance.TakeDamage(data.enemyDamageAmount / 3, transform);
             lastDamageTime = Time.time;
-            Debug.Log("Слайм нанес урон!");
+        }
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Player"))
+        {
+            Player.Instance.TakeDamage(data.enemyDamageAmount, transform);
+            if (collision.gameObject.TryGetComponent(out KnockBack kb))
+                kb.GetKnockedBack(transform);
         }
     }
 
@@ -136,45 +155,20 @@ public class SlimeAI : MonoBehaviour
         if (collision.gameObject.CompareTag("Player")) ApplyDamageToPlayer();
     }
 
-    private void OnTriggerStay2D(Collider2D collision) 
+    private void OnTriggerStay2D(Collider2D collision)
     {
         if (collision.CompareTag("Player")) ApplyDamageToPlayer();
     }
 
-    private void SpawnGhost()
-    {
-        GameObject ghost = Instantiate(ghostPrefab, transform.position, transform.rotation);
-        var gScript = ghost.GetComponent<TrailGhost>();
-        gScript.Init(spriteRenderer.sprite);
-        ghost.GetComponent<SpriteRenderer>().flipX = spriteRenderer.flipX;
-    }
     public void TakeDamage(int damage)
     {
         currentHealth -= damage;
-
-        if (currentHealth <= 0)
-        {
-            Die();
-        }
-    }
-
-
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (collision.CompareTag("Player"))
-        {
-            Player.Instance.TakeDamage(data.enemyDamageAmount/2, transform);
-            Debug.Log("Слайм протаранил игрока в деше!");
-        }
+        if (currentHealth <= 0) Die();
     }
 
     private void Die()
     {
-        if (SpiritDIalogManager.Instance != null)
-        {
-            SpiritDIalogManager.Instance.RegistrKills();
-        }
-
+        if (SpiritDIalogManager.Instance != null) SpiritDIalogManager.Instance.RegistrKills();
         Destroy(gameObject);
     }
 }
