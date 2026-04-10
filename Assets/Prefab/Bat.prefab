@@ -177,9 +177,17 @@ MonoBehaviour:
   wobbleAmount: 0.3
   wobbleSpeed: 2
   detectionRadius: 8
+  obstacleLayer:
+    serializedVersion: 2
+    m_Bits: 72
+  obstacleDetectionDist: 1.5
+  avoidForce: 5
   health: 1
   damage: 1
   attackCooldown: 2
+  separationRadius: 1.5
+  separationForce: 2
+  playerStopDistance: 1.2
 --- !u!95 &6203499265695814901
 Animator:
   serializedVersion: 7

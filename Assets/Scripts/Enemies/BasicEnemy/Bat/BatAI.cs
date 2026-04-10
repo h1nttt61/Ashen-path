@@ -2,9 +2,9 @@ using UnityEngine;
 
 public class BatAI : MonoBehaviour
 {
-    public static bool IsAnyBatAnnoying => isFlockAnnoying;
-    private static bool isFlockAggressed = false;
-    private static bool isFlockAnnoying = false;
+   
+    private bool isFlockAggressed = false;
+    private bool isFlockAnnoying = false;
 
     [Header("Optimization")]
     [SerializeField] private float activationDistance = 15f;
@@ -16,6 +16,9 @@ public class BatAI : MonoBehaviour
     [SerializeField] private float wobbleAmount = 0.3f;
     [SerializeField] private float wobbleSpeed = 1.5f;
     [SerializeField] private float detectionRadius = 8f;
+    [SerializeField] private LayerMask obstacleLayer;
+    [SerializeField] private float obstacleDetectionDist = 1.5f;
+    [SerializeField] private float avoidForce = 5f;
 
     [Header("Combat")]
     [SerializeField] private int health = 1;
@@ -88,17 +91,33 @@ public class BatAI : MonoBehaviour
         }
     }
 
+    public static bool IsAnyBatAnnoying
+    {
+        get
+        {
+            BatAI[] allBats = FindObjectsByType<BatAI>(FindObjectsSortMode.None);
+            foreach (var bat in allBats)
+            {
+                if (bat.isFlockAnnoying) return true;
+            }
+            return false;
+        }
+    }
+
     private void IdleCircle()
     {
-        float x = Mathf.Cos((Time.time + randomTimeOffset) * moveSpeed * 0.5f) * 2f;
-        float y = Mathf.Sin((Time.time + randomTimeOffset) * moveSpeed * 0.5f) * 1f;
+        float time = (Time.time + randomTimeOffset) * wobbleSpeed;
+        float x = Mathf.Cos(time * 0.5f) * 2f;
+        float y = Mathf.Sin(time) * 0.5f;
 
         Vector3 targetPos = spawnPosition + new Vector3(x, y, 0);
-        transform.position = Vector3.SmoothDamp(transform.position, targetPos, ref currentVelocity, smoothTime, moveSpeed);
+
+        Vector3 finalTarget = targetPos + GetObstacleAvoidanceVector();
+
+        transform.position = Vector3.SmoothDamp(transform.position, finalTarget, ref currentVelocity, smoothTime, moveSpeed);
 
         FlipSprite(targetPos.x);
     }
-
     private void AnnoyPlayer()
     {
         float side = isFollowingFront ? 1f : -1f;
@@ -107,11 +126,11 @@ public class BatAI : MonoBehaviour
         Vector3 targetPos = Player.Instance.transform.position + new Vector3(side * lookDir, 0, 0) + randomOffset;
         targetPos.y += Mathf.Sin(Time.time * wobbleSpeed) * wobbleAmount;
 
-        Vector3 finalVelocity = currentVelocity;
-        Vector3 movePos = Vector3.SmoothDamp(transform.position, targetPos + GetSeparationVector(), ref finalVelocity, smoothTime, moveSpeed);
+        Vector3 finalTarget = targetPos + GetSeparationVector() + GetObstacleAvoidanceVector();
 
-        transform.position = movePos;
-        currentVelocity = finalVelocity;
+        Vector3 finalVelocity = currentVelocity;
+        transform.position = Vector3.SmoothDamp(transform.position, finalTarget, ref currentVelocity, smoothTime, moveSpeed);
+
 
         FlipSprite(Player.Instance.transform.position.x);
     }
@@ -125,9 +144,8 @@ public class BatAI : MonoBehaviour
         targetPos.y += Mathf.Sin((Time.time + randomTimeOffset) * wobbleSpeed * 2f) * wobbleAmount;
 
         Vector3 finalVelocity = currentVelocity;
-        Vector3 movePos = Vector3.SmoothDamp(transform.position, targetPos + GetSeparationVector(), ref finalVelocity, smoothTime / 2f, moveSpeed * 1.5f);
-
-        transform.position = movePos;
+        Vector3 finalTarget = targetPos + GetSeparationVector() + GetObstacleAvoidanceVector();
+        transform.position = Vector3.SmoothDamp(transform.position, finalTarget, ref currentVelocity, smoothTime, moveSpeed);
         currentVelocity = finalVelocity;
 
         FlipSprite(Player.Instance.transform.position.x);
@@ -144,10 +162,18 @@ public class BatAI : MonoBehaviour
     public void TakeDamage(int amount)
     {
         isFlockAggressed = true;
+
+        Collider2D[] nearby = Physics2D.OverlapCircleAll(transform.position, 10f);
+        foreach (var col in nearby)
+        {
+            if (col.TryGetComponent(out BatAI bat))
+            {
+                bat.isFlockAggressed = true;
+            }
+        }
+
         health -= amount;
-
         if (knockback != null) knockback.GetKnockedBack(Player.Instance.transform);
-
         if (health <= 0) Die();
     }
 
@@ -169,22 +195,46 @@ public class BatAI : MonoBehaviour
     private Vector3 GetSeparationVector()
     {
         Vector3 separation = Vector3.zero;
-        BatAI[] allBats = FindObjectsByType<BatAI>(FindObjectsSortMode.None);
+        Collider2D[] nearby = Physics2D.OverlapCircleAll(transform.position, separationRadius);
 
-        foreach (var bat in allBats)
+        foreach (var col in nearby)
         {
-            if (bat == this) continue;
+            if (col.gameObject == gameObject) continue; 
 
-            float distance = Vector3.Distance(transform.position, bat.transform.position);
-            if (distance < separationRadius)
+            if (col.TryGetComponent(out BatAI otherBat))
             {
-                Vector3 diff = transform.position - bat.transform.position;
+                float distance = Vector3.Distance(transform.position, otherBat.transform.position);
+                Vector3 diff = transform.position - otherBat.transform.position;
                 separation += diff.normalized / (distance + 0.1f);
             }
         }
         return separation * separationForce;
     }
 
+    private Vector3 GetObstacleAvoidanceVector()
+    {
+        Vector3 avoidance = Vector3.zero;
+        Vector3 moveDir = currentVelocity.normalized;
+        if (moveDir == Vector3.zero) return Vector3.zero;
+
+        Vector2[] rayDirections = {
+        moveDir,
+        Quaternion.Euler(0, 0, 30) * moveDir,
+        Quaternion.Euler(0, 0, -30) * moveDir
+    };
+
+        foreach (var dir in rayDirections)
+        {
+            RaycastHit2D hit = Physics2D.Raycast(transform.position, dir, obstacleDetectionDist, obstacleLayer);
+
+            if (hit.collider != null)
+            {
+                avoidance += (Vector3)hit.normal * (obstacleDetectionDist - hit.distance);
+            }
+        }
+
+        return Vector3.ClampMagnitude(avoidance * avoidForce, moveSpeed * 2f);
+    }
     private void OnTriggerStay2D(Collider2D collision)
     {
         if (collision.CompareTag("Player") && isFlockAggressed)

@@ -110,7 +110,6 @@ public class SlimeAI : MonoBehaviour
             yield return null;
         }
 
-        // Возвращаем физику в норму
         rb.gravityScale = gravityBefore;
         col.isTrigger = false;
         rb.linearVelocity = Vector2.zero;
