@@ -95,6 +95,10 @@ public class Player : MonoBehaviour
     [SerializeField] private float activeColliderTime = 0.15f; 
     private bool canAttack = true;
 
+    [Header("Heal Restriction")]
+    [SerializeField] private float batDetectionRadius = 5f;
+    [SerializeField] private LayerMask batLayer;
+
     private bool isDashing;
     private bool isHealButtonHeld = false;
     private bool isAlive;
@@ -610,8 +614,8 @@ public class Player : MonoBehaviour
 
     private void StartHealingFromInput(object sender, EventArgs e)
     {
-        if (Health >= maxHealth) return;
-
+        if (Health >= maxHealth || IsBatNearby()) return;
+        Debug.Log($"{IsBatNearby()}");
         isHealButtonHeld = true;
         if (currentHealCharge >= 1f && !isRegenerating)
         {
@@ -627,12 +631,13 @@ public class Player : MonoBehaviour
     private IEnumerator GradualHealRoutine()
     {
         isRegenerating = true;
-        while (isHealButtonHeld && currentHealCharge >= 1f && Health < maxHealth)
+
+        while (isHealButtonHeld && currentHealCharge >= 1f && Health < maxHealth && !IsBatNearby())
         {
             float timer = 0f;
             float duration = 1f / healFillSpeed;
 
-            while (timer < duration && isHealButtonHeld)
+            while (timer < duration && isHealButtonHeld && !IsBatNearby())
             {
                 timer += Time.deltaTime;
                 float amountToSubtract = Time.deltaTime * healFillSpeed;
@@ -643,7 +648,7 @@ public class Player : MonoBehaviour
                 yield return null;
             }
 
-            if (isHealButtonHeld && Health < maxHealth)
+            if (isHealButtonHeld && Health < maxHealth && !IsBatNearby())
             {
                 Health = Mathf.Min(Health + 1, maxHealth);
                 OnHealthChanged?.Invoke(Health);
@@ -700,6 +705,20 @@ public class Player : MonoBehaviour
         rb.linearVelocity = Vector2.zero;
 
         canTakeDamage = true;
+    }
+
+    private bool IsBatNearby()
+    {
+        Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, batDetectionRadius);
+
+        foreach (var col in colliders)
+        {
+            if (col.TryGetComponent(out BatAI bat))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void OnDestroy()

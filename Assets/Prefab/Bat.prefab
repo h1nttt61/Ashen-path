@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 5768672671179285709}
   - component: {fileID: 7243848279546618242}
   - component: {fileID: 6203499265695814901}
-  m_Layer: 0
+  m_Layer: 12
   m_Name: Bat
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -29,7 +29,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1914277469610896572}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -34.66, y: -26.73, z: 0}
   m_LocalScale: {x: 0.05662166, y: 0.07889119, z: 1}
   m_ConstrainProportionsScale: 0
@@ -170,12 +170,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e512081de1728944b8df8aaba3ddb54e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BatAI
+  activationDistance: 15
+  sleepCheckInterval: 0.5
   moveSpeed: 4
   smoothTime: 0.5
   wobbleAmount: 0.3
   wobbleSpeed: 2
+  detectionRadius: 8
   health: 1
   damage: 1
+  attackCooldown: 2
 --- !u!95 &6203499265695814901
 Animator:
   serializedVersion: 7
