@@ -64,7 +64,6 @@ public class SpiritNPC : MonoBehaviour
         if (npcDialog != null && npcDialog.dialogPanel != null)
         {
             npcDialog.dialogPanel.SetActive(true);
-            npcDialog.textDisplay.text = "��, ����! � ��� �� ��������!";
         }
 
         while (Player.Instance != null && Vector3.Distance(transform.position, Player.Instance.transform.position) > stopDistance)
