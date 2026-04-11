@@ -65,4 +65,6 @@ public class PlayerVisual : MonoBehaviour
 
     public void EnableRightHand() => Player.Instance.rightHand.EnableAttack();
     public void DisableRightHand() => Player.Instance.rightHand.DisableAttack();
+
+    public SpriteRenderer GetSpriteRenderer() => spriteRenderer;
 }

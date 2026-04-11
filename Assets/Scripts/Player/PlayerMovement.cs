@@ -24,12 +24,19 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float wallSlideSpeed = 4f;
     [SerializeField] private float wallStickTime = 0.2f;
     private float stickTimer;
+    private bool canDash = true;
 
     [Header("Dash")]
     public bool isDashUnlocked = true;
+    [SerializeField] private float dashCooldown = 2f;
     [SerializeField] private float dashSpeed = 35f;
     [SerializeField] private float dashTime = 0.15f;
     private bool isDashing;
+
+    [Header("Ghost Trail")]
+    [SerializeField] private Color ghostColor = new Color(0.5f, 0.5f, 1f, 0.5f);
+    [SerializeField] private float ghostDelay = 0.03f;
+    [SerializeField] private float ghostFadeSpeed = 3f;
 
     private void Start()
     {
@@ -106,25 +113,63 @@ public class PlayerMovement : MonoBehaviour
 
     private void OnDashInput(object sender, EventArgs e)
     {
-        if (!isDashing && core.isDashUnlocked) StartCoroutine(DashRoutine());
+        if (!isDashing && core.isDashUnlocked && canDash && IsRunning)
+        {
+            StartCoroutine(DashRoutine());
+        }
     }
 
     private IEnumerator DashRoutine()
     {
+        canDash = false; 
         isDashing = true;
         core.InvokeDashEvent();
 
         float dashDir = isFacingRight ? 1 : -1;
+        Coroutine ghostCoroutine = StartCoroutine(CreateGhostTrail());
 
-        float oldGravity = core.rb.gravityScale;
-        core.rb.gravityScale = 0;
-
-        core.rb.linearVelocity = new Vector2(dashDir * dashSpeed, 0);
+        core.rb.linearVelocity = new Vector2(dashDir * dashSpeed, core.rb.linearVelocity.y);
 
         yield return new WaitForSeconds(dashTime);
 
-        core.rb.gravityScale = oldGravity;
+        StopCoroutine(ghostCoroutine);
         isDashing = false;
+
+        yield return new WaitForSeconds(dashCooldown);
+        canDash = true;
+    }
+
+    private IEnumerator CreateGhostTrail()
+    {
+        PlayerVisual visual = core.GetComponentInChildren<PlayerVisual>();
+        SpriteRenderer playerSR = visual != null ? visual.GetSpriteRenderer() : null;
+
+        while (isDashing)
+        {
+            if (playerSR != null)
+            {
+                GameObject ghostObj = new GameObject("ShadowStep");
+                ShadowPlayer shadow = ghostObj.AddComponent<ShadowPlayer>();
+
+                Vector3 fixedScale = new Vector3(0.0054f, 0.0054f, 1f);
+
+                shadow.Init(
+                    playerSR.sprite,
+                    transform.position,
+                    transform.rotation,
+                    fixedScale,
+                    ghostColor,
+                    ghostFadeSpeed
+                );
+
+                SpriteRenderer shadowSR = ghostObj.GetComponent<SpriteRenderer>();
+                if (shadowSR != null)
+                {
+                    shadowSR.flipX = playerSR.flipX;
+                }
+            }
+            yield return new WaitForSeconds(ghostDelay);
+        }
     }
 
     private void OnDestroy()
