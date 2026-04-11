@@ -39,7 +39,7 @@ public class Player : MonoBehaviour
     [Header("Jump settings")]
     [SerializeField] private float jumpForce = 14f;
     [SerializeField] private LayerMask groundLayer;
-    [SerializeField] private Transform groundCheck;
+    //[SerializeField] private Transform groundCheck;
     [SerializeField] private float groundCheckRadius = 0.2f;
     [SerializeField] private float fallMultiplier = 4f;
     [SerializeField] private float lowJumpMultiplier = 2.5f;
@@ -394,19 +394,19 @@ public class Player : MonoBehaviour
     {
         if (isWallSticking)
         {
-            rb.gravityScale = 0f;
+            //rb.gravityScale = 0f;
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);
         }
-        else if (isWallSliding)
-        {
-            rb.gravityScale = wallSlideGravity;
-        }
-        else if (rb.linearVelocity.y < 0)
-            rb.gravityScale = fallMultiplier;
-        else if (rb.linearVelocity.y > 0 && !GameInput.Instance.IsJumpPressed())
-            rb.gravityScale = lowJumpMultiplier;
-        else
-            rb.gravityScale = 1f;
+        //else if (isWallSliding)
+        //{
+        //    rb.gravityScale = wallSlideGravity;
+        //}
+        //else if (rb.linearVelocity.y < 0)
+        //    rb.gravityScale = fallMultiplier;
+        //else if (rb.linearVelocity.y > 0 && !GameInput.Instance.IsJumpPressed())
+        //    rb.gravityScale = lowJumpMultiplier;
+        //else
+        //    rb.gravityScale = 1f;
     }
 
     private void StartWallStick()
@@ -565,11 +565,11 @@ public class Player : MonoBehaviour
 
     private void OnDrawGizmosSelected()
     {
-        if (groundCheck != null)
+        /*if (groundCheck != null)
         {
             Gizmos.color = isGrounded ? Color.green : Color.red;
             Gizmos.DrawWireSphere(groundCheck.position, groundCheckRadius);
-        }
+        }*/
     }
 
     private void CheckWall()
@@ -667,7 +667,7 @@ public class Player : MonoBehaviour
 
         if (spriteRenderer != null) spriteRenderer.color = Color.black;
 
-        rb.gravityScale = 0;
+        rb.gravityScale = 0f;
         rb.linearVelocity = new Vector2(superDashDir * superDashSpeed, 0);
 
         canTakeDamage = false;
