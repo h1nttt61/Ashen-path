@@ -1,5 +1,7 @@
 using System.Collections;
+using System.Numerics;
 using UnityEngine;
+using Vector2 = UnityEngine.Vector2;
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class SlimeAI : MonoBehaviour
@@ -73,31 +75,72 @@ public class SlimeAI : MonoBehaviour
     {
         curState = State.Chase;
 
-        float moveDir = Mathf.Sign(Player.Instance.transform.position.x - transform.position.x);
+        int wallsLayerMask = LayerMask.GetMask("Wall", "Ground");
+        Vector2 playerPos = Player.Instance.transform.position;
+
+        float moveDir = Mathf.Sign(playerPos.x - transform.position.x);
+
+        RaycastHit2D floorRay = Physics2D.Raycast(
+            (Vector2)transform.position,
+            Vector2.down,
+            1f,
+            wallsLayerMask
+        );
+        RaycastHit2D sideRay = Physics2D.Raycast(
+            transform.position,
+            new Vector2(moveDir, 0),
+            1f,
+            wallsLayerMask
+        );
+        Debug.Log($"dist from floor: {floorRay.distance}");
+        if (floorRay.distance > 0.125f)
+        {
+            transform.position = new Vector2(transform.position.x, transform.position.y - (floorRay.distance - 0.125f));
+        }
+        else if (floorRay.distance == 0 && floorRay.collider != null)
+        {
+            transform.position = new Vector2(transform.position.x, floorRay.point.y + floorRay.collider.bounds.size.y / 2 + 0.125f);
+        }
 
         float targetVelX = moveDir * moveSpeed;
         float newVelX = Mathf.MoveTowards(rb.linearVelocity.x, targetVelX, acceleration * Time.fixedDeltaTime);
 
         rb.linearVelocity = new Vector2(newVelX, rb.linearVelocity.y);
 
-        spriteRenderer.flipX = Player.Instance.transform.position.x < transform.position.x;
+        spriteRenderer.flipX = playerPos.x < transform.position.x;
 
-        if (animator != null) animator.SetBool("isChasing", true);
+        if (animator != null) animator.SetBool("isMoving", true);
     }
 
     private IEnumerator DashRoutine()
     {
+        LayerMask wallsLayerMask = LayerMask.GetMask("Wall", "Ground");
+
         isActionActive = true;
         curState = State.Dash;
         lastDashTime = Time.time; 
 
         float gravityBefore = rb.gravityScale;
         rb.gravityScale = 0; 
-        col.isTrigger = true; 
+        //col.isTrigger = true; 
 
         Vector2 startPos = transform.position;
         float dashDir = Mathf.Sign(Player.Instance.transform.position.x - transform.position.x);
-        Vector2 dashTarget = new Vector2(startPos.x + (dashDir * dashDistance), startPos.y);
+        Vector2 VectorDashDir = new Vector2(dashDir, 0);
+        Vector2 castSize = new Vector2(col.bounds.size.x, col.bounds.size.y * 0.7f - col.bounds.size.y / 2);
+
+        RaycastHit2D hit = Physics2D.BoxCast(
+            startPos,
+            castSize,
+            0f,
+            VectorDashDir,
+            dashDistance,
+            wallsLayerMask
+        );
+
+        float actualDistance = hit ? hit.distance - 0.05f : dashDistance;
+        actualDistance = Mathf.Max(actualDistance, 0f);
+        Vector2 dashTarget = startPos + VectorDashDir * actualDistance;
 
         float elapsed = 0;
 
@@ -111,7 +154,7 @@ public class SlimeAI : MonoBehaviour
         }
 
         rb.gravityScale = gravityBefore;
-        col.isTrigger = false;
+        //col.isTrigger = false;
         rb.linearVelocity = Vector2.zero;
 
         curState = State.Cooldown;
