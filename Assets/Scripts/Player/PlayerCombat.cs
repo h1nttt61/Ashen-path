@@ -61,7 +61,7 @@ public class PlayerCombat : MonoBehaviour
         if (core.Health >= core.maxHealth || IsBatNearby()) return;
 
         isHealButtonHeld = true;
-        if (currentHealCharge >= 1f && !isRegenerating)
+        if (!isRegenerating && currentHealCharge >= 1f && core.Health < core.maxHealth)
         {
             StartCoroutine(GradualHealRoutine());
         }
@@ -72,28 +72,28 @@ public class PlayerCombat : MonoBehaviour
     private IEnumerator GradualHealRoutine()
     {
         isRegenerating = true;
+        float internalHealthAccumulator = 0f;
 
-        while (isHealButtonHeld && currentHealCharge >= 1f && core.Health < core.maxHealth && !IsBatNearby())
+        while (isHealButtonHeld && currentHealCharge > 0 && core.Health < core.maxHealth && !IsBatNearby())
         {
-            float timer = 0f;
-            float duration = 1f / healFillSpeed;
+            float chargeToSpend = Time.deltaTime * healFillSpeed;
+            chargeToSpend = Mathf.Min(chargeToSpend, currentHealCharge);
 
-            while (timer < duration && isHealButtonHeld && !IsBatNearby())
+            currentHealCharge -= chargeToSpend;
+            internalHealthAccumulator += chargeToSpend;
+
+            if (internalHealthAccumulator >= 1f)
             {
-                timer += Time.deltaTime;
-                currentHealCharge -= Time.deltaTime * healFillSpeed;
-                currentHealCharge = Mathf.Max(0, currentHealCharge);
+                int healAmount = Mathf.FloorToInt(internalHealthAccumulator);
 
-                core.InvokeHealProgressEvent(currentHealCharge / core.maxHealth);
-                yield return null;
+                core.Heal(healAmount);
+
+                internalHealthAccumulator -= healAmount;
             }
 
-            if (isHealButtonHeld && core.Health < core.maxHealth && !IsBatNearby())
-            {
-                core.InvokeHealthEvent(core.Health + 1);
-            }
+            core.InvokeHealProgressEvent(currentHealCharge / core.maxHealth);
+            yield return null;
         }
-
         isRegenerating = false;
     }
 

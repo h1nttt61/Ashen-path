@@ -10,7 +10,7 @@ public static class SaveManager
     private const string HEALTH_KEY = "PlayerHealth";
     private const string BOSS_DEFEATED_KEY = "BossDefeated";
     private const string SUPER_DASH_KEY = "SuperDashUnlocked";
-
+    private const string SPIRIT_EVENT_KEY = "SpiritEventTriggered";
     public static void SaveGame()
     {
         if (Player.Instance == null) return;
@@ -22,7 +22,7 @@ public static class SaveManager
         PlayerPrefs.SetFloat(CHECKPOINT_Y, Player.Instance.transform.position.y);
         PlayerPrefs.SetInt(SUPER_DASH_KEY, Player.Instance.isSuperDashUnlocked ? 1 : 0);
 
-        //ayerPrefs.Save();
+        PlayerPrefs.Save();
     }
 
     public static void SaveCurrentCheckpoint(string id)
@@ -62,6 +62,17 @@ public static class SaveManager
             int savedHealth = PlayerPrefs.GetInt(HEALTH_KEY);
             Player.Instance.InitializeHealth(savedHealth);
         }
+    }
+
+    public static void SaveSpiritEvent()
+    {
+        PlayerPrefs.SetInt(SPIRIT_EVENT_KEY, 1);
+        PlayerPrefs.Save();
+    }
+
+    public static bool IsSpiritEventTriggered()
+    {
+        return PlayerPrefs.GetInt(SPIRIT_EVENT_KEY, 0) == 1;
     }
 
     public static void ResetProgress()

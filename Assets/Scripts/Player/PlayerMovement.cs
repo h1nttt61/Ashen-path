@@ -38,6 +38,14 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float ghostDelay = 0.03f;
     [SerializeField] private float ghostFadeSpeed = 3f;
 
+    [Header("Coyote Time")]
+    [SerializeField] private float coyoteTime = 0.15f;
+    private float coyoteTimeCounter;
+
+    [Header("Jump Buffer")]
+    [SerializeField] private float jumpBufferTime = 0.15f;
+    private float jumpBufferTimeCounter;
+
     private void Start()
     {
         core = Player.Instance;
@@ -53,6 +61,23 @@ public class PlayerMovement : MonoBehaviour
         if (inputVector.x > 0.1f) isFacingRight = true;
         else if (inputVector.x < -0.1f) isFacingRight = false;
 
+        if (core.collision.IsGrounded)
+        {
+            coyoteTimeCounter = coyoteTime;
+        }
+        else
+        {
+            coyoteTimeCounter -= Time.deltaTime;
+        }
+
+        if (GameInput.Instance.WasJumpPressedThisFrame())
+        {
+            jumpBufferTimeCounter = jumpBufferTime;
+        }
+        else
+        {
+            jumpBufferTimeCounter -= Time.deltaTime;
+        }
         HandleJumpInput();
     }
 
@@ -66,19 +91,28 @@ public class PlayerMovement : MonoBehaviour
 
     private void HandleJumpInput()
     {
-        if (GameInput.Instance.WasJumpPressedThisFrame())
+        if (jumpBufferTimeCounter > 0f)
         {
             if (core.collision.IsTouchingWall && core.isWallJumpUnlocked && !core.collision.IsGrounded)
             {
                 core.rb.linearVelocity = new Vector2(-core.collision.WallDirection * wallJumpForceX, wallJumpForceY);
                 stickTimer = 0;
                 IsJumping = true;
+                jumpBufferTimeCounter = 0;
             }
-            else if (core.collision.IsGrounded)
+            else if (coyoteTimeCounter > 0f)
             {
                 core.rb.linearVelocity = new Vector2(core.rb.linearVelocity.x, jumpForce);
                 IsJumping = true;
+                jumpBufferTimeCounter = 0;
+                coyoteTimeCounter = 0;
             }
+        }
+
+        if (Input.GetButtonUp("Jump") && core.rb.linearVelocity.y > 0f)
+        {
+            core.rb.linearVelocity = new Vector2(core.rb.linearVelocity.x, core.rb.linearVelocity.y * 0.5f);
+            coyoteTimeCounter = 0f;
         }
 
         if (core.collision.IsGrounded) IsJumping = false;

@@ -61,6 +61,7 @@ public class Player : MonoBehaviour
     private void Start()
     {
         SaveManager.LoadGame();
+
         if (!PlayerPrefs.HasKey("PlayerHealth"))
         {
             string lastCheckpoint = SaveManager.GetLastCheckpointID();
@@ -123,6 +124,12 @@ public class Player : MonoBehaviour
         canTakeDamage = false;
         yield return new WaitForSeconds(cooldown);
         canTakeDamage = true;
+    }
+
+    public void Heal(int amount)
+    {
+        Health = Mathf.Min(Health + amount, maxHealth);
+        OnHealthChanged?.Invoke(Health); 
     }
 
     private void HandleSceneTransitionSpawn()

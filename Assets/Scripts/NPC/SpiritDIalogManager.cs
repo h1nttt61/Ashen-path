@@ -19,8 +19,15 @@ public class SpiritDIalogManager : MonoBehaviour
     private void Awake()
     {
         Instance = this;
-        if (spirit != null)
-            spirit.gameObject.SetActive(false);
+        if (SaveManager.IsSpiritEventTriggered())
+        {
+            eventTrigger = true;
+            if (spirit != null) spirit.gameObject.SetActive(false);
+        }
+        else
+        {
+            if (spirit != null) spirit.gameObject.SetActive(false);
+        }
     }
 
     public void RegistrKills()
@@ -38,18 +45,17 @@ public class SpiritDIalogManager : MonoBehaviour
     {
         eventTrigger = true;
 
-        // Чистим зону от мышей
+        SaveManager.SaveSpiritEvent();
+
         ClearNearbyEnemies();
 
         if (Player.Instance != null)
         {
-            // 1. Останавливаем скрипты управления
             SetPlayerControl(false);
 
             Rigidbody2D rb = Player.Instance.GetComponent<Rigidbody2D>();
             Animator playerAnim = Player.Instance.GetComponentInChildren<Animator>();
 
-            // 2. Ждем, пока игрок упадет на землю (максимум 2 секунды)
             float timeout = 2f;
             while (Mathf.Abs(rb.linearVelocity.y) > 0.1f && timeout > 0)
             {
@@ -57,18 +63,15 @@ public class SpiritDIalogManager : MonoBehaviour
                 yield return null;
             }
 
-            // 3. Полный фриз через Static (он "замораживает" объект в пространстве)
             rb.linearVelocity = Vector2.zero;
             rb.bodyType = RigidbodyType2D.Static;
 
-            // Сбрасываем анимации
             if (playerAnim != null)
             {
                 playerAnim.SetBool("isRunning", false);
                 playerAnim.SetBool("isGd", true);
             }
 
-            // 4. Ставим духа (слева или справа от игрока)
             float side = Player.Instance.transform.localScale.x > 0 ? -3f : 3f;
             spirit.transform.position = Player.Instance.transform.position + new Vector3(side, 1.5f, 0);
         }
@@ -106,7 +109,6 @@ public class SpiritDIalogManager : MonoBehaviour
             if (col.TryGetComponent(out BatAI bat)) Destroy(bat.gameObject);
         }
 
-        // Выключаем спавнеры слизней
         foreach (var s in FindObjectsOfType<SlimeSpawner>())
         {
             s.DeactivateSpawner(120f);
@@ -115,7 +117,6 @@ public class SpiritDIalogManager : MonoBehaviour
 
     private void SetPlayerControl(bool state)
     {
-        // Выключаем скрипты, чтобы ввод не мешал
         if (Player.Instance.TryGetComponent(out PlayerMovement mov)) mov.enabled = state;
         if (Player.Instance.TryGetComponent(out PlayerCombat comb)) comb.enabled = state;
     }
@@ -126,8 +127,6 @@ public class SpiritDIalogManager : MonoBehaviour
         {
             Rigidbody2D rb = Player.Instance.GetComponent<Rigidbody2D>();
 
-            // Просто возвращаем Dynamic. 
-            // Он сам подхватит тот Gravity Scale, который ты выставил в инспекторе.
             rb.bodyType = RigidbodyType2D.Dynamic;
             rb.linearVelocity = Vector2.zero;
 
