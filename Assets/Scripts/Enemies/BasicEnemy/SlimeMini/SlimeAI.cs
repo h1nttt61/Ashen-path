@@ -92,7 +92,6 @@ public class SlimeAI : MonoBehaviour
             1f,
             wallsLayerMask
         );
-        Debug.Log($"dist from floor: {floorRay.distance}");
         if (floorRay.distance > 0.125f)
         {
             transform.position = new Vector2(transform.position.x, transform.position.y - (floorRay.distance - 0.125f));
