@@ -30,7 +30,7 @@ public class PlayerMovement : MonoBehaviour
     public bool isDashUnlocked = true;
     [SerializeField] private float dashCooldown = 2f;
     [SerializeField] private float dashSpeed = 35f;
-    [SerializeField] private float dashTime = 0.15f;
+    [SerializeField] private float dashTime = 0.2f;
     private bool isDashing;
 
     [Header("Ghost Trail")]
@@ -134,12 +134,12 @@ public class PlayerMovement : MonoBehaviour
         {
             if (stickTimer > 0)
             {
-                newY = 0; 
+                newY = 0;
                 stickTimer -= Time.fixedDeltaTime;
             }
             else
             {
-                newY = -wallSlideSpeed; 
+                newY = -wallSlideSpeed;
             }
         }
         core.rb.linearVelocity = new Vector2(newX, newY);
@@ -155,7 +155,17 @@ public class PlayerMovement : MonoBehaviour
 
     private IEnumerator DashRoutine()
     {
-        canDash = false; 
+        BossAI boss = FindFirstObjectByType<BossAI>();
+        PolygonCollider2D bosscol = null;
+        if (boss != null)
+        {
+            bosscol = boss.GetComponent<PolygonCollider2D>();
+            if (bosscol != null)
+            {
+                bosscol.isTrigger = true;
+            }
+        }
+        canDash = false;
         isDashing = true;
         core.InvokeDashEvent();
 
@@ -167,6 +177,12 @@ public class PlayerMovement : MonoBehaviour
         yield return new WaitForSeconds(dashTime);
 
         StopCoroutine(ghostCoroutine);
+
+        if (boss != null)
+        {
+            bosscol.isTrigger = false;
+        }
+
         isDashing = false;
 
         yield return new WaitForSeconds(dashCooldown);
