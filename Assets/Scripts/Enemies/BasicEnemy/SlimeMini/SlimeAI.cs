@@ -25,7 +25,7 @@ public class SlimeAI : MonoBehaviour
     [SerializeField] private float damageCooldown = 0.5f;
     private float lastDamageTime;
 
-    public enum State { Idle, Chase, Dash, Cooldown };
+    public enum State { Idle, Chase, Dash, Cooldown, Patrol };
     public State curState = State.Idle;
 
     private Rigidbody2D rb;
@@ -51,17 +51,14 @@ public class SlimeAI : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (Player.Instance == null || !Player.Instance.IsAlive() || isActionActive)
-        {
-            if (!isActionActive)
-                rb.linearVelocity = new Vector2(Mathf.MoveTowards(rb.linearVelocity.x, 0, acceleration * Time.fixedDeltaTime), rb.linearVelocity.y);
-            return;
-        }
+        if (Player.Instance == null || !Player.Instance.IsAlive() || isActionActive) return;
 
         float distance = Vector2.Distance(transform.position, Player.Instance.transform.position);
 
-        if (curState == State.Idle || curState == State.Chase)
+        if (distance <= 7f)
         {
+            if (curState == State.Patrol) StopAllCoroutines(); 
+
             MoveTowardsPlayer();
 
             if (distance <= 3f && Time.time >= lastDashTime + dashCooldown)
@@ -69,8 +66,50 @@ public class SlimeAI : MonoBehaviour
                 StartCoroutine(DashRoutine());
             }
         }
+        else
+        {
+            StartPatrol();
+        }
+    }
+    private void StartPatrol()
+    {
+        float distance = Vector2.Distance(transform.position, Player.Instance.transform.position);
+        if (distance > 7f && curState != State.Patrol)
+        {
+            curState = State.Patrol;
+            StartCoroutine(PatrolRoutine());
+        }
     }
 
+    private IEnumerator PatrolRoutine()
+    {
+        while (curState == State.Patrol)
+        {
+            float patrolDir = Random.value > 0.5f ? 1f : -1f;
+            float walkTime = Random.Range(1f, 3f);
+            float elapsed = 0;
+
+            while (elapsed < walkTime && curState == State.Patrol)
+            {
+                if (Vector2.Distance(transform.position, Player.Instance.transform.position) < 5f)
+                {
+                    curState = State.Chase;
+                    yield break;
+                }
+
+                rb.linearVelocity = new Vector2(patrolDir * moveSpeed * 0.5f, rb.linearVelocity.y); 
+                spriteRenderer.flipX = patrolDir < 0;
+
+                elapsed += Time.deltaTime;
+                yield return null;
+            }
+            
+            rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
+            if (animator != null) animator.SetBool("isMoving", false);
+            yield return new WaitForSeconds(Random.Range(1f, 2f));
+            if (animator != null) animator.SetBool("isMoving", true);
+        }
+    }
     private void MoveTowardsPlayer()
     {
         curState = State.Chase;
