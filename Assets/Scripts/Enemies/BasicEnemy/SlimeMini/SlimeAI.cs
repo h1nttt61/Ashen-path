@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Numerics;
+using Unity.VisualScripting;
 using UnityEngine;
 using Vector2 = UnityEngine.Vector2;
+using Vector3 = UnityEngine.Vector3;
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class SlimeAI : MonoBehaviour
@@ -13,6 +15,19 @@ public class SlimeAI : MonoBehaviour
     [Header("Movement (Physics-based)")]
     [SerializeField] private float moveSpeed = 3f;
     [SerializeField] private float acceleration = 40f;
+
+    [Header("Step Climbing")]
+    public float maxStepHeight = 0.5f;
+    public float stepSmoothing = 0.1f; 
+    public float obstacleCheckDistance = 0.2f;
+    
+    [Header("Pit Detection")]
+    public float pitCheckDistance = 0.5f;
+    public float pitRayLength = 1.5f;
+
+    [Header("Patrol Settings")]
+    public float stuckThreshold = 0.05f;
+    public float timeUntilRecalculate = 0.5f;
 
     [Header("Dash Settings")]
     [SerializeField] private GameObject ghostPrefab;
@@ -32,6 +47,9 @@ public class SlimeAI : MonoBehaviour
     private Collider2D col;
     private bool isActionActive = false;
     private float currentHealth;
+    private float stuckTimer = 0f;
+    private Vector2 lastPosition;
+    
 
     private void Awake()
     {
@@ -81,73 +99,107 @@ public class SlimeAI : MonoBehaviour
         }
     }
 
-    private IEnumerator PatrolRoutine()
+    private void Move(Vector2 moveTo)
     {
-        while (curState == State.Patrol)
+        int wallsLayerMask = LayerMask.GetMask("Wall", "Ground");
+        float moveDir = Mathf.Sign(moveTo.x - transform.position.x);
+
+        Vector2 pitRayOrigin = (Vector2)transform.position + new Vector2(moveDir * pitCheckDistance, 0);
+        RaycastHit2D pitHit = Physics2D.Raycast(pitRayOrigin, Vector2.down, pitRayLength, wallsLayerMask);
+
+        if (pitHit.collider == null)
         {
-            float patrolDir = Random.value > 0.5f ? 1f : -1f;
-            float walkTime = Random.Range(1f, 3f);
-            float elapsed = 0;
-
-            while (elapsed < walkTime && curState == State.Patrol)
-            {
-                if (Vector2.Distance(transform.position, Player.Instance.transform.position) < 5f)
-                {
-                    curState = State.Chase;
-                    yield break;
-                }
-
-                rb.linearVelocity = new Vector2(patrolDir * moveSpeed * 0.5f, rb.linearVelocity.y); 
-                spriteRenderer.flipX = patrolDir < 0;
-
-                elapsed += Time.deltaTime;
-                yield return null;
-            }
-            
             rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
             if (animator != null) animator.SetBool("isMoving", false);
+            return;
+        }
+
+
+        float targetVelX = moveDir * moveSpeed;
+        float newVelX = Mathf.MoveTowards(rb.linearVelocity.x, targetVelX, acceleration * Time.fixedDeltaTime);
+
+        Vector2 footPos = (Vector2)transform.position;
+        Vector2 lowerRayOrigin = footPos + new Vector2(0, 0.1f);
+        Vector2 upperRayOrigin = footPos + new Vector2(0, maxStepHeight);
+
+        RaycastHit2D lowerHit = Physics2D.Raycast(lowerRayOrigin, new Vector2(moveDir, 0), obstacleCheckDistance, wallsLayerMask);
+        RaycastHit2D upperHit = Physics2D.Raycast(upperRayOrigin, new Vector2(moveDir, 0), obstacleCheckDistance, wallsLayerMask);
+
+        if (lowerHit.collider != null && upperHit.collider == null)
+        {
+            transform.position += new Vector3(0, stepSmoothing, 0);
+            rb.linearVelocity = new Vector2(newVelX, rb.linearVelocity.y);
+        }
+        else if (lowerHit.collider != null && upperHit.collider != null)
+        {
+            rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
+        }
+        else
+        {
+            rb.linearVelocity = new Vector2(newVelX, rb.linearVelocity.y);
+        }
+
+        RaycastHit2D floorRay = Physics2D.Raycast(transform.position, Vector2.down, 5f, wallsLayerMask);
+        if (floorRay.collider != null && floorRay.distance > 0.125f)
+        {
+            transform.position = new Vector2(transform.position.x, transform.position.y - (floorRay.distance - 0.125f));
+        }
+
+        spriteRenderer.flipX = moveTo.x < transform.position.x;
+        if (animator != null) animator.SetBool("isMoving", true);
+    }
+
+    private IEnumerator PatrolRoutine()
+    {
+
+         while (curState == State.Patrol)
+        {
+            float patrolDir = Random.value > 0.5f ? 1f : -1f;
+            Vector2 patrolPos = (Vector2)transform.position + new Vector2(patrolDir * Random.Range(2f, 5f), 0);
+
+            stuckTimer = 0f;
+            lastPosition = transform.position;
+
+            while (Vector2.Distance(new Vector2(transform.position.x, 0), new Vector2(patrolPos.x, 0)) > 0.1f && curState == State.Patrol)
+            {
+                Move(patrolPos);
+
+                if (Vector2.Distance(transform.position, lastPosition) < stuckThreshold)
+                    stuckTimer += Time.deltaTime;
+                else
+                    stuckTimer = 0f;
+
+                if (stuckTimer >= timeUntilRecalculate)
+                {
+                    
+                    float escapeDir = -Mathf.Sign(patrolPos.x - transform.position.x);
+                    float escapeTime = 0.2f;
+                    
+                    while (escapeTime > 0)
+                    {
+                        rb.linearVelocity = new Vector2(escapeDir * moveSpeed, rb.linearVelocity.y);
+                        escapeTime -= Time.deltaTime;
+                        yield return null;
+                    }
+                    
+                    break; 
+                }
+
+                lastPosition = transform.position;
+                yield return null;
+        }
+
+            rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
+            if (animator != null) animator.SetBool("isMoving", false);
+
             yield return new WaitForSeconds(Random.Range(1f, 2f));
-            if (animator != null) animator.SetBool("isMoving", true);
         }
     }
     private void MoveTowardsPlayer()
     {
         curState = State.Chase;
-
-        int wallsLayerMask = LayerMask.GetMask("Wall", "Ground");
         Vector2 playerPos = Player.Instance.transform.position;
-
-        float moveDir = Mathf.Sign(playerPos.x - transform.position.x);
-
-        RaycastHit2D floorRay = Physics2D.Raycast(
-            (Vector2)transform.position,
-            Vector2.down,
-            1f,
-            wallsLayerMask
-        );
-        RaycastHit2D sideRay = Physics2D.Raycast(
-            transform.position,
-            new Vector2(moveDir, 0),
-            1f,
-            wallsLayerMask
-        );
-        if (floorRay.distance > 0.125f)
-        {
-            transform.position = new Vector2(transform.position.x, transform.position.y - (floorRay.distance - 0.125f));
-        }
-        else if (floorRay.distance == 0 && floorRay.collider != null)
-        {
-            transform.position = new Vector2(transform.position.x, floorRay.point.y + floorRay.collider.bounds.size.y / 2 + 0.125f);
-        }
-
-        float targetVelX = moveDir * moveSpeed;
-        float newVelX = Mathf.MoveTowards(rb.linearVelocity.x, targetVelX, acceleration * Time.fixedDeltaTime);
-
-        rb.linearVelocity = new Vector2(newVelX, rb.linearVelocity.y);
-
-        spriteRenderer.flipX = playerPos.x < transform.position.x;
-
-        if (animator != null) animator.SetBool("isMoving", true);
+        Move(playerPos);
     }
 
     private IEnumerator DashRoutine()
@@ -160,7 +212,6 @@ public class SlimeAI : MonoBehaviour
 
         float gravityBefore = rb.gravityScale;
         rb.gravityScale = 0; 
-        //col.isTrigger = true; 
 
         Vector2 startPos = transform.position;
         float dashDir = Mathf.Sign(Player.Instance.transform.position.x - transform.position.x);
@@ -192,7 +243,6 @@ public class SlimeAI : MonoBehaviour
         }
 
         rb.gravityScale = gravityBefore;
-        //col.isTrigger = false;
         rb.linearVelocity = Vector2.zero;
 
         curState = State.Cooldown;
@@ -215,7 +265,8 @@ public class SlimeAI : MonoBehaviour
     {
         if (Time.time >= lastDamageTime + damageCooldown)
         {
-            Player.Instance.TakeDamage(data.enemyDamageAmount / 3, transform);
+            Debug.Log("Damaged player");
+            Player.Instance.TakeDamage(data.enemyDamageAmount, transform);
             lastDamageTime = Time.time;
         }
     }

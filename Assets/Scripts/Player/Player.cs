@@ -25,7 +25,7 @@ public class Player : MonoBehaviour
     [SerializeField] private int lowHealthOnSpawn = 1;
     [SerializeField] private float spikesDamageCooldown = 2f;
 
-    [Header("Hands (Äëÿ PlayerVisual)")]
+    [Header("Hands (ï¿½ï¿½ï¿½ PlayerVisual)")]
     public HandAttack leftHand;
     public HandAttack rightHand;
 
@@ -98,6 +98,7 @@ public class Player : MonoBehaviour
         if (!canTakeDamage || Health <= 0) return;
 
         Health -= damageAmount;
+        Debug.Log("took damage player");
         OnHealthChanged?.Invoke(Health);
 
         if (TryGetComponent(out KnockBack kb))
