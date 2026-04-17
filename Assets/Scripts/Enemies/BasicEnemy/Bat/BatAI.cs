@@ -39,9 +39,10 @@ public class BatAI : MonoBehaviour
     private Vector3 spawnPosition;
     private float randomTimeOffset;
     private KnockBack knockback;
-
+    private Rigidbody2D rb;
     void Start()
     {
+        rb = GetComponent<Rigidbody2D>();
         isFlockAggressed = false;
         isFlockAnnoying = false;
         initialScaleX = transform.localScale.x;
@@ -112,7 +113,8 @@ public class BatAI : MonoBehaviour
 
         Vector3 finalTarget = targetPos + GetObstacleAvoidanceVector();
 
-        transform.position = Vector3.SmoothDamp(transform.position, finalTarget, ref currentVelocity, smoothTime, moveSpeed);
+        Vector3 nextPosition = Vector3.SmoothDamp(transform.position, finalTarget, ref currentVelocity, smoothTime, moveSpeed);
+        rb.MovePosition(nextPosition);
 
         FlipSprite(targetPos.x);
     }
@@ -124,14 +126,10 @@ public class BatAI : MonoBehaviour
         Vector3 targetPos = Player.Instance.transform.position + new Vector3(side * lookDir, 0, 0) + randomOffset;
         targetPos.y += Mathf.Sin(Time.time * wobbleSpeed) * wobbleAmount;
 
-        Vector3 finalTarget = targetPos + GetSeparationVector() + GetObstacleAvoidanceVector();
-
-        Vector3 finalVelocity = currentVelocity;
-        transform.position = Vector3.SmoothDamp(transform.position, finalTarget, ref currentVelocity, smoothTime, moveSpeed);
-
-
+        MovePhysics(targetPos);
         FlipSprite(Player.Instance.transform.position.x);
     }
+
 
     private void AttackPlayer()
     {
@@ -139,11 +137,9 @@ public class BatAI : MonoBehaviour
         Vector3 dirToPlayer = (transform.position - playerPos).normalized;
 
         Vector3 targetPos = playerPos + dirToPlayer * playerStopDistance;
-        targetPos.y += Mathf.Sin((Time.time + randomTimeOffset) * wobbleSpeed * 2f) * wobbleAmount;
+        targetPos.y += 0.5f;
 
-        Vector3 finalTarget = targetPos + GetSeparationVector() + GetObstacleAvoidanceVector();
-        transform.position = Vector3.SmoothDamp(transform.position, finalTarget, ref currentVelocity, smoothTime, moveSpeed);
-
+        MovePhysics(targetPos);
         FlipSprite(Player.Instance.transform.position.x);
     }
 
@@ -153,6 +149,14 @@ public class BatAI : MonoBehaviour
             transform.localScale = new Vector3(-Mathf.Abs(initialScaleX), transform.localScale.y, transform.localScale.z);
         else
             transform.localScale = new Vector3(Mathf.Abs(initialScaleX), transform.localScale.y, transform.localScale.z);
+    }
+
+    private void MovePhysics(Vector3 target)
+    {
+        Vector3 finalTarget = target + GetSeparationVector() + GetObstacleAvoidanceVector();
+        Vector3 nextPosition = Vector3.SmoothDamp(transform.position, finalTarget, ref currentVelocity, smoothTime, moveSpeed);
+
+        rb.MovePosition(nextPosition);
     }
 
     public void TakeDamage(int amount)
@@ -204,27 +208,30 @@ public class BatAI : MonoBehaviour
     private Vector3 GetObstacleAvoidanceVector()
     {
         Vector3 avoidance = Vector3.zero;
-        Vector3 moveDir = currentVelocity.sqrMagnitude > 0.01f
-                ? currentVelocity.normalized
-                : (Player.Instance.transform.position - transform.position).normalized;
+        Vector3 moveDir = currentVelocity.normalized;
+        if (moveDir.sqrMagnitude < 0.01f) moveDir = transform.right;
 
         Vector2[] rayDirections = {
         moveDir,
-        Quaternion.Euler(0, 0, 30) * moveDir,
-        Quaternion.Euler(0, 0, -30) * moveDir
+        Quaternion.Euler(0, 0, 45) * moveDir,
+        Quaternion.Euler(0, 0, -45) * moveDir,
+        Quaternion.Euler(0, 0, 90) * moveDir,
+        Quaternion.Euler(0, 0, -90) * moveDir
     };
 
         foreach (var dir in rayDirections)
         {
-            RaycastHit2D hit = Physics2D.Raycast(transform.position, dir, obstacleDetectionDist, (1 << 6) | (1 << 7));
+            RaycastHit2D hit = Physics2D.Raycast(transform.position, dir, obstacleDetectionDist, obstacleLayer);
 
             if (hit.collider != null)
             {
-                avoidance += (Vector3)hit.normal * (obstacleDetectionDist - hit.distance);
+                float strength = (obstacleDetectionDist - hit.distance) / obstacleDetectionDist;
+                avoidance += (Vector3)hit.normal * strength;
             }
         }
 
-        return Vector3.ClampMagnitude(avoidance * avoidForce, moveSpeed * 2f);
+        // Умножаем на avoidForce и не даем затухать слишком сильно
+        return avoidance * avoidForce;
     }
     private void OnTriggerStay2D(Collider2D collision)
     {

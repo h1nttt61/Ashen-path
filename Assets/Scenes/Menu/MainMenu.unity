@@ -872,8 +872,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -1.022, y: -18.09}
-  m_SizeDelta: {x: 2075.832, y: 961.75}
+  m_AnchoredPosition: {x: -0.0095215, y: 0.01036}
+  m_SizeDelta: {x: 1920, y: 1040.5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!328 &1195921088
 VideoPlayer:
@@ -1273,6 +1273,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b34256188c8d040418b98c683847c6b2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MusicManagerPersistent
+  mainMenuMusic: {fileID: 8300000, guid: 2687d1718bc108b499d92d3e3016c995, type: 3}
+  gameMusic: {fileID: 8300000, guid: 6dc752e0580055544bd8f7308fe37c4d, type: 3}
 --- !u!1 &1984819663
 GameObject:
   m_ObjectHideFlags: 0
@@ -1452,11 +1454,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3609740522560986419, guid: d99f1e7389d5d7140a9a80e74b48278f, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 2075.832
+      value: 1920
       objectReference: {fileID: 0}
     - target: {fileID: 3609740522560986419, guid: d99f1e7389d5d7140a9a80e74b48278f, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 961.75
+      value: 1040.5
       objectReference: {fileID: 0}
     - target: {fileID: 3609740522560986419, guid: d99f1e7389d5d7140a9a80e74b48278f, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1488,11 +1490,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3609740522560986419, guid: d99f1e7389d5d7140a9a80e74b48278f, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -1.022
+      value: -0.0095215
       objectReference: {fileID: 0}
     - target: {fileID: 3609740522560986419, guid: d99f1e7389d5d7140a9a80e74b48278f, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -18.09
+      value: 0.01036
       objectReference: {fileID: 0}
     - target: {fileID: 3609740522560986419, guid: d99f1e7389d5d7140a9a80e74b48278f, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x

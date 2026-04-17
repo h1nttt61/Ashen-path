@@ -172,8 +172,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BatAI
   activationDistance: 15
   sleepCheckInterval: 0.5
-  moveSpeed: 4
-  smoothTime: 0.5
+  moveSpeed: 8
+  smoothTime: 0.1
   wobbleAmount: 0.3
   wobbleSpeed: 2
   detectionRadius: 8

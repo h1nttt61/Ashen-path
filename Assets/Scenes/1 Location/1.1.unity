@@ -12773,7 +12773,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 869773342}
-  - component: {fileID: 869773341}
+  - component: {fileID: 869773343}
   m_Layer: 0
   m_Name: SpiritRegKill
   m_TagString: Untagged
@@ -12781,22 +12781,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &869773341
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 869773340}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1481182b298f85b408314ebbbc4e14fd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SpiritDIalogManager
-  killReq: 2
-  fadeDuration: 2
-  spirit: {fileID: 1915680923}
-  blackScreen: {fileID: 0}
 --- !u!4 &869773342
 Transform:
   m_ObjectHideFlags: 0
@@ -12812,6 +12796,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &869773343
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 869773340}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1481182b298f85b408314ebbbc4e14fd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SpiritDIalogManager
+  killReq: 2
+  fadeDuration: 2
+  spirit: {fileID: 1915680923}
+  blackScreen: {fileID: 0}
 --- !u!1001 &925124340
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -12927,7 +12927,7 @@ MonoBehaviour:
   m_BlendStyleIndex: 0
   m_FalloffIntensity: 0.5
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 2
+  m_Intensity: 0.2
   m_LightVolumeIntensity: 1
   m_LightVolumeEnabled: 0
   m_ApplyToSortingLayers: 00000000
@@ -13666,6 +13666,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1266996745}
+  - component: {fileID: 1266996746}
   m_Layer: 0
   m_Name: Spawn
   m_TagString: Untagged
@@ -13688,6 +13689,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1266996746
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1266996744}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c7ed913886a1e945b2ff8f76f04b103, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameMusicStarter
 --- !u!1 &1284389586
 GameObject:
   m_ObjectHideFlags: 0
@@ -22771,6 +22784,14 @@ PrefabInstance:
     - target: {fileID: 6616085107191980916, guid: fcc1d9df2b3642c488de21d95ad8b872, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7643450890626807212, guid: fcc1d9df2b3642c488de21d95ad8b872, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -1.9999847
+      objectReference: {fileID: 0}
+    - target: {fileID: 7945857694531432830, guid: fcc1d9df2b3642c488de21d95ad8b872, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -1.9999847
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
