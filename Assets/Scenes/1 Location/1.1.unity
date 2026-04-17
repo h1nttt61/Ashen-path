@@ -22717,6 +22717,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 4740707581869425515, guid: fcc1d9df2b3642c488de21d95ad8b872, type: 3}
+      propertyPath: dashSpeed
+      value: 35
+      objectReference: {fileID: 0}
+    - target: {fileID: 4740707581869425515, guid: fcc1d9df2b3642c488de21d95ad8b872, type: 3}
       propertyPath: ghostColor.g
       value: 1
       objectReference: {fileID: 0}

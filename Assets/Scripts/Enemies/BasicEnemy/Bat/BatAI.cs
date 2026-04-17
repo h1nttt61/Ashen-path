@@ -216,7 +216,7 @@ public class BatAI : MonoBehaviour
 
         foreach (var dir in rayDirections)
         {
-            RaycastHit2D hit = Physics2D.Raycast(transform.position, dir, obstacleDetectionDist, obstacleLayer);
+            RaycastHit2D hit = Physics2D.Raycast(transform.position, dir, obstacleDetectionDist, (1 << 6) | (1 << 7));
 
             if (hit.collider != null)
             {

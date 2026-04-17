@@ -158,7 +158,7 @@ public class PlayerMovement : MonoBehaviour
         isDashing = true;
 
         BossAI boss = FindObjectOfType<BossAI>();
-        Collider2D bossCol = (boss != null) ? boss.GetComponent<Collider2D>() : null;
+        Collider2D bossCol = (boss != null) ? boss.GetComponent<PolygonCollider2D>() : null;
 
         if (bossCol != null) bossCol.enabled = false;
 
