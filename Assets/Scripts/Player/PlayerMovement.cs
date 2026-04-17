@@ -10,7 +10,6 @@ public class PlayerMovement : MonoBehaviour
     public bool IsRunning => Mathf.Abs(inputVector.x) > 0.1f;
     public bool IsJumping { get; private set; }
     private bool isFacingRight = true;
-
     [Header("Movement")]
     [SerializeField] private float speed = 10f;
     [SerializeField] private float acceleration = 60f;
@@ -155,40 +154,29 @@ public class PlayerMovement : MonoBehaviour
 
     private IEnumerator DashRoutine()
     {
-        BossAI boss = FindFirstObjectByType<BossAI>();
-        PolygonCollider2D bosscol = null;
-        if (boss != null)
-        {
-            bosscol = boss.GetComponent<PolygonCollider2D>();
-            if (bosscol != null)
-            {
-                bosscol.isTrigger = true;
-            }
-        }
         canDash = false;
         isDashing = true;
-        core.InvokeDashEvent();
 
-        float dashDir = isFacingRight ? 1 : -1;
-        Coroutine ghostCoroutine = StartCoroutine(CreateGhostTrail());
+        BossAI boss = FindObjectOfType<BossAI>();
+        Collider2D bossCol = (boss != null) ? boss.GetComponent<Collider2D>() : null;
 
-        core.rb.linearVelocity = new Vector2(dashDir * dashSpeed, core.rb.linearVelocity.y);
+        if (bossCol != null) bossCol.enabled = false;
+
+        float dashDir = inputVector.x != 0 ? Mathf.Sign(inputVector.x) : (isFacingRight ? 1 : -1);
+
+        core.rb.linearVelocity = new Vector2(dashDir * dashSpeed, 0f);
+
+        StartCoroutine(CreateGhostTrail());
 
         yield return new WaitForSeconds(dashTime);
 
-        StopCoroutine(ghostCoroutine);
-
-        if (boss != null)
-        {
-            bosscol.isTrigger = false;
-        }
+        if (bossCol != null) bossCol.enabled = true;
 
         isDashing = false;
 
         yield return new WaitForSeconds(dashCooldown);
         canDash = true;
     }
-
     private IEnumerator CreateGhostTrail()
     {
         PlayerVisual visual = core.GetComponentInChildren<PlayerVisual>();

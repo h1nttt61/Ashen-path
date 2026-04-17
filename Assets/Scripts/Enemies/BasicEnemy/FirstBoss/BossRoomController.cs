@@ -29,6 +29,8 @@ public class BossRoomController : MonoBehaviour
     [SerializeField] private Camera mainCamera; 
     [SerializeField] private float cameraMoveSpeed = 2f;
     [SerializeField] private float bossCameraYOffset = 2.5f;
+    [Header("Spirit Settings")]
+    [SerializeField] private GuideNpc spiritGuide;
 
     private BossAI spawnedBoss;
     private bool bossFightStarted = false;
@@ -189,11 +191,14 @@ public class BossRoomController : MonoBehaviour
 
     private void EndFight()
     {
-        Debug.Log("���� �����");
         bossFightStarted = false;
         foreach (var door in doors)
         {
             StartCoroutine(MoveDoor(door.doorTransform, door.openPosition, null));
+        }
+        if (spiritGuide != null)
+        {
+            spiritGuide.StartSequence();
         }
         this.enabled = false;
     }

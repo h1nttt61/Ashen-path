@@ -67,8 +67,6 @@ public class BatAI : MonoBehaviour
     {
         if (Player.Instance == null || !Player.Instance.IsAlive()) return;
 
-        if (knockback != null && knockback.isGettingKnock) return;
-
         if (!isFlockAggressed && !isFlockAnnoying)
         {
             if (Vector3.Distance(transform.position, Player.Instance.transform.position) <= detectionRadius)
@@ -143,10 +141,8 @@ public class BatAI : MonoBehaviour
         Vector3 targetPos = playerPos + dirToPlayer * playerStopDistance;
         targetPos.y += Mathf.Sin((Time.time + randomTimeOffset) * wobbleSpeed * 2f) * wobbleAmount;
 
-        Vector3 finalVelocity = currentVelocity;
         Vector3 finalTarget = targetPos + GetSeparationVector() + GetObstacleAvoidanceVector();
         transform.position = Vector3.SmoothDamp(transform.position, finalTarget, ref currentVelocity, smoothTime, moveSpeed);
-        currentVelocity = finalVelocity;
 
         FlipSprite(Player.Instance.transform.position.x);
     }
@@ -163,6 +159,8 @@ public class BatAI : MonoBehaviour
     {
         isFlockAggressed = true;
 
+        currentVelocity = Vector3.zero;
+
         Collider2D[] nearby = Physics2D.OverlapCircleAll(transform.position, 10f);
         foreach (var col in nearby)
         {
@@ -173,19 +171,11 @@ public class BatAI : MonoBehaviour
         }
 
         health -= amount;
-        if (knockback != null) knockback.GetKnockedBack(Player.Instance.transform);
         if (health <= 0) Die();
     }
 
     private void Die()
     {
-        BatAI[] remainingBats = FindObjectsByType<BatAI>(FindObjectsSortMode.None);
-        if (remainingBats.Length <= 1)
-        {
-            isFlockAggressed = false;
-            isFlockAnnoying = false;
-        }
-
         if (SpiritDIalogManager.Instance != null)
             SpiritDIalogManager.Instance.RegistrKills();
 
@@ -214,8 +204,9 @@ public class BatAI : MonoBehaviour
     private Vector3 GetObstacleAvoidanceVector()
     {
         Vector3 avoidance = Vector3.zero;
-        Vector3 moveDir = currentVelocity.normalized;
-        if (moveDir == Vector3.zero) return Vector3.zero;
+        Vector3 moveDir = currentVelocity.sqrMagnitude > 0.01f
+                ? currentVelocity.normalized
+                : (Player.Instance.transform.position - transform.position).normalized;
 
         Vector2[] rayDirections = {
         moveDir,

@@ -15,7 +15,6 @@ public class NPCDialog : MonoBehaviour
     [SerializeField] public bool giveWallJumpOnEnd = false;
 
     [Header("Animation")]
-
     private bool isPlayerNear;
     private bool isTalking = false;
     private int currentLineIndex = 0;
@@ -49,7 +48,7 @@ public class NPCDialog : MonoBehaviour
         }
     }
 
-    IEnumerator DisplayFullDialog()
+    public IEnumerator DisplayFullDialog()
     {
         isTalking = true;
         dialogPanel.SetActive(true);
@@ -91,8 +90,16 @@ public class NPCDialog : MonoBehaviour
         currentLineIndex = 0; 
         dialogCoroutine = null;
 
+        dialogPanel.SetActive(false);
+        isTalking = false;
+        currentLineIndex = 0;
+
         SpiritNPC spirit = GetComponent<SpiritNPC>();
-        if (spirit != null) spirit.FinalizeSpirit();
+        if (spirit != null)
+        {
+            spirit.StartFadeOut();
+        }
+
         if (SpiritDIalogManager.Instance != null)
             SpiritDIalogManager.Instance.UnfreezePlayer();
     }
@@ -115,12 +122,10 @@ public class NPCDialog : MonoBehaviour
                 isTalking = false; 
 
                 SpiritNPC spirit = GetComponent<SpiritNPC>();
-                if (spirit != null)
+                if (spirit == null)
                 {
-                    spirit.ResumeChase();
-                }
-                else
-                {
+                    if (dialogCoroutine != null) StopCoroutine(dialogCoroutine);
+                    isTalking = false;
                     if (dialogPanel != null) dialogPanel.SetActive(false);
                     currentLineIndex = 0;
                 }

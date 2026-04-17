@@ -33,7 +33,7 @@ public class SpiritDIalogManager : MonoBehaviour
     public void RegistrKills()
     {
         if (eventTrigger) return;
-
+        
         killCount++;
         if (killCount >= killReq)
         {
