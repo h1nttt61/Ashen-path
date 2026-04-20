@@ -104,17 +104,6 @@ public class SlimeAI : MonoBehaviour
         int wallsLayerMask = LayerMask.GetMask("Wall", "Ground");
         float moveDir = Mathf.Sign(moveTo.x - transform.position.x);
 
-        Vector2 pitRayOrigin = (Vector2)transform.position + new Vector2(moveDir * pitCheckDistance, 0);
-        RaycastHit2D pitHit = Physics2D.Raycast(pitRayOrigin, Vector2.down, pitRayLength, wallsLayerMask);
-
-        if (pitHit.collider == null)
-        {
-            rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
-            if (animator != null) animator.SetBool("isMoving", false);
-            return;
-        }
-
-
         float targetVelX = moveDir * moveSpeed;
         float newVelX = Mathf.MoveTowards(rb.linearVelocity.x, targetVelX, acceleration * Time.fixedDeltaTime);
 
@@ -139,10 +128,21 @@ public class SlimeAI : MonoBehaviour
             rb.linearVelocity = new Vector2(newVelX, rb.linearVelocity.y);
         }
 
-        RaycastHit2D floorRay = Physics2D.Raycast(transform.position, Vector2.down, 5f, wallsLayerMask);
+        RaycastHit2D floorRay = Physics2D.Raycast(transform.position, Vector2.down, 100f, wallsLayerMask);
+
         if (floorRay.collider != null && floorRay.distance > 0.125f)
         {
             transform.position = new Vector2(transform.position.x, transform.position.y - (floorRay.distance - 0.125f));
+        }
+
+        Vector2 pitRayOrigin = (Vector2)transform.position + new Vector2(moveDir * pitCheckDistance, 0);
+        RaycastHit2D pitHit = Physics2D.Raycast(pitRayOrigin, Vector2.down, pitRayLength, wallsLayerMask);
+
+        if (pitHit.collider == null && floorRay.collider != null)
+        {
+            rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
+            if (animator != null) animator.SetBool("isMoving", false);
+            return;
         }
 
         spriteRenderer.flipX = moveTo.x < transform.position.x;
@@ -229,6 +229,23 @@ public class SlimeAI : MonoBehaviour
 
         float actualDistance = hit ? hit.distance - 0.05f : dashDistance;
         actualDistance = Mathf.Max(actualDistance, 0f);
+        Vector2 estimatedTarget = startPos + VectorDashDir * actualDistance;
+
+        RaycastHit2D floorHit = Physics2D.Raycast(estimatedTarget, Vector2.down, 5f, wallsLayerMask);
+        if (floorHit.collider == null)
+        {
+            for (float i = actualDistance; i > 0; i -= 0.1f)
+            {
+                Vector2 checkPos = startPos + VectorDashDir * i;
+                RaycastHit2D edgeCheck = Physics2D.Raycast(checkPos, Vector2.down, 5f, wallsLayerMask);
+
+                if (edgeCheck.collider != null)
+                {
+                    actualDistance = i - 0.2f; 
+                    break;
+                }
+            }
+        }
         Vector2 dashTarget = startPos + VectorDashDir * actualDistance;
 
         float elapsed = 0;
@@ -265,7 +282,6 @@ public class SlimeAI : MonoBehaviour
     {
         if (Time.time >= lastDamageTime + damageCooldown)
         {
-            Debug.Log("Damaged player");
             Player.Instance.TakeDamage(data.enemyDamageAmount, transform);
             lastDamageTime = Time.time;
         }

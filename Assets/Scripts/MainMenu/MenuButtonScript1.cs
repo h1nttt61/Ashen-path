@@ -4,9 +4,30 @@ using System.Collections;
 
 public class MenuButtonScript : MonoBehaviour
 {
-
+    [SerializeField] private CanvasGroup fadeScreen;
+    [SerializeField] private CanvasGroup buttonsGroup;
+    public float fadeSpeed = 1.0f;
+    
     private void Start()
     {
+        buttonsGroup = GetComponentInParent<CanvasGroup>();
+        
+        if (fadeScreen == null)
+        {
+            GameObject fadeObj = GameObject.Find("backgroud");
+
+            if (fadeObj != null)
+            {
+                fadeScreen = fadeObj.GetComponent<CanvasGroup>();
+            }
+        }
+
+        if (fadeScreen != null)
+        {
+            fadeScreen.alpha = 0;
+            fadeScreen.blocksRaycasts = false;
+        }
+
         if (MusicManagerPersistent.Instance != null)
         {
             MusicManagerPersistent.Instance.PlayMusic();
@@ -20,7 +41,7 @@ public class MenuButtonScript : MonoBehaviour
         {
             MusicManagerPersistent.Instance.FadeOut(1.5f); 
         }
-        StartCoroutine(LoadWithDelay(2, 1.5f));
+        StartCoroutine(LoadWithFade(2));
     }
 
     public void ContinueGame()
@@ -48,20 +69,42 @@ public class MenuButtonScript : MonoBehaviour
         #endif
     }
 
-    private IEnumerator LoadWithDelay(int sceneIndex, float delay)
+    private IEnumerator LoadWithFade(int sceneIndex)
     {
-        if (MusicManagerPersistent.Instance != null)
-            MusicManagerPersistent.Instance.FadeOut(delay);
-
-        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(sceneIndex);
-        asyncLoad.allowSceneActivation = false; //
+        if (fadeScreen == null)
+        {
+            SceneManager.LoadScene(sceneIndex);
+            yield break;
+        }
+        if (buttonsGroup != null) buttonsGroup.interactable = false;
+        fadeScreen.blocksRaycasts = true;
 
         float timer = 0;
-        while (timer < delay || asyncLoad.progress < 0.9f)
+        while (timer < fadeSpeed)
         {
             timer += Time.unscaledDeltaTime;
-            yield return null; 
+            float progress = timer / fadeSpeed;
+
+            fadeScreen.alpha = progress; 
+            if (buttonsGroup != null) buttonsGroup.alpha = 1 - progress; 
+
+            yield return null;
         }
+
+        fadeScreen.alpha = 1;
+
+        if (MusicManagerPersistent.Instance != null)
+            MusicManagerPersistent.Instance.FadeOut(1.5f);
+
+        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(sceneIndex);
+        asyncLoad.allowSceneActivation = false;
+
+        while (asyncLoad.progress < 0.9f)
+        {
+            yield return null;
+        }
+
+        yield return new WaitForSecondsRealtime(1.0f);
 
         asyncLoad.allowSceneActivation = true;
     }

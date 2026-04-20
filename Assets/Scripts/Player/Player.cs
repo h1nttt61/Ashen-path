@@ -98,7 +98,6 @@ public class Player : MonoBehaviour
         if (!canTakeDamage || Health <= 0) return;
 
         Health -= damageAmount;
-        Debug.Log("took damage player");
         OnHealthChanged?.Invoke(Health);
 
         if (TryGetComponent(out KnockBack kb))
