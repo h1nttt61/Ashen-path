@@ -23,6 +23,8 @@ public class HandAttack : MonoBehaviour
 
         if (collision.TryGetComponent(out BatAI bat)) bat.TakeDamage(damage);
 
+        if (collision.TryGetComponent(out BugAI bug)) bug.TakeDamage(damage);
+
         if (collision.TryGetComponent(out KnockBack kb))
         {
             kb.GetKnockedBack(transform);

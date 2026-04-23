@@ -36,6 +36,11 @@ public class Sword : MonoBehaviour
         {
             slime.TakeDamage(damageAmount);
         }
+        BugAI bug = collision.GetComponentInParent<BugAI>();
+        if (bug != null)
+        {
+            bug.TakeDamage(damageAmount);
+        }
     }
 
     public void AttackColliderTurnOff()
