@@ -31,6 +31,7 @@ public class EscMenu : MonoBehaviour
 
     public void Resume()
     {
+        Debug.Log("resume pressed");
         pausePanel?.SetActive(false);
         Time.timeScale = 1f;
         isPause = false;
