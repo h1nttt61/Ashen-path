@@ -20,6 +20,9 @@ public class PlayerCombat : MonoBehaviour
     [Header("Restrictions")]
     [SerializeField] private float batDetectionRadius = 5f;
 
+
+    public float CurrentHealCharge => currentHealCharge;
+
     private void Start()
     {
         core = Player.Instance;
@@ -37,6 +40,18 @@ public class PlayerCombat : MonoBehaviour
             core.InvokeHealProgressEvent(currentHealCharge / core.maxHealth);
         }
     }
+
+    public bool SpendCharge(float amount)
+    {
+        if (CurrentHealCharge >= amount)
+        {
+            currentHealCharge -= amount;
+            core.InvokeHealProgressEvent(CurrentHealCharge / core.maxHealth);
+            return true;
+        }
+        return false;
+    }
+
 
     private void OnAttackInput(object sender, EventArgs e)
     {

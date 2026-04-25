@@ -45,6 +45,15 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float jumpBufferTime = 0.15f;
     private float jumpBufferTimeCounter;
 
+    [Header("Super Dash Settings")]
+    [SerializeField] private float superDashSpeed = 30f;
+    [SerializeField] private float superDashCooldown = 30f;
+    public bool isSuperDashing = false;
+    private bool canSuperDash = true;
+    private float superDashTimer = 0f;
+
+    public float GetSuperDashTimer() => superDashTimer;
+
     private void Start()
     {
         core = Player.Instance;
@@ -54,7 +63,7 @@ public class PlayerMovement : MonoBehaviour
     private void Update()
     {
         if (GameInput.Instance == null) return;
-
+        if (superDashTimer > 0) superDashTimer -= Time.deltaTime;
         inputVector = GameInput.Instance.GetMovementVector();
 
         if (inputVector.x > 0.1f) isFacingRight = true;
@@ -78,6 +87,10 @@ public class PlayerMovement : MonoBehaviour
             jumpBufferTimeCounter -= Time.deltaTime;
         }
         HandleJumpInput();
+        if (Input.GetKeyDown(KeyCode.W))
+        {
+            AttemptSuperDash();
+        }
     }
 
     private void FixedUpdate()
@@ -86,6 +99,16 @@ public class PlayerMovement : MonoBehaviour
         if (isDashing) return;
 
         ApplyMovementLogic();
+    }
+
+    public void AttemptSuperDash()
+    {
+        float halfCharge = core.maxHealth * 0.5f;
+
+        if (core.isSuperDashUnlocked && core.combat.CurrentHealCharge >= halfCharge)
+        {
+            StartCoroutine(SuperDashRoutine());
+        }
     }
 
     private void HandleJumpInput()
@@ -150,6 +173,61 @@ public class PlayerMovement : MonoBehaviour
         {
             StartCoroutine(DashRoutine());
         }
+    }
+
+
+    private IEnumerator SuperDashRoutine()
+    {
+        canSuperDash = false;
+        isSuperDashing = true;
+        superDashTimer = superDashCooldown; 
+
+        float dashDir = transform.localScale.x > 0 ? 1 : -1;
+
+        PlayerVisual visual = GetComponentInChildren<PlayerVisual>();
+        if (visual != null) visual.GetSpriteRenderer().flipX = (dashDir < 0);
+
+        float originalGravity = core.rb.gravityScale;
+        core.rb.gravityScale = 0;
+
+        while (isSuperDashing && core.combat.CurrentHealCharge > 0)
+        {
+            core.rb.linearVelocity = new Vector2(-1 * dashDir * superDashSpeed, 0);
+            core.combat.SpendCharge(core.maxHealth * 0.2f * Time.deltaTime);
+
+            if (core.collision.IsTouchingWall)
+            {
+                ApplySuperDashPenalty(dashDir);
+                break; 
+            }
+
+            if (!Input.GetKey(KeyCode.W)) break;
+            yield return null;
+        }
+
+        isSuperDashing = false;
+        core.rb.gravityScale = originalGravity;
+
+        StartCoroutine(WaitCooldown());
+    }
+
+
+    private IEnumerator WaitCooldown()
+    {
+        yield return new WaitForSeconds(superDashCooldown);
+        canSuperDash = true;
+    }
+
+    private void ApplySuperDashPenalty(float dashDir)
+    {
+        isSuperDashing = false;
+        core.rb.linearVelocity = new Vector2(-dashDir * 7f, 6f);
+
+        StatusEffectsUI ui = FindObjectOfType<StatusEffectsUI>();
+        if (ui != null) ui.ShowNausea(5f);
+
+        CameraShake.Instance.Shake(0.5f, 0.5f);
+        WaitCooldown();
     }
 
     private IEnumerator DashRoutine()

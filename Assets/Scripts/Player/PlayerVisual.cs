@@ -30,6 +30,8 @@ public class PlayerVisual : MonoBehaviour
         if (Player.Instance == null || playerRb == null) return;
         if (animator == null) return;
 
+        bool isSuper = Player.Instance.movement.isSuperDashing;
+        animator.SetBool("isSuperDashing", isSuper);
         animator.SetBool(IS_RUNNING, Player.Instance.IsRunning());
         animator.SetBool(IS_JUMP, Player.Instance.isJump());
         animator.SetFloat(Y_VELOCITY, playerRb.linearVelocity.y);
@@ -44,7 +46,7 @@ public class PlayerVisual : MonoBehaviour
         if (EscMenu.Instance == null || EscMenu.Instance.isPause) return;
 
         Vector2 movement = GameInput.Instance.GetMovementVector();
-
+        if (Player.Instance.movement.isSuperDashing) return;
         if (Mathf.Abs(movement.x) > 0.1f)
         {
             bool isMovingLeft = movement.x < 0;

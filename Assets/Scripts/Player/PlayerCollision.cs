@@ -10,7 +10,7 @@ public class PlayerCollision : MonoBehaviour
     [SerializeField] private BoxCollider2D bodyCollider;
 
     [Header("Detection Colliders")]
-    [SerializeField] private CapsuleCollider2D  groundCheck;
+    [SerializeField] private CapsuleCollider2D groundCheck;
     [SerializeField] private BoxCollider2D rightWallCheck;
     [SerializeField] private BoxCollider2D leftWallCheck;
 

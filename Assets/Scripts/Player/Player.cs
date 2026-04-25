@@ -25,7 +25,7 @@ public class Player : MonoBehaviour
     [SerializeField] private int lowHealthOnSpawn = 1;
     [SerializeField] private float spikesDamageCooldown = 2f;
 
-    [Header("Hands (��� PlayerVisual)")]
+    [Header("Hands (PlayerVisual)")]
     public HandAttack leftHand;
     public HandAttack rightHand;
 
@@ -137,7 +137,7 @@ public class Player : MonoBehaviour
     public void Heal(int amount)
     {
         Health = Mathf.Min(Health + amount, maxHealth);
-        OnHealthChanged?.Invoke(Health); 
+        OnHealthChanged?.Invoke(Health);
     }
 
     private void HandleSceneTransitionSpawn()

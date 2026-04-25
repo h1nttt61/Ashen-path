@@ -23152,18 +23152,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 4740707581869425515, guid: fcc1d9df2b3642c488de21d95ad8b872, type: 3}
-      propertyPath: dashSpeed
-      value: 35
-      objectReference: {fileID: 0}
-    - target: {fileID: 4740707581869425515, guid: fcc1d9df2b3642c488de21d95ad8b872, type: 3}
-      propertyPath: ghostColor.g
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4740707581869425515, guid: fcc1d9df2b3642c488de21d95ad8b872, type: 3}
-      propertyPath: ghostColor.r
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 6583589867881376166, guid: fcc1d9df2b3642c488de21d95ad8b872, type: 3}
       propertyPath: m_Name
       value: Player
@@ -23207,14 +23195,6 @@ PrefabInstance:
     - target: {fileID: 6616085107191980916, guid: fcc1d9df2b3642c488de21d95ad8b872, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7643450890626807212, guid: fcc1d9df2b3642c488de21d95ad8b872, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: -1.9999847
-      objectReference: {fileID: 0}
-    - target: {fileID: 7945857694531432830, guid: fcc1d9df2b3642c488de21d95ad8b872, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: -1.9999847
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
