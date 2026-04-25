@@ -34,6 +34,13 @@ public class GuideNpc : MonoBehaviour
 
     public void StartSequence()
     {
+        EnsureReferences();
+
+        if (sr == null)
+        {
+            return;
+        }
+
         transform.position = Player.Instance.transform.position + spawnOffset;
 
         Color c = sr.color;

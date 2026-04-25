@@ -24,6 +24,11 @@ public class BossAI : MonoBehaviour
     private bool hasOverhealed = false; 
     private bool canDamagePlayer = true;
 
+    [Header("Heal Balance")]
+    [SerializeField] private float healCooldown = 30f;
+    private float lastHealTime = -30f;
+    private float healTickRate = 0.8f;
+
     private int facingDirection = 1;
     private float attackRange = 4.5f;
     private GameObject bossDoor;
@@ -67,7 +72,8 @@ public class BossAI : MonoBehaviour
             StartCoroutine(OverHealRoutine());
         }
 
-        if (hpPercent < 0.45f && hpPercent > 0.31f && !isHealing && curState != BossState.Enranged)
+        if (hpPercent < 0.45f && hpPercent > 0.31f && !isHealing &&
+    curState != BossState.Enranged && Time.time >= lastHealTime + healCooldown)
         {
             StartCoroutine(HealRoutine());
         }
@@ -133,13 +139,17 @@ public class BossAI : MonoBehaviour
     private IEnumerator HealRoutine()
     {
         isHealing = true;
-        while (currentHealth < data.enemyHealth && curState != BossState.Enranged && curState != BossState.Dead)
+        lastHealTime = Time.time;
+
+        float healLimit = data.enemyHealth * 0.45f;
+
+        while (currentHealth < healLimit && curState != BossState.Enranged && curState != BossState.Dead)
         {
             currentHealth += 1;
             spriteRenderer.color = Color.green;
-            yield return new WaitForSeconds(0.1f);
+            yield return new WaitForSeconds(0.2f);
             spriteRenderer.color = Color.white;
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(healTickRate);
         }
         isHealing = false;
     }

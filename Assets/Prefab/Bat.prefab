@@ -170,7 +170,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e512081de1728944b8df8aaba3ddb54e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BatAI
-  activationDistance: 15
+  activationDistance: 30
   sleepCheckInterval: 0.5
   moveSpeed: 8
   smoothTime: 0.1

@@ -5,13 +5,27 @@ public class Rock : MonoBehaviour
     [SerializeField] private int damage = 1;
     private Rigidbody2D rb;
     private bool hasHit = false;
+    private Collider2D myCollider;
 
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        myCollider = GetComponent<Collider2D>();
         transform.rotation = Quaternion.Euler(0, 180, 0);
-
         rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+    }
+
+    void Start()
+    {
+        GameObject boss = GameObject.Find("Enemy(Clone)");
+        if (boss != null)
+        {
+            Collider2D[] bossCols = boss.GetComponentsInChildren<Collider2D>();
+            foreach (var bc in bossCols)
+            {
+                Physics2D.IgnoreCollision(myCollider, bc, true);
+            }
+        }
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -20,7 +34,11 @@ public class Rock : MonoBehaviour
         {
             Player.Instance.TakeDamage(damage, transform);
 
-            Physics2D.IgnoreCollision(GetComponent<Collider2D>(), collision.collider);
+            Collider2D[] playerCols = collision.gameObject.GetComponentsInChildren<Collider2D>();
+            foreach (var pc in playerCols)
+            {
+                Physics2D.IgnoreCollision(myCollider, pc, true);
+            }
             return;
         }
 

@@ -47,10 +47,10 @@ public class PlayerVisual : MonoBehaviour
 
         Vector2 movement = GameInput.Instance.GetMovementVector();
         if (Player.Instance.movement.isSuperDashing) return;
+
         if (Mathf.Abs(movement.x) > 0.1f)
         {
             bool isMovingLeft = movement.x < 0;
-
             spriteRenderer.flipX = isMovingLeft;
 
             Transform handContainer = Player.Instance.transform.Find("HandCombatContainer");

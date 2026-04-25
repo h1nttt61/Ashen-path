@@ -17,16 +17,17 @@ public class SlimeSpawner : MonoBehaviour
 
     private void Update()
     {
-        if (isPausedBySpirit || !isPlayerInside || Player.Instance == null) return;
+        if (isPausedBySpirit || !isPlayerInside || Player.Instance == null || currentEnemiesCount >= maxEnemiesInZone)
+        {
+            timer = 0;
+            return;
+        }
 
         timer += Time.deltaTime;
 
         if (timer >= spawnRate)
         {
-            if (currentEnemiesCount < maxEnemiesInZone)
-            {
-                SpawnSlime();
-            }
+            SpawnSlime();
             timer = 0;
         }
     }
@@ -65,7 +66,16 @@ public class SlimeSpawner : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag("Player")) isPlayerInside = true;
+        if (other.CompareTag("Player"))
+        {
+            isPlayerInside = true;
+
+            if (currentEnemiesCount < maxEnemiesInZone && !isPausedBySpirit)
+            {
+                SpawnSlime();
+                timer = 0;
+            }
+        }
     }
 
     private void OnTriggerExit2D(Collider2D other)

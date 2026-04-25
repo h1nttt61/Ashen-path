@@ -103,12 +103,12 @@ TextureImporter:
       name: super_dash0000_0
       rect:
         serializedVersion: 2
-        x: 1160
-        y: 993
+        x: 698
+        y: 753
         width: 1651
         height: 734
-      alignment: 0
-      pivot: {x: 0, y: 0}
+      alignment: 9
+      pivot: {x: 0.50207585, y: 0.042402636}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -125,7 +125,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 02d6aa97dedac8a4394f35c5e454ca0b
     internalID: 0
     vertices: []
     indices: 

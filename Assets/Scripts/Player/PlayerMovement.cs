@@ -105,7 +105,7 @@ public class PlayerMovement : MonoBehaviour
     {
         float halfCharge = core.maxHealth * 0.5f;
 
-        if (core.isSuperDashUnlocked && core.combat.CurrentHealCharge >= halfCharge)
+        if (core.isSuperDashUnlocked && canSuperDash && core.combat.CurrentHealCharge >= halfCharge)
         {
             StartCoroutine(SuperDashRoutine());
         }
@@ -178,27 +178,24 @@ public class PlayerMovement : MonoBehaviour
 
     private IEnumerator SuperDashRoutine()
     {
-        canSuperDash = false;
         isSuperDashing = true;
-        superDashTimer = superDashCooldown; 
+        canSuperDash = false; 
 
-        float dashDir = transform.localScale.x > 0 ? 1 : -1;
-
-        PlayerVisual visual = GetComponentInChildren<PlayerVisual>();
-        if (visual != null) visual.GetSpriteRenderer().flipX = (dashDir < 0);
+        PlayerVisual visual = core.GetComponentInChildren<PlayerVisual>();
+        float dashDir = (visual != null && visual.GetSpriteRenderer().flipX) ? -1f : 1f;
 
         float originalGravity = core.rb.gravityScale;
         core.rb.gravityScale = 0;
 
         while (isSuperDashing && core.combat.CurrentHealCharge > 0)
         {
-            core.rb.linearVelocity = new Vector2(-1 * dashDir * superDashSpeed, 0);
+            core.rb.linearVelocity = new Vector2(dashDir * superDashSpeed, 0);
             core.combat.SpendCharge(core.maxHealth * 0.2f * Time.deltaTime);
 
             if (core.collision.IsTouchingWall)
             {
-                ApplySuperDashPenalty(dashDir);
-                break; 
+                ApplySuperDashPenalty(dashDir, originalGravity, 30f);
+                yield break;
             }
 
             if (!Input.GetKey(KeyCode.W)) break;
@@ -207,27 +204,43 @@ public class PlayerMovement : MonoBehaviour
 
         isSuperDashing = false;
         core.rb.gravityScale = originalGravity;
-
-        StartCoroutine(WaitCooldown());
+        StartCoroutine(WaitCooldown(5f));
     }
 
-
-    private IEnumerator WaitCooldown()
-    {
-        yield return new WaitForSeconds(superDashCooldown);
-        canSuperDash = true;
-    }
-
-    private void ApplySuperDashPenalty(float dashDir)
+    private void ApplySuperDashPenalty(float dashDir, float grav, float penaltyCD)
     {
         isSuperDashing = false;
+        core.rb.gravityScale = grav;
         core.rb.linearVelocity = new Vector2(-dashDir * 7f, 6f);
 
-        StatusEffectsUI ui = FindObjectOfType<StatusEffectsUI>();
-        if (ui != null) ui.ShowNausea(5f);
+        if (StatusEffectsUI.Instance != null)
+        {
+            StatusEffectsUI.Instance.ShowNausea(5f);
+        }
 
-        CameraShake.Instance.Shake(0.5f, 0.5f);
-        WaitCooldown();
+        if (NauseaEffect.Instance != null)
+        {
+            NauseaEffect.Instance.StartNausea(5f);
+        }
+
+        if (CameraShake.Instance != null) CameraShake.Instance.Shake(0.5f, 0.5f);
+
+        StartCoroutine(WaitCooldown(penaltyCD));
+    }
+
+    private IEnumerator WaitCooldown(float duration)
+    {
+        canSuperDash = false;
+        superDashTimer = duration;
+
+        while (superDashTimer > 0)
+        {
+            superDashTimer -= Time.deltaTime;
+            yield return null;
+        }
+
+        superDashTimer = 0;
+        canSuperDash = true;
     }
 
     private IEnumerator DashRoutine()
@@ -235,10 +248,14 @@ public class PlayerMovement : MonoBehaviour
         canDash = false;
         isDashing = true;
 
-        BossAI boss = FindObjectOfType<BossAI>();
-        Collider2D bossCol = (boss != null) ? boss.GetComponent<PolygonCollider2D>() : null;
+        GameObject bossObj = GameObject.Find("Enemy(Clone)");
+        Collider2D[] bossCols = bossObj != null ? bossObj.GetComponentsInChildren<Collider2D>() : new Collider2D[0];
+        Collider2D[] playerCols = GetComponentsInChildren<Collider2D>();
 
-        if (bossCol != null) bossCol.enabled = false;
+        if (bossCols.Length > 0)
+        {
+            ToggleCollisions(playerCols, bossCols, true);
+        }
 
         float dashDir = inputVector.x != 0 ? Mathf.Sign(inputVector.x) : (isFacingRight ? 1 : -1);
 
@@ -248,13 +265,32 @@ public class PlayerMovement : MonoBehaviour
 
         yield return new WaitForSeconds(dashTime);
 
-        if (bossCol != null) bossCol.enabled = true;
+        yield return new WaitForSeconds(0.09f);
+
+        if (bossCols.Length > 0)
+        {
+            ToggleCollisions(playerCols, bossCols, false);
+        }
 
         isDashing = false;
 
         yield return new WaitForSeconds(dashCooldown);
         canDash = true;
     }
+    private void ToggleCollisions(Collider2D[] groupA, Collider2D[] groupB, bool ignore)
+    {
+        foreach (var a in groupA)
+        {
+            foreach (var b in groupB)
+            {
+                if (a != null && b != null)
+                {
+                    Physics2D.IgnoreCollision(a, b, ignore);
+                }
+            }
+        }
+    }
+
     private IEnumerator CreateGhostTrail()
     {
         PlayerVisual visual = core.GetComponentInChildren<PlayerVisual>();

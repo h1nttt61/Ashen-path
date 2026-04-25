@@ -9,6 +9,7 @@ public class BatAI : MonoBehaviour
     [Header("Optimization")]
     [SerializeField] private float activationDistance = 15f;
     [SerializeField] private float sleepCheckInterval = 0.5f;
+    private SpriteRenderer spriteRenderer;
 
     [Header("Movement Settings")]
     [SerializeField] private float moveSpeed = 3f;
@@ -40,9 +41,11 @@ public class BatAI : MonoBehaviour
     private float randomTimeOffset;
     private KnockBack knockback;
     private Rigidbody2D rb;
+    
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
         isFlockAggressed = false;
         isFlockAnnoying = false;
         initialScaleX = transform.localScale.x;
@@ -59,13 +62,24 @@ public class BatAI : MonoBehaviour
     void CheckDistanceToPlayer()
     {
         if (Player.Instance == null) return;
+
         float dist = Vector3.Distance(transform.position, Player.Instance.transform.position);
         bool shouldBeActive = dist < activationDistance;
-        if (this.enabled != shouldBeActive) this.enabled = shouldBeActive;
+
+        if (shouldBeActive != spriteRenderer.enabled)
+        {
+            spriteRenderer.enabled = shouldBeActive;
+            if (TryGetComponent(out Collider2D col)) col.enabled = shouldBeActive;
+            if (rb != null) rb.simulated = shouldBeActive;
+
+        }
     }
 
     void Update()
     {
+
+        if (spriteRenderer != null && !spriteRenderer.enabled) return;
+
         if (Player.Instance == null || !Player.Instance.IsAlive()) return;
 
         if (!isFlockAggressed && !isFlockAnnoying)

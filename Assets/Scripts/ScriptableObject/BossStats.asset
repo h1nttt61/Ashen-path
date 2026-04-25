@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: BossStats
   m_EditorClassIdentifier: Assembly-CSharp::EnemySO
   enemyName: Boss
-  enemyHealth: 50
+  enemyHealth: 40
   enemyDamageAmount: 2
   normalSpeed: 1.5
   dashSpeed: 12
