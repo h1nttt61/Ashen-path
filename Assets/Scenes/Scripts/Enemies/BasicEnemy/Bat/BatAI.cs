@@ -75,7 +75,7 @@ public class BatAI : MonoBehaviour
         }
     }
 
-    void Update()
+    void FixedUpdate()
     {
 
         if (spriteRenderer != null && !spriteRenderer.enabled) return;
@@ -244,7 +244,6 @@ public class BatAI : MonoBehaviour
             }
         }
 
-        // Умножаем на avoidForce и не даем затухать слишком сильно
         return avoidance * avoidForce;
     }
     private void OnTriggerStay2D(Collider2D collision)
