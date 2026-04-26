@@ -62,14 +62,20 @@ public class Player : MonoBehaviour
     {
         SaveManager.LoadGame();
 
-        if (!PlayerPrefs.HasKey("PlayerHealth"))
-        {
-            string lastCheckpoint = SaveManager.GetLastCheckpointID();
-            Health = string.IsNullOrEmpty(lastCheckpoint) ? maxHealth : lowHealthOnSpawn;
-            OnHealthChanged?.Invoke(Health);
-        }
+        string lastCheckpoint = SaveManager.GetLastCheckpointID();
 
-        HandleSceneTransitionSpawn();
+        if (!string.IsNullOrEmpty(lastCheckpoint))
+        {
+            if (!PlayerPrefs.HasKey("PlayerHealth"))
+            {
+                Health = lowHealthOnSpawn;
+                OnHealthChanged?.Invoke(Health);
+            }
+        }
+        else
+        {
+            HandleSceneTransitionSpawn();
+        }
     }
 
     public void InitializeHealth(int savedHealth)

@@ -11,6 +11,8 @@ public static class SaveManager
     private const string BOSS_DEFEATED_KEY = "BossDefeated";
     private const string SUPER_DASH_KEY = "SuperDashUnlocked";
     private const string SPIRIT_EVENT_KEY = "SpiritEventTriggered";
+    private const string DOOR_CLOSED_KEY = "FirstLocationDoorClosed";
+
     public static void SaveGame()
     {
         if (Player.Instance == null) return;
@@ -90,5 +92,15 @@ public static class SaveManager
     public static bool IsBossDefeated()
     {
         return PlayerPrefs.GetInt(BOSS_DEFEATED_KEY, 0) == 1;
+    }
+
+    public static void SaveDoorStatus(bool isClosed)
+    {
+        PlayerPrefs.SetInt(DOOR_CLOSED_KEY, isClosed ? 1 : 0);
+        PlayerPrefs.Save();
+    }
+    public static bool IsDoorClosed()
+    {
+        return PlayerPrefs.GetInt(DOOR_CLOSED_KEY, 0) == 1;
     }
 }
