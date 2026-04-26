@@ -187,7 +187,7 @@ public class PlayerMovement : MonoBehaviour
         float originalGravity = core.rb.gravityScale;
         core.rb.gravityScale = 0;
 
-        while (isSuperDashing && core.combat.CurrentHealCharge > 0)
+        while (core.combat.CurrentHealCharge > 0)
         {
             core.rb.linearVelocity = new Vector2(dashDir * superDashSpeed, 0);
             core.combat.SpendCharge(core.maxHealth * 0.2f * Time.deltaTime);
@@ -206,6 +206,7 @@ public class PlayerMovement : MonoBehaviour
         core.rb.gravityScale = originalGravity;
         StartCoroutine(WaitCooldown(5f));
     }
+
 
     private void ApplySuperDashPenalty(float dashDir, float grav, float penaltyCD)
     {
@@ -265,7 +266,7 @@ public class PlayerMovement : MonoBehaviour
 
         yield return new WaitForSeconds(dashTime);
 
-        yield return new WaitForSeconds(0.09f);
+        yield return new WaitForSeconds(0.15f);
 
         if (bossCols.Length > 0)
         {
