@@ -13,9 +13,9 @@ public class BugAI : MonoBehaviour
     [SerializeField] private float acceleration = 40f;
 
     [Header("Step Climbing")]
-    public float maxStepHeight = 0.5f;
+    public float maxStepHeight = 0.75f;
     public float stepSmoothing = 0.1f; 
-    public float obstacleCheckDistance = 0.2f;
+    public float obstacleCheckDistance = 1f;
     
     [Header("Pit Detection")]
     public float pitCheckDistance = 1f;
@@ -23,7 +23,7 @@ public class BugAI : MonoBehaviour
 
     [Header("Patrol Settings")]
     [SerializeField] private float maxRadius = 10f;
-    public float stuckThreshold = 0.05f;
+    public float stuckThreshold = 5f;
     public float timeUntilRecalculate = 0.5f;
 
     [Header("Damage Settings")]
@@ -54,15 +54,9 @@ public class BugAI : MonoBehaviour
         StartCoroutine(PatrolArea());
     }
 
-    private void FixedUpdate()
-    {
-        if (Player.Instance == null || !Player.Instance.IsAlive() || isMoving) return;
-
-    }
-
     private void Move(Vector2 moveTo)
     {
-        int wallsLayerMask = LayerMask.GetMask("Wall", "Ground");
+        int wallsLayerMask = LayerMask.GetMask("Wall", "Ground", "Overlay");
         float moveDir = Mathf.Sign(moveTo.x - transform.position.x);
 
         float targetVelX = moveDir * moveSpeed;
@@ -91,9 +85,9 @@ public class BugAI : MonoBehaviour
 
         RaycastHit2D floorRay = Physics2D.Raycast(transform.position, Vector2.down, 100f, wallsLayerMask);
 
-        if (floorRay.collider != null && floorRay.distance > 0.5f)
+        if (floorRay.collider != null && floorRay.distance > .5f)
         {
-            transform.position = new Vector2(transform.position.x, transform.position.y - (floorRay.distance - 0.5f));
+            transform.position = new Vector2(transform.position.x, transform.position.y - (floorRay.distance - .5f));
         }
 
         Vector2 pitRayOrigin = (Vector2)transform.position + new Vector2(moveDir * pitCheckDistance, 0);
@@ -102,34 +96,50 @@ public class BugAI : MonoBehaviour
         if (pitHit.collider == null && floorRay.collider != null)
         {
             rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
-            if (animator != null) animator.SetBool("isMoving", false);
             return;
         }
 
-        spriteRenderer.flipX = moveTo.x < transform.position.x;
-        if (animator != null) animator.SetBool("isMoving", true);
+        spriteRenderer.flipX = moveTo.x >= transform.position.x;
     }
 
     private IEnumerator PatrolArea()
     {
-        int obstacleMask = LayerMask.GetMask("Wall", "Ground");
-
         while (true)
         {
             float patrolDir = Random.value > 0.5f ? 1f : -1f;
-            float randDist = Random.Range(2f, 5f);
+            float randDist = Random.Range(5f, 8f);
             Vector2 patrolPos = (Vector2)transform.position + new Vector2(patrolDir * randDist, 0);
+
+            stuckTimer = 0f;
+            lastPosition = transform.position;
 
             while (Vector2.Distance(new Vector2(transform.position.x, 0), new Vector2(patrolPos.x, 0)) > 0.1f)
             {
                 Move(patrolPos);
+
+                if (Vector2.Distance(transform.position, lastPosition) < stuckThreshold)
+                {
+                    stuckTimer += Time.deltaTime;
+                }
+                else
+                {
+                    stuckTimer = 0f;
+                }
+                
+                lastPosition = transform.position;
+
+                if (stuckTimer >= timeUntilRecalculate)
+                {
+                    Debug.Log($"stopped, {stuckTimer}");
+                    break;
+                }
+
                 yield return new WaitForFixedUpdate();
             }
 
             rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
-            if (animator != null) animator.SetBool("isMoving", false);
 
-            yield return new WaitForSeconds(Random.Range(1f, 2f));
+            yield return new WaitForSeconds(Random.Range(0.1f, 0.5f));
         }
     }
 
