@@ -15,7 +15,7 @@ public class SlimeSpawner : MonoBehaviour
     private int currentEnemiesCount = 0;
     private bool isPausedBySpirit = false;
 
-    private void Update()
+    private void FixedUpdate()
     {
         if (isPausedBySpirit || !isPlayerInside || Player.Instance == null || currentEnemiesCount >= maxEnemiesInZone)
         {
