@@ -12,6 +12,8 @@ public static class SaveManager
     private const string SUPER_DASH_KEY = "SuperDashUnlocked";
     private const string SPIRIT_EVENT_KEY = "SpiritEventTriggered";
     private const string DOOR_CLOSED_KEY = "FirstLocationDoorClosed";
+    private const string SCENE_ONCE_KEY = "FisrtLocation";
+    private const string SCENE_TWO_KEY = "SecondLocation";
 
     public static void SaveGame()
     {
