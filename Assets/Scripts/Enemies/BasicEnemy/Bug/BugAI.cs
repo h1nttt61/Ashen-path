@@ -89,6 +89,10 @@ public class BugAI : MonoBehaviour
         {
             transform.position = new Vector2(transform.position.x, transform.position.y - (floorRay.distance - .5f));
         }
+        else
+        {
+            Debug.Log($"ray - {floorRay.distance}");
+        }
 
         Vector2 pitRayOrigin = (Vector2)transform.position + new Vector2(moveDir * pitCheckDistance, 0);
         RaycastHit2D pitHit = Physics2D.Raycast(pitRayOrigin, Vector2.down, pitRayLength, wallsLayerMask);

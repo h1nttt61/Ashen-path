@@ -138,9 +138,9 @@ MonoBehaviour:
   spriteRenderer: {fileID: 0}
   moveSpeed: 2
   acceleration: 40
-  maxStepHeight: 0.75
+  maxStepHeight: 0.5
   stepSmoothing: 0.1
-  obstacleCheckDistance: 1.5
+  obstacleCheckDistance: 1
   pitCheckDistance: 1.5
   pitRayLength: 1.5
   maxRadius: 10
