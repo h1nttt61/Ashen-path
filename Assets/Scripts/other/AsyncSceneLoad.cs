@@ -10,11 +10,11 @@ public class AsyncSceneLoad : MonoBehaviour
 
     [Header("NPC & Walls")]
     public GameObject npc;
-    //public GameObject backWall; 
 
     private bool isLoading = false;
 
     public string sceneToLoad = "2.1";
+
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (other.CompareTag("Player") && !isLoading)
@@ -33,6 +33,8 @@ public class AsyncSceneLoad : MonoBehaviour
 
         isLoading = true;
 
+        SaveManager.ClearCheckpointData();
+
         float timer = 0;
         while (timer < 1f)
         {
@@ -49,7 +51,7 @@ public class AsyncSceneLoad : MonoBehaviour
         }
 
         AsyncOperation operation = SceneManager.LoadSceneAsync(sceneToLoad);
-        if (operation == null) yield break; 
+        if (operation == null) yield break;
 
         operation.allowSceneActivation = false;
 

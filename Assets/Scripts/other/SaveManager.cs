@@ -67,6 +67,13 @@ public static class SaveManager
             Player.Instance.InitializeHealth(savedHealth);
         }
     }
+    public static void ClearCheckpointData()
+    {
+        PlayerPrefs.DeleteKey(CHECKPOINT_X);
+        PlayerPrefs.DeleteKey(CHECKPOINT_Y);
+        PlayerPrefs.DeleteKey(LAST_CHECKPOINT_ID);
+        PlayerPrefs.Save();
+    }
 
     public static void SaveSpiritEvent()
     {
@@ -81,8 +88,7 @@ public static class SaveManager
 
     public static void ResetProgress()
     {
-        PlayerPrefs.DeleteAll();    
-        //PlayerPrefs.Save();
+        PlayerPrefs.DeleteAll();
     }
 
     public static void SaveBossStatus(bool defeated)
@@ -101,6 +107,7 @@ public static class SaveManager
         PlayerPrefs.SetInt(DOOR_CLOSED_KEY, isClosed ? 1 : 0);
         PlayerPrefs.Save();
     }
+
     public static bool IsDoorClosed()
     {
         return PlayerPrefs.GetInt(DOOR_CLOSED_KEY, 0) == 1;
