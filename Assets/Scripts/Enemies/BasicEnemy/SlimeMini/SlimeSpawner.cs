@@ -10,36 +10,10 @@ public class SlimeSpawner : MonoBehaviour
     [SerializeField] private int maxEnemiesInZone = 3;
     [SerializeField] private Transform[] spawnPoints;
 
-    private float timer;
-    private bool isPlayerInside = false;
-    private int currentEnemiesCount = 0;
+    private int totalSpawnedCount = 0;
+    private bool isPlayerInZone = false;
     private bool isPausedBySpirit = false;
-
-    private void FixedUpdate()
-    {
-        if (isPausedBySpirit || !isPlayerInside || Player.Instance == null || currentEnemiesCount >= maxEnemiesInZone)
-        {
-            timer = 0;
-            return;
-        }
-
-        timer += Time.deltaTime;
-
-        if (timer >= spawnRate)
-        {
-            SpawnSlime();
-            timer = 0;
-        }
-    }
-
-    private void SpawnSlime()
-    {
-        int index = Random.Range(0, spawnPoints.Length);
-        GameObject slime = Instantiate(slimePrefab, spawnPoints[index].position, Quaternion.identity);
-
-        currentEnemiesCount++;
-
-    }
+    private Coroutine spawnCoroutine;
 
     public void DeactivateSpawner(float duration)
     {
@@ -56,32 +30,54 @@ public class SlimeSpawner : MonoBehaviour
             Destroy(slime.gameObject);
         }
 
-        currentEnemiesCount = 0; 
-
         yield return new WaitForSeconds(duration);
-
         isPausedBySpirit = false;
     }
-
 
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (other.CompareTag("Player"))
         {
-            isPlayerInside = true;
-
-            if (currentEnemiesCount < maxEnemiesInZone && !isPausedBySpirit)
+            isPlayerInZone = true;
+            if (spawnCoroutine == null)
             {
-                SpawnSlime();
-                timer = 0;
+                spawnCoroutine = StartCoroutine(SpawnRoutine());
             }
         }
     }
 
     private void OnTriggerExit2D(Collider2D other)
     {
-        if (other.CompareTag("Player")) isPlayerInside = false;
+        if (other.CompareTag("Player"))
+        {
+            isPlayerInZone = false;
+        }
     }
 
-    public void EnemyDied() => currentEnemiesCount--;
+    private IEnumerator SpawnRoutine()
+    {
+        while (totalSpawnedCount < maxEnemiesInZone)
+        {
+            if (isPlayerInZone && !isPausedBySpirit)
+            {
+                SpawnSlime();
+            }
+
+            yield return new WaitForSeconds(spawnRate);
+        }
+        
+        spawnCoroutine = null;
+    }
+
+    private void SpawnSlime()
+    {
+        if (spawnPoints.Length == 0 || totalSpawnedCount >= maxEnemiesInZone) return;
+
+        int randomIndex = Random.Range(0, spawnPoints.Length);
+        Transform selectedPoint = spawnPoints[randomIndex];
+
+        Instantiate(slimePrefab, selectedPoint.position, Quaternion.identity);
+        
+        totalSpawnedCount++;
+    }
 }
