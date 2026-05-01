@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 331889377531291753}
   - component: {fileID: 4026801152300931471}
   - component: {fileID: 8366994581091491575}
+  - component: {fileID: 7650959838378975106}
   m_Layer: 10
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -150,6 +151,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 334a8f95a164aa8438598bbb070dea92, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraShake
+--- !u!114 &7650959838378975106
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 446262500318408094}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea6b2b4be571d0d4b813e58bcf36678b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NauseaEffect
+  intensity: 2
+  speed: 3
 --- !u!1 &985858419264625184
 GameObject:
   m_ObjectHideFlags: 0
@@ -185,7 +200,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: -1.999939, y: 100}
+  m_AnchoredPosition: {x: -1.9998779, y: 100}
   m_SizeDelta: {x: 175, y: 40}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &1747874799415452268
@@ -265,7 +280,7 @@ Transform:
   m_GameObject: {fileID: 1166271765986442806}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.37710375, y: -0.58689934, z: 0}
+  m_LocalPosition: {x: 0.2, y: -0.58689934, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -338,7 +353,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: -1.999939, y: 100}
+  m_AnchoredPosition: {x: -1.9998779, y: 100}
   m_SizeDelta: {x: 175, y: 40}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &8801607153679669813
@@ -659,7 +674,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c046b791605a4cc4a868155e33681de4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HandAttack
-  damage: 2
+  damage: 3
   knockbackForce: 5
 --- !u!60 &9157738647642407917
 PolygonCollider2D:
@@ -707,13 +722,14 @@ PolygonCollider2D:
   m_AutoTiling: 0
   m_Points:
     m_Paths:
-    - - {x: 0.7712021, y: 1.1117516}
-      - {x: -0.5082465, y: 0.43757418}
-      - {x: -0.63396454, y: 0.07526207}
-      - {x: -0.5020842, y: -0.4090613}
-      - {x: 0.83061373, y: -0.68045974}
-      - {x: 0.51187134, y: -0.20446205}
-      - {x: 0.5488577, y: 0.23367494}
+    - - {x: 0.80307007, y: 1.1830425}
+      - {x: -0.73241335, y: 0.6841581}
+      - {x: -0.9651642, y: 0.30841446}
+      - {x: -0.9253845, y: -0.1489048}
+      - {x: -0.70383596, y: -0.46510112}
+      - {x: 0.6486069, y: -0.7028768}
+      - {x: 0.21733093, y: -0.27171326}
+      - {x: 0.23998165, y: 0.20946497}
   m_UseDelaunayMesh: 0
 --- !u!1 &4283533440880765579
 GameObject:
@@ -760,7 +776,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c046b791605a4cc4a868155e33681de4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HandAttack
-  damage: 5
+  damage: 6
   knockbackForce: 2
 --- !u!60 &4955421273027098823
 PolygonCollider2D:
@@ -808,12 +824,13 @@ PolygonCollider2D:
   m_AutoTiling: 0
   m_Points:
     m_Paths:
-    - - {x: 0.8980408, y: 0.7343826}
-      - {x: -0.17648226, y: 0.51556945}
+    - - {x: 0.92048645, y: 1.0155048}
+      - {x: 0.30371183, y: 1.1235273}
+      - {x: -0.8546295, y: 0.3945446}
       - {x: -0.7383957, y: -0.0055561066}
-      - {x: -0.08861679, y: -0.4647597}
-      - {x: 0.8028122, y: -0.69518065}
-      - {x: 0.34392452, y: 0.09399217}
+      - {x: -0.43607467, y: -0.76738536}
+      - {x: 0.6284348, y: -0.8938043}
+      - {x: -0.025948524, y: 0.015533388}
   m_UseDelaunayMesh: 0
 --- !u!1 &5199773899127064164
 GameObject:
@@ -902,7 +919,7 @@ GameObject:
   - component: {fileID: 6773735674277561507}
   - component: {fileID: 4361502886199146848}
   - component: {fileID: 2147671695660424833}
-  - component: {fileID: 5142200440578708284}
+  - component: {fileID: 1684352051771338174}
   m_Layer: 10
   m_Name: HealthBar
   m_TagString: Untagged
@@ -980,7 +997,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Health
   healthBar: {fileID: 4361502886199146848}
---- !u!114 &5142200440578708284
+--- !u!114 &1684352051771338174
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1008,6 +1025,7 @@ GameObject:
   - component: {fileID: 5372333549248707361}
   - component: {fileID: 4384941372777903458}
   - component: {fileID: 974526029479603232}
+  - component: {fileID: 6770673110307971233}
   m_Layer: 10
   m_Name: Panel
   m_TagString: Untagged
@@ -1085,6 +1103,20 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!114 &6770673110307971233
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6220627011250014908}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e3838b758a48a7043b179cd206821d44, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StatusEffectsUI
+  statusText: {fileID: 7669316449436455063}
+  panelAlphaControl: {fileID: 974526029479603232}
 --- !u!1 &6221501382017152299
 GameObject:
   m_ObjectHideFlags: 0
@@ -1423,7 +1455,6 @@ GameObject:
   - component: {fileID: 7803222955674013098}
   - component: {fileID: 1646445804152662249}
   - component: {fileID: 7669316449436455063}
-  - component: {fileID: 1328830468833620482}
   m_Layer: 10
   m_Name: Status
   m_TagString: Untagged
@@ -1549,20 +1580,6 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
---- !u!114 &1328830468833620482
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6679479547492205971}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e3838b758a48a7043b179cd206821d44, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::StatusEffectsUI
-  statusText: {fileID: 7669316449436455063}
-  panelAlphaControl: {fileID: 0}
 --- !u!1 &7225009960237204193
 GameObject:
   m_ObjectHideFlags: 0
@@ -1628,7 +1645,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 7
+  m_SortingOrder: 100
   m_TargetDisplay: 0
 --- !u!114 &838244342492141574
 MonoBehaviour:
