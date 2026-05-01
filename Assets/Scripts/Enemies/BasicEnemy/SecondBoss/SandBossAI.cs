@@ -103,13 +103,17 @@ public class SandBossAI : MonoBehaviour
 
     public IEnumerator FadeIn(float duration)
     {
+        SpriteRenderer sr = GetComponent<SpriteRenderer>();
+        if (sr == null) sr = GetComponentInChildren<SpriteRenderer>();
+
         float t = 0;
-        transform.localScale = Vector3.zero; 
+        Color startColor = sr.color;
+        sr.color = new Color(startColor.r, startColor.g, startColor.b, 0);
 
         while (t < 1f)
         {
             t += Time.deltaTime / duration;
-            transform.localScale = Vector3.Lerp(Vector3.zero, Vector3.one, t);
+            sr.color = new Color(startColor.r, startColor.g, startColor.b, Mathf.Lerp(0, 1, t));
             yield return null;
         }
     }
