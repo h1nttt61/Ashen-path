@@ -1,5 +1,8 @@
+using System;
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class BugAI : MonoBehaviour
@@ -36,6 +39,7 @@ public class BugAI : MonoBehaviour
     private float currentHealth;
     private float stuckTimer = 0f;
     private Vector2 lastPosition;
+    private Vector2 startPos;
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -52,6 +56,7 @@ public class BugAI : MonoBehaviour
         if (data != null) currentHealth = data.enemyHealth;
 
         StartCoroutine(PatrolArea());
+        startPos = transform.position;
     }
 
     private void Move(Vector2 moveTo)
@@ -108,8 +113,10 @@ public class BugAI : MonoBehaviour
         {
             float patrolDir = Random.value > 0.5f ? 1f : -1f;
             float randDist = Random.Range(5f, 8f);
-            Vector2 patrolPos = (Vector2)transform.position + new Vector2(patrolDir * randDist, 0);
-
+            
+            Vector2 offset = new Vector2(patrolDir * randDist, 0); 
+            Vector2 patrolPos = (Vector2)startPos + Vector2.ClampMagnitude(offset, maxRadius);
+            
             stuckTimer = 0f;
             lastPosition = transform.position;
 
