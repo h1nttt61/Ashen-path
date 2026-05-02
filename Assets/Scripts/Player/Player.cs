@@ -46,7 +46,6 @@ public class Player : MonoBehaviour
             return;
         }
         Instance = this;
-
         rb = GetComponent<Rigidbody2D>();
         collision = GetComponent<PlayerCollision>();
         movement = GetComponent<PlayerMovement>();
@@ -62,8 +61,18 @@ public class Player : MonoBehaviour
     {
         SaveManager.LoadGame();
 
-        string lastCheckpoint = SaveManager.GetLastCheckpointID();
+        if (PlayerPrefs.HasKey("CheckpointX") && PlayerPrefs.HasKey("CheckpointY"))
+        {
+            float x = PlayerPrefs.GetFloat("CheckpointX");
+            float y = PlayerPrefs.GetFloat("CheckpointY");
+            Vector3 savedPos = new Vector3(x, y, Player.Instance.transform.position.z);
 
+            transform.position = savedPos;
+            rb.position = savedPos;
+            lastCheckpointPos = savedPos;
+        }
+
+        string lastCheckpoint = SaveManager.GetLastCheckpointID();
         if (!string.IsNullOrEmpty(lastCheckpoint))
         {
             if (!PlayerPrefs.HasKey("PlayerHealth"))

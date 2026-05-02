@@ -16,9 +16,21 @@ public class SandBossAI : MonoBehaviour
     private float currentHealth;
     private bool isPhase2Triggered = false;
     private bool canAttack = true;
-
+    private SpriteRenderer sp;
+    private Rigidbody2D rb;
+    private void Awake()
+    {
+        if (sr == null) sr = GetComponent<SpriteRenderer>();
+        if (rb == null) rb = GetComponent<Rigidbody2D>();
+        if (agent == null) agent = GetComponent<NavMeshAgent>();
+    }
     private void Start()
     {
+        if (SaveManager.IsSandBossDefeated())
+        {
+            Destroy(gameObject);
+            return;
+        }
         currentHealth = data.enemyHealth; 
         agent.updateRotation = false;
         agent.updateUpAxis = false;
@@ -137,5 +149,56 @@ public class SandBossAI : MonoBehaviour
         curState = BossState.Chasing;
     }
 
+
     public void Activate() => curState = BossState.Chasing;
+
+    public void TakeDamage(float damage)
+    {
+        if (curState == BossState.Dead || curState == BossState.Intro) return;
+
+        currentHealth -= damage;
+        StopCoroutine(nameof(DamageFlash));
+        StartCoroutine(DamageFlash());
+
+        if (currentHealth <= 0) Die();
+    }
+
+    IEnumerator DamageFlash()
+    {
+        Color originalColor = sr.color;
+        sr.color = Color.red;
+        yield return new WaitForSeconds(0.1f);
+        sr.color = originalColor;
+    }
+
+    private void Die()
+    {
+        curState = BossState.Dead;
+        agent.isStopped = true;
+        agent.enabled = false;
+
+        if (TryGetComponent(out Rigidbody2D rb)) rb.simulated = false;
+
+        SaveManager.SaveSandBossStatus(true);
+
+        StopAllCoroutines();
+        StartCoroutine(DeathSequence());
+    }
+
+    IEnumerator DeathSequence()
+    {
+        float elapsed = 0;
+        float duration = 2f;
+        Color startColor = sr.color;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float alpha = Mathf.Lerp(1f, 0f, elapsed / duration);
+            sr.color = new Color(startColor.r, startColor.g, startColor.b, alpha);
+            yield return null;
+        }
+
+        Destroy(gameObject);
+    }
 }

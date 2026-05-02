@@ -7,11 +7,11 @@ public class MenuButtonScript : MonoBehaviour
     [SerializeField] private CanvasGroup fadeScreen;
     [SerializeField] private CanvasGroup buttonsGroup;
     public float fadeSpeed = 1.0f;
-    
+
     private void Start()
     {
         buttonsGroup = GetComponentInParent<CanvasGroup>();
-        
+
         if (fadeScreen == null)
         {
             GameObject fadeObj = GameObject.Find("backgroud");
@@ -36,10 +36,10 @@ public class MenuButtonScript : MonoBehaviour
 
     public void NewGame()
     {
-        SaveManager.ResetProgress(); 
+        SaveManager.ResetProgress();
         if (MusicManagerPersistent.Instance != null)
         {
-            MusicManagerPersistent.Instance.FadeOut(1.5f); 
+            MusicManagerPersistent.Instance.FadeOut(1.5f);
         }
         StartCoroutine(LoadWithFade(2));
     }
@@ -62,11 +62,11 @@ public class MenuButtonScript : MonoBehaviour
     {
         PlayerPrefs.Save();
 
-        #if UNITY_EDITOR
-            UnityEditor.EditorApplication.isPlaying = false;
-        #else
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
             Application.Quit();
-        #endif
+#endif
     }
 
     private IEnumerator LoadWithFade(int sceneIndex)
@@ -85,8 +85,8 @@ public class MenuButtonScript : MonoBehaviour
             timer += Time.unscaledDeltaTime;
             float progress = timer / fadeSpeed;
 
-            fadeScreen.alpha = progress; 
-            if (buttonsGroup != null) buttonsGroup.alpha = 1 - progress; 
+            fadeScreen.alpha = progress;
+            if (buttonsGroup != null) buttonsGroup.alpha = 1 - progress;
 
             yield return null;
         }
