@@ -167,7 +167,22 @@ public class Player : MonoBehaviour
             PlayerPositionStorage.TargetSceneIndex = -1;
         }
     }
+    public void ApplyPoison(int damage, float duration)
+    {
+        StartCoroutine(PoisonTicks(damage, duration));
+    }
 
+    private IEnumerator PoisonTicks(int damage, float duration)
+    {
+        for (int i = 0; i < duration; i++)
+        {
+            yield return new WaitForSeconds(1f);
+            if (IsAlive())
+            {
+                TakeDamage(damage, null);
+            }
+        }
+    }
     private void OnDestroy()
     {
         if (Instance == this)
