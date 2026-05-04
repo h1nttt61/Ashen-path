@@ -41,3 +41,4 @@ public class BackgroundPersistent : MonoBehaviour
         if (group != null) group.alpha = alpha;
     }
 }
+    

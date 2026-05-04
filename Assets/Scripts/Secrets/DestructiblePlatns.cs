@@ -1,17 +1,30 @@
 using UnityEngine;
 using System;
 
-public class DestructiblePlatns : MonoBehaviour
+public class DestructibleBlock : MonoBehaviour
 {
-    public event EventHandler OnDestructiblePlatns;
+    public static event Action OnAnyBlockDestroyed;
+    [SerializeField] private GameObject breakEffectPrefab;
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.gameObject.GetComponent<Sword>())
+        if (collision.GetComponent<HandAttack>())
         {
-            OnDestructiblePlatns?.Invoke(this, EventArgs.Empty);
-            Destroy(collision.gameObject);
-            //if we used navMesh - NavMeshSurfaceManagment.Instance.RebakeNavMeshSurface();
+            Break();
         }
+    }
+
+    public void Break()
+    {
+        if (breakEffectPrefab != null)
+        {
+            Instantiate(breakEffectPrefab, transform.position, Quaternion.identity);
+        }
+
+        if (CameraShake.Instance != null)
+            CameraShake.Instance.Shake(0.15f, 0.3f); 
+
+        OnAnyBlockDestroyed?.Invoke();
+        Destroy(gameObject);
     }
 }

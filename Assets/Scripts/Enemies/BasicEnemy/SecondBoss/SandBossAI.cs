@@ -31,7 +31,7 @@ public class SandBossAI : MonoBehaviour
             Destroy(gameObject);
             return;
         }
-        currentHealth = data.enemyHealth; 
+        currentHealth = data.enemyHealth;
         agent.updateRotation = false;
         agent.updateUpAxis = false;
         agent.speed = data.normalSpeed;
@@ -60,7 +60,7 @@ public class SandBossAI : MonoBehaviour
     private void MoveToPlayer()
     {
         agent.isStopped = false;
-        agent.SetDestination(Player.Instance.transform.position); 
+        agent.SetDestination(Player.Instance.transform.position);
     }
 
     private void ChooseAttack()
@@ -98,7 +98,7 @@ public class SandBossAI : MonoBehaviour
     IEnumerator BurrowAttack()
     {
         canAttack = false;
-        sr.color = new Color(1, 1, 1, 0.5f); 
+        sr.color = new Color(1, 1, 1, 0.5f);
         agent.speed = data.normalSpeed * 1.5f;
 
         yield return new WaitForSeconds(1f);
@@ -118,12 +118,16 @@ public class SandBossAI : MonoBehaviour
         SpriteRenderer sr = GetComponent<SpriteRenderer>();
         if (sr == null) sr = GetComponentInChildren<SpriteRenderer>();
 
+        if (sr == null) yield break;
+
         float t = 0;
         Color startColor = sr.color;
         sr.color = new Color(startColor.r, startColor.g, startColor.b, 0);
 
         while (t < 1f)
         {
+            if (sr == null) yield break;
+
             t += Time.deltaTime / duration;
             sr.color = new Color(startColor.r, startColor.g, startColor.b, Mathf.Lerp(0, 1, t));
             yield return null;
@@ -144,7 +148,7 @@ public class SandBossAI : MonoBehaviour
             CameraShake.Instance.Shake(0.1f, 0.2f);
         }
 
-        agent.speed = data.normalSpeed * 1.3f; 
+        agent.speed = data.normalSpeed * 1.3f;
         canAttack = true;
         curState = BossState.Chasing;
     }
@@ -179,10 +183,15 @@ public class SandBossAI : MonoBehaviour
 
         if (TryGetComponent(out Rigidbody2D rb)) rb.simulated = false;
 
-        SaveManager.SaveSandBossStatus(true);
-
         StopAllCoroutines();
         StartCoroutine(DeathSequence());
+        FinalSpiritSequence final = FindObjectOfType<FinalSpiritSequence>(true);
+        if (final != null)
+        {
+            final.StartSequence();
+        }
+
+        SaveManager.SaveSandBossStatus(true);
     }
 
     IEnumerator DeathSequence()
@@ -193,6 +202,8 @@ public class SandBossAI : MonoBehaviour
 
         while (elapsed < duration)
         {
+            if (sr == null) yield break;
+
             elapsed += Time.deltaTime;
             float alpha = Mathf.Lerp(1f, 0f, elapsed / duration);
             sr.color = new Color(startColor.r, startColor.g, startColor.b, alpha);
