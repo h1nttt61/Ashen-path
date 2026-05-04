@@ -1,0 +1,7 @@
+*.unity merge=unityyamlmerge
+*.prefab merge=unityyamlmerge
+
+*.png binary
+*.jpg binary
+*.asset binary
+*.pdf binary

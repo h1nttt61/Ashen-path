@@ -25,6 +25,8 @@ public class HandAttack : MonoBehaviour
 
         if (collision.TryGetComponent(out BugAI bug)) bug.TakeDamage(damage);
 
+        if (collision.TryGetComponent(out MosquitoAI mosquito)) mosquito.TakeDamage(damage);
+
         if (collision.TryGetComponent(out SandBossAI sd)) sd.TakeDamage(damage);
 
         if (collision.TryGetComponent(out SpiderAI spider)) spider.TakeDamage(damage); 
