@@ -41,6 +41,11 @@ public class Sword : MonoBehaviour
         {
             bug.TakeDamage(damageAmount);
         }
+        MosquitoAI mosquito = collision.GetComponentInParent<MosquitoAI>();
+        if (mosquito != null)
+        {
+            mosquito.TakeDamage(damageAmount);
+        }
     }
 
     public void AttackColliderTurnOff()
