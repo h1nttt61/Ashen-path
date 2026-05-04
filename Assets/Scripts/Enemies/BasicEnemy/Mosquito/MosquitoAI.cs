@@ -87,6 +87,8 @@ public class MosquitoAI : MonoBehaviour
 
     private IEnumerator Dash()
     {
+        GetComponent<Animator>().SetTrigger("isAttacking");
+        
         LayerMask wallsLayerMask = LayerMask.GetMask("Wall", "Ground");
         lastDashTime = Time.time; 
 
