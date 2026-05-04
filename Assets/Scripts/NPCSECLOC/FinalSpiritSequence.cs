@@ -39,7 +39,7 @@ public class FinalSpiritSequence : MonoBehaviour
     {
         spirit.gameObject.SetActive(true);
         spirit.transform.position = Player.Instance.transform.position + new Vector3(-3, 2, 0);
-        yield return spirit.StartCoroutine("Fade", 1f);
+        yield return StartCoroutine(spirit.Fade(0f, 1f));
 
         SetPlayerLock(true); 
 
@@ -61,7 +61,7 @@ public class FinalSpiritSequence : MonoBehaviour
         SaveManager.SaveSandBossStatus(true); 
         SaveManager.SaveGame();
 
-        yield return spirit.StartCoroutine("Fade", 0f);
+        yield return StartCoroutine(spirit.Fade(1f, 0f));
         spirit.gameObject.SetActive(false);
     }
 

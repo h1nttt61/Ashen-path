@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using UnityEditor.ShaderGraph;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
@@ -169,13 +170,23 @@ public class PlayerMovement : MonoBehaviour
 
     private void OnDashInput(object sender, EventArgs e)
     {
+        if (this == null || core == null) return;
+
         if (!isDashing && core.isDashUnlocked && canDash && IsRunning)
         {
             StartCoroutine(DashRoutine());
         }
     }
 
+    private void OnDisable()
+    {
+        if (GameInput.Instance != null)
+        {
+            GameInput.Instance.OnPlayerDash -= OnDashInput;
+        }
+    }
 
+    
     private IEnumerator SuperDashRoutine()
     {
         isSuperDashing = true;
@@ -324,9 +335,11 @@ public class PlayerMovement : MonoBehaviour
             yield return new WaitForSeconds(ghostDelay);
         }
     }
-
     private void OnDestroy()
     {
-        if (GameInput.Instance != null) GameInput.Instance.OnPlayerDash -= OnDashInput;
+        if (GameInput.Instance != null)
+        {
+            GameInput.Instance.OnPlayerDash -= OnDashInput;
+        }
     }
 }

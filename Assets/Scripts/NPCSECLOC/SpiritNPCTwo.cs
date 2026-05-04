@@ -79,7 +79,7 @@ public class SpiritNPCTwo : MonoBehaviour
         }
     }
 
-    private IEnumerator Fade(float start, float end)
+    public IEnumerator Fade(float start, float end)
     {
         if (sr == null) yield break;
         Color c = sr.color;

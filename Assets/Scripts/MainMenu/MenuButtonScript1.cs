@@ -50,7 +50,9 @@ public class MenuButtonScript : MonoBehaviour
         {
             MusicManagerPersistent.Instance.FadeOut(1.0f);
         }
-        SceneManager.LoadScene(2);
+        int sceneToLoad = SaveManager.GetSavedSceneIndex();
+    
+        SceneManager.LoadScene(sceneToLoad);
     }
 
     public void Settings()

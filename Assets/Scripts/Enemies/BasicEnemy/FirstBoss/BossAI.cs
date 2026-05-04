@@ -244,6 +244,19 @@ public class BossAI : MonoBehaviour
             animator.SetBool("isChasing", false);
             animator.enabled = false;
         }
+
+        GuideNpc[] guides = Resources.FindObjectsOfTypeAll<GuideNpc>();
+        if (guides.Length > 0)
+        {
+            GameObject guideGO = guides[0].gameObject; 
+            guideGO.SetActive(true); 
+        
+            guides[0].StartSequence(); 
+        }
+        else
+        {
+            Debug.Log("Upssss");
+    }
         SaveManager.SaveBossStatus(true);
         StopAllCoroutines();
         StartCoroutine(DeathSequence());

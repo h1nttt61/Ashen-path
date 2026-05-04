@@ -33,12 +33,28 @@ public class PlayerCombat : MonoBehaviour
 
     private void Update()
     {
+        if (core == null) core = Player.Instance;
         if (!isRegenerating && currentHealCharge < core.maxHealth)
         {
             currentHealCharge += Time.deltaTime * chargeSpeed;
             currentHealCharge = Mathf.Min(currentHealCharge, core.maxHealth);
             core.InvokeHealProgressEvent(currentHealCharge / core.maxHealth);
         }
+    }
+
+    private void OnDisable()
+    {
+        if (GameInput.Instance != null)
+        {
+            GameInput.Instance.OnPlayerAttack -= OnAttackInput;
+            GameInput.Instance.OnPlayerHealHoldStarted -= StartHealing;
+            GameInput.Instance.OnPlayerHealHoldEnded -= StopHealing;
+        }
+    }
+
+    private void OnDestroy()
+    {
+        OnDisable();
     }
 
     public bool SpendCharge(float amount)
@@ -120,15 +136,5 @@ public class PlayerCombat : MonoBehaviour
             if (col.GetComponent<BatAI>() != null) return true;
         }
         return false;
-    }
-
-    private void OnDestroy()
-    {
-        if (GameInput.Instance != null)
-        {
-            GameInput.Instance.OnPlayerAttack -= OnAttackInput;
-            GameInput.Instance.OnPlayerHealHoldStarted -= StartHealing;
-            GameInput.Instance.OnPlayerHealHoldEnded -= StopHealing;
-        }
     }
 }

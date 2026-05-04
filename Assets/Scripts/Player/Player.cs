@@ -130,12 +130,6 @@ public class Player : MonoBehaviour
         OnHealthChanged?.Invoke(Health);
         if (leftHand != null) leftHand.DisableAttack();
         if (rightHand != null) rightHand.DisableAttack();
-        Animator anim = GetComponentInChildren<Animator>();
-        if (anim != null)
-        {
-            anim.Rebind();
-            anim.Update(0f);
-        }
         transform.position = lastCheckpointPos;
         rb.linearVelocity = Vector2.zero;
     }
@@ -171,6 +165,14 @@ public class Player : MonoBehaviour
                 }
             }
             PlayerPositionStorage.TargetSceneIndex = -1;
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (Instance == this)
+        {
+            Instance = null;
         }
     }
 }

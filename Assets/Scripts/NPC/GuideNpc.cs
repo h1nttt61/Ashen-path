@@ -34,6 +34,7 @@ public class GuideNpc : MonoBehaviour
 
     public void StartSequence()
     {
+        Debug.Log("Sequence Started!");
         EnsureReferences();
 
         if (sr == null)
