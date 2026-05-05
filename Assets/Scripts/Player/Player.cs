@@ -112,6 +112,12 @@ public class Player : MonoBehaviour
     {
         if (!canTakeDamage || Health <= 0) return;
 
+        if (SaveManager.IsRingGiven())
+        {
+            damageAmount = Mathf.RoundToInt(damageAmount * 0.8f);
+            if (damageAmount < 1) damageAmount = 1;
+        }
+
         Health -= damageAmount;
         OnHealthChanged?.Invoke(Health);
 

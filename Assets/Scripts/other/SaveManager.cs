@@ -15,6 +15,7 @@ public static class SaveManager
     private const string DOOR_CLOSED_KEY = "FirstLocationDoorClosed";
     private const string CURRENT_SCENE_KEY = "LastSavedScene";
     private const string SAND_BOSS_DEFEATED_KEY = "SandBossDefeated";
+    private const string FIRE_NPC_RING_GIVEN = "FireNpcRingGiven";
 
     public static void SaveGame()
     {
@@ -45,6 +46,17 @@ public static class SaveManager
     public static string GetLastCheckpointID()
     {
         return PlayerPrefs.GetString(LAST_CHECKPOINT_ID, "");
+    }
+
+    public static void SaveRingStatus(bool given)
+    {
+        PlayerPrefs.SetInt(FIRE_NPC_RING_GIVEN, given ? 1 : 0);
+        PlayerPrefs.Save();
+    }
+
+    public static bool IsRingGiven()
+    {
+        return PlayerPrefs.GetInt(FIRE_NPC_RING_GIVEN, 0) == 1;
     }
 
     public static void LoadGame()
