@@ -58,7 +58,14 @@ public class PlayerMovement : MonoBehaviour
     private void Start()
     {
         core = Player.Instance;
-        GameInput.Instance.OnPlayerDash += OnDashInput;
+    }
+
+    private void OnEnable()
+    {
+        if (GameInput.Instance != null)
+        {
+            GameInput.Instance.OnPlayerDash += OnDashInput;
+        }
     }
 
     private void Update()

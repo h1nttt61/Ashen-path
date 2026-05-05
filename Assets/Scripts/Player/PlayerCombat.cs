@@ -19,16 +19,15 @@ public class PlayerCombat : MonoBehaviour
 
     [Header("Restrictions")]
     [SerializeField] private float batDetectionRadius = 5f;
-
+    private GameInput inputReference;
 
     public float CurrentHealCharge => currentHealCharge;
 
     private void Start()
     {
         core = Player.Instance;
-        GameInput.Instance.OnPlayerAttack += OnAttackInput;
-        GameInput.Instance.OnPlayerHealHoldStarted += StartHealing;
-        GameInput.Instance.OnPlayerHealHoldEnded += StopHealing;
+        inputReference = GameInput.Instance;
+        Subscribe();
     }
 
     private void Update()
@@ -42,19 +41,38 @@ public class PlayerCombat : MonoBehaviour
         }
     }
 
-    private void OnDisable()
+    private void Subscribe()
     {
-        if (GameInput.Instance != null)
+        Unsubscribe();
+
+        if (inputReference != null)
         {
-            GameInput.Instance.OnPlayerAttack -= OnAttackInput;
-            GameInput.Instance.OnPlayerHealHoldStarted -= StartHealing;
-            GameInput.Instance.OnPlayerHealHoldEnded -= StopHealing;
+            inputReference.OnPlayerAttack += OnAttackInput;
+            inputReference.OnPlayerHealHoldStarted += StartHealing;
+            inputReference.OnPlayerHealHoldEnded += StopHealing; 
+        }
+    }
+
+    private void OnEnable()
+    {
+        if (inputReference != null)
+        {
+            Subscribe();
+        }
+    }
+    private void Unsubscribe()
+    {
+        if (inputReference != null)
+        {
+            inputReference.OnPlayerAttack -= OnAttackInput;
+            inputReference.OnPlayerHealHoldStarted -= StartHealing;
+            inputReference.OnPlayerHealHoldEnded -= StopHealing; 
         }
     }
 
     private void OnDestroy()
     {
-        OnDisable();
+        Unsubscribe();
     }
 
     public bool SpendCharge(float amount)
