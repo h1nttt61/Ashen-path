@@ -28,6 +28,7 @@ public class MosquitoAI : MonoBehaviour
     private float currentHealth;
     private float dashTimer;
     private float lastDashTime = -999f;
+    private Vector2 startPos; 
 
     private void Awake()
     {
@@ -44,7 +45,7 @@ public class MosquitoAI : MonoBehaviour
     private void Start()
     {
         if (data != null) currentHealth = data.enemyHealth;
-
+        startPos = transform.position;
     }
 
     void Update()
@@ -52,7 +53,15 @@ public class MosquitoAI : MonoBehaviour
         Transform playerTransform = Player.Instance.transform;
         float distToPlayer = Vector2.Distance(playerTransform.position, transform.position);
 
-        Move(Player.Instance.transform.position);
+        if (distToPlayer <= data.detectionRange)
+        {
+            Move(playerTransform.position);
+        }
+        else
+        {
+            Move(startPos);
+        }
+
 
         if (Time.time >= dashTimer && distToPlayer <= data.attackRange)
         {

@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Mosquito
   m_EditorClassIdentifier: Assembly-CSharp::EnemySO
   enemyName: Mosquito
-  enemyHealth: 8
-  enemyDamageAmount: 1
+  enemyHealth: 2
+  enemyDamageAmount: 2
   normalSpeed: 3.5
   dashSpeed: 20
   detectionRange: 12
