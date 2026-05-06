@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 
 [SelectionBase]
@@ -37,7 +38,7 @@ public class Player : MonoBehaviour
     private Vector3 lastCheckpointPos;
     private bool canTakeDamage = true;
     private bool isAlive = true;
-
+    private bool isDied = false;
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -85,6 +86,11 @@ public class Player : MonoBehaviour
         {
             HandleSceneTransitionSpawn();
         }
+    }
+
+    private void Update()
+    {
+        isDied = false;
     }
 
     public void InitializeHealth(int savedHealth)
@@ -138,6 +144,7 @@ public class Player : MonoBehaviour
         if (rightHand != null) rightHand.DisableAttack();
         transform.position = lastCheckpointPos;
         rb.linearVelocity = Vector2.zero;
+        isDied = true;
     }
 
     public void UpdateCheckpoint(Vector3 newPos) => lastCheckpointPos = newPos;
@@ -186,6 +193,10 @@ public class Player : MonoBehaviour
             if (IsAlive())
             {
                 TakeDamage(damage, null);
+            }
+            if (isDied)
+            {
+                break;
             }
         }
     }

@@ -117,9 +117,6 @@ public class SpiderAI : MonoBehaviour
         col.enabled = false;
         rb.simulated = false;
 
-        if (SpiritDIalogManager.Instance != null)
-            SpiritDIalogManager.Instance.RegistrKills();
-
         float elapsed = 0;
         Color startColor = sr.color;
         Vector3 startScale = transform.localScale;

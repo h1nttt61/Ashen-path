@@ -2735,7 +2735,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7712748495778629283, guid: 23317454a13c07248b238905a6fb31ed, type: 3}
       propertyPath: checkpointID
-      value: Fire4
+      value: Fire5
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 3019408963685026153, guid: 23317454a13c07248b238905a6fb31ed, type: 3}
@@ -17796,7 +17796,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7712748495778629283, guid: 23317454a13c07248b238905a6fb31ed, type: 3}
       propertyPath: checkpointID
-      value: Fire4
+      value: Fire5
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 3019408963685026153, guid: 23317454a13c07248b238905a6fb31ed, type: 3}
