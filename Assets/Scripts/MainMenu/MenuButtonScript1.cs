@@ -78,7 +78,12 @@ public class MenuButtonScript : MonoBehaviour
             SceneManager.LoadScene(sceneIndex);
             yield break;
         }
-        if (buttonsGroup != null) buttonsGroup.interactable = false;
+        if (buttonsGroup != null)
+        {
+            buttonsGroup.interactable = false;
+            buttonsGroup.blocksRaycasts = false;
+        }
+
         fadeScreen.blocksRaycasts = true;
 
         float timer = 0;
@@ -92,11 +97,9 @@ public class MenuButtonScript : MonoBehaviour
 
             yield return null;
         }
-
         fadeScreen.alpha = 1;
 
-        if (MusicManagerPersistent.Instance != null)
-            MusicManagerPersistent.Instance.FadeOut(1.5f);
+        yield return new WaitForSecondsRealtime(2.5f);
 
         AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(sceneIndex);
         asyncLoad.allowSceneActivation = false;
@@ -106,8 +109,7 @@ public class MenuButtonScript : MonoBehaviour
             yield return null;
         }
 
-        yield return new WaitForSecondsRealtime(1.0f);
-
+        yield return new WaitForSecondsRealtime(0.5f);
         asyncLoad.allowSceneActivation = true;
     }
 }
