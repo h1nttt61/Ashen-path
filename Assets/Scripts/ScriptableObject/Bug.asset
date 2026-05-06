@@ -15,7 +15,7 @@ MonoBehaviour:
   enemyName: Bug
   enemyHealth: 8
   enemyDamageAmount: 1
-  normalSpeed: 3.5
+  normalSpeed: 0
   dashSpeed: 12
   detectionRange: 7
   attackRange: 1.5

@@ -2,68 +2,75 @@ using System.Collections;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
-public class MosquitoAI : MonoBehaviour
+public class GhostAI : MonoBehaviour
 {
     [SerializeField] private EnemySO data;
     [SerializeField] private Animator animator;
     [SerializeField] private SpriteRenderer spriteRenderer;
 
     [Header("Movement (Physics-based)")]
-    [SerializeField] private float moveSpeed = 3f;
-    [SerializeField] private float acceleration = 40f;
+    private float moveSpeed = 3f;
+    private float acceleration = 40f;
     
     [Header("Damage Settings")]
     [SerializeField] private float damageCooldown = 0.5f;
-    [SerializeField] private float dashCooldown = 2.5f;
-    [SerializeField] private float dashDistance = 4.5f;
-    [SerializeField] private float dashDuration = 0.3f;
+    [SerializeField] private float attackCooldown = 2.5f;
+    [SerializeField] private float attackDistance = 4.5f;
 
     private float lastDamageTime;
     private Rigidbody2D rb;
-    private Collider2D col;
+    private bool isAttacking;
     private float currentHealth;
-    private float dashTimer;
-    private float lastDashTime = -999f;
+    private float attackTimer;
     private Vector2 startPos; 
 
-    private void Awake()
+    void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
-        col = GetComponent<Collider2D>();
 
         if (animator == null) animator = GetComponentInChildren<Animator>();
         if (spriteRenderer == null) spriteRenderer = GetComponentInChildren<SpriteRenderer>();
 
         rb.freezeRotation = true;
-        dashTimer = Time.time;
     }
 
     private void Start()
     {
         if (data != null) currentHealth = data.enemyHealth;
+        attackTimer = Time.time;
         startPos = transform.position;
     }
 
     void Update()
     {
+        if (isAttacking) return;
+
         Transform playerTransform = Player.Instance.transform;
         float distToPlayer = Vector2.Distance(playerTransform.position, transform.position);
-
-        if (distToPlayer <= data.detectionRange)
+        
+        if (distToPlayer > 3f)
         {
-            Move(playerTransform.position);
+            moveSpeed = 3f;
+            acceleration = 40f;
+
+            if (distToPlayer <= data.detectionRange)
+            {
+                Move(playerTransform.position);
+            }
+            else
+            {
+                Move(startPos);
+            }
         }
         else
         {
-            Move(startPos);
+            if (Time.time >= attackTimer)
+            {
+                StartCoroutine(Attack());
+                attackTimer = Time.time + attackCooldown;
+            }
         }
 
-
-        if (Time.time >= dashTimer && distToPlayer <= data.attackRange)
-        {
-            StartCoroutine(Dash());
-            dashTimer = Time.time + dashCooldown;
-        }
     }
 
     private void Move(Vector2 moveTo)
@@ -71,9 +78,10 @@ public class MosquitoAI : MonoBehaviour
         Vector2 offset = moveTo - (Vector2)transform.position;
         float distance = offset.magnitude;
 
-        if (distance < 3f) 
+        if (distance < 0.25f) 
         {
             rb.linearVelocity = Vector2.MoveTowards(rb.linearVelocity, Vector2.zero, acceleration * Time.fixedDeltaTime);
+           
             return;
         }
 
@@ -87,53 +95,33 @@ public class MosquitoAI : MonoBehaviour
 
         rb.linearVelocity = new Vector2(newVelX, newVelY);
 
-        spriteRenderer.flipX = moveTo.x < transform.position.x;
+        spriteRenderer.flipX = moveTo.x >= transform.position.x;
     }
 
-    private IEnumerator Dash()
+    private IEnumerator Attack()
     {
-        GetComponent<Animator>().SetTrigger("isAttacking");
+        //GetComponent<Animator>().SetTrigger("isAttacking");
+        Transform playerTransform = Player.Instance.transform;
+
+        isAttacking = true;
         
-        LayerMask wallsLayerMask = LayerMask.GetMask("Wall", "Ground");
-        lastDashTime = Time.time; 
+        Vector2 attackDir = -(transform.position - playerTransform.position).normalized;
+        Vector2 targetPos = (Vector2)transform.position + (attackDir * 4f);
 
-        float gravityBefore = rb.gravityScale;
-        rb.gravityScale = 0; 
+        moveSpeed = 10f;
+        acceleration = 80f;
 
-        Vector2 startPos = transform.position;
-        Vector2 dashDir = (Player.Instance.transform.position - transform.position).normalized;
-        Vector2 castSize = new Vector2(col.bounds.size.x, col.bounds.size.y * 0.7f - col.bounds.size.y / 2);
-
-        RaycastHit2D hit = Physics2D.BoxCast(
-            startPos,
-            castSize,
-            0f,
-            dashDir,
-            dashDistance,
-            wallsLayerMask
-        );
-
-        float actualDistance = hit ? hit.distance - 0.25f : dashDistance;
-        actualDistance = Mathf.Max(actualDistance, 0f);
-        Vector2 dashTarget = startPos + dashDir * actualDistance;
-
-        float elapsed = 0;
-
-        while (elapsed < dashDuration)
+        float timer = 0;
+        while(timer < 0.5f) 
         {
-            elapsed += Time.deltaTime;
-
-            rb.MovePosition(Vector2.Lerp(startPos, dashTarget, elapsed / dashDuration));
-
+            Move(targetPos); 
+            timer += Time.deltaTime;
             yield return null;
         }
 
-        rb.gravityScale = gravityBefore;
-        rb.linearVelocity = Vector2.zero;
+        spriteRenderer.flipX = targetPos.x >= transform.position.x;
 
-        spriteRenderer.flipX = dashTarget.x < transform.position.x;
-
-        yield return new WaitForSeconds(0.5f); 
+        isAttacking = false;
     }
 
     private void ApplyDamageToPlayer()
@@ -145,19 +133,19 @@ public class MosquitoAI : MonoBehaviour
         }
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    private void OnTriggerEnter2D(Collider2D collider)
     {
-        if (collision.gameObject.CompareTag("Player"))
+        if (collider.gameObject.CompareTag("Player"))
         {
             Player.Instance.TakeDamage(data.enemyDamageAmount, transform);
-            if (collision.gameObject.TryGetComponent(out KnockBack kb))
+            if (collider.gameObject.TryGetComponent(out KnockBack kb))
                 kb.GetKnockedBack(transform);
         }
     }
 
-    private void OnTriggerStay2D(Collider2D collision)
+    private void OnTriggerStay2D(Collider2D collider)
     {
-        if (collision.gameObject.CompareTag("Player")) ApplyDamageToPlayer();
+        if (collider.gameObject.CompareTag("Player")) ApplyDamageToPlayer();
     }
 
     public void TakeDamage(int damage)
