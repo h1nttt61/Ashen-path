@@ -70,7 +70,7 @@ public class SandBossAI : MonoBehaviour
         else if (rand == 1) StartCoroutine(DashAttack());
         else StartCoroutine(BurrowAttack());
     }
-
+    //Добавить эффект волны (увеличивается), можно задоджить дешем/Add wave effect(more, more, more wave), u can dodge if u use dash
     IEnumerator SandWaveAttack()
     {
         canAttack = false;
