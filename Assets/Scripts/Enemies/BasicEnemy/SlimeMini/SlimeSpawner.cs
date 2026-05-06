@@ -41,7 +41,7 @@ public class SlimeSpawner : MonoBehaviour
             isPlayerInZone = true;
             if (spawnCoroutine == null)
             {
-                spawnCoroutine = StartCoroutine(SpawnRoutine());
+                StartCoroutine(SpawnRoutine());
             }
         }
     }
@@ -56,13 +56,13 @@ public class SlimeSpawner : MonoBehaviour
 
     private IEnumerator SpawnRoutine()
     {
+
         while (totalSpawnedCount < maxEnemiesInZone)
         {
             if (isPlayerInZone && !isPausedBySpirit)
             {
                 SpawnSlime();
             }
-
             yield return new WaitForSeconds(spawnRate);
         }
         

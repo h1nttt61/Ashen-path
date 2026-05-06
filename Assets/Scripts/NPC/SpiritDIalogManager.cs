@@ -111,7 +111,7 @@ public class SpiritDIalogManager : MonoBehaviour
 
         foreach (var s in FindObjectsOfType<SlimeSpawner>())
         {
-            s.DeactivateSpawner(120f);
+            s.DeactivateSpawner(10f);
         }
     }
 
