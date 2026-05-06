@@ -29,7 +29,9 @@ public class HandAttack : MonoBehaviour
 
         if (collision.TryGetComponent(out SandBossAI sd)) sd.TakeDamage(damage);
 
-        if (collision.TryGetComponent(out SpiderAI spider)) spider.TakeDamage(damage); 
+        if (collision.TryGetComponent(out SpiderAI spider)) spider.TakeDamage(damage);
+
+        if (collision.TryGetComponent(out EyeAI eye)) eye.TakeDamage(damage);
 
         if (collision.TryGetComponent(out KnockBack kb))
         {
