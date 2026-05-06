@@ -53,18 +53,30 @@ public class PlayerMovement : MonoBehaviour
     private bool canSuperDash = true;
     private float superDashTimer = 0f;
 
+    private GameInput refInput;
     public float GetSuperDashTimer() => superDashTimer;
 
     private void Start()
     {
         core = Player.Instance;
+        refInput = GameInput.Instance;
+        Subscribe();
     }
 
-    private void OnEnable()
+    private void Subscribe()
     {
-        if (GameInput.Instance != null)
+        Unsubscribe();
+        if (refInput != null)
         {
-            GameInput.Instance.OnPlayerDash += OnDashInput;
+            refInput.OnPlayerDash += OnDashInput;
+        }
+    }
+
+    private void Unsubscribe()
+    {
+        if (refInput != null)
+        {
+            refInput.OnPlayerDash -= OnDashInput;
         }
     }
 
@@ -182,14 +194,6 @@ public class PlayerMovement : MonoBehaviour
         if (!isDashing && core.isDashUnlocked && canDash && IsRunning)
         {
             StartCoroutine(DashRoutine());
-        }
-    }
-
-    private void OnDisable()
-    {
-        if (GameInput.Instance != null)
-        {
-            GameInput.Instance.OnPlayerDash -= OnDashInput;
         }
     }
 
@@ -345,9 +349,6 @@ public class PlayerMovement : MonoBehaviour
     }
     private void OnDestroy()
     {
-        if (GameInput.Instance != null)
-        {
-            GameInput.Instance.OnPlayerDash -= OnDashInput;
-        }
+        Unsubscribe();
     }
 }
