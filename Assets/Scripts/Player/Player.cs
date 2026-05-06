@@ -35,16 +35,27 @@ public class Player : MonoBehaviour
     public bool isWallJumpUnlocked = false;
     public bool isSuperDashUnlocked = false;
 
+    [Header("Gorgon Effect")]
+    private SpriteRenderer playerSprite;
+    private bool isPetrified = false;
+    public bool IsPetrified => isPetrified;
+    private Color originalPlayerColor = Color.white;
+    private Color stoneColor = new Color(0.4f, 0.4f, 0.4f, 1f);
+
     private Vector3 lastCheckpointPos;
     private bool canTakeDamage = true;
     private bool isAlive = true;
-    private bool isDied = false;
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
             return;
+        }
+        if (playerSprite == null)
+        {
+            playerSprite = GetComponentInChildren<SpriteRenderer>();
         }
         Instance = this;
         rb = GetComponent<Rigidbody2D>();
@@ -86,11 +97,6 @@ public class Player : MonoBehaviour
         {
             HandleSceneTransitionSpawn();
         }
-    }
-
-    private void Update()
-    {
-        isDied = false;
     }
 
     public void InitializeHealth(int savedHealth)
@@ -142,9 +148,9 @@ public class Player : MonoBehaviour
         OnHealthChanged?.Invoke(Health);
         if (leftHand != null) leftHand.DisableAttack();
         if (rightHand != null) rightHand.DisableAttack();
+        StopAllCoroutines();
         transform.position = lastCheckpointPos;
         rb.linearVelocity = Vector2.zero;
-        isDied = true;
     }
 
     public void UpdateCheckpoint(Vector3 newPos) => lastCheckpointPos = newPos;
@@ -194,12 +200,31 @@ public class Player : MonoBehaviour
             {
                 TakeDamage(damage, null);
             }
-            if (isDied)
-            {
-                break;
-            }
         }
     }
+
+    public void Petrify(float duration)
+    {
+        if (!isAlive || isPetrified) return;
+        StartCoroutine(PetrifyRoutine(duration));
+    }
+
+    private IEnumerator PetrifyRoutine(float duration)
+    {
+        isPetrified = true;
+        playerSprite.color = stoneColor;
+
+        Vector2 oldVelocity = rb.linearVelocity;
+        rb.linearVelocity = Vector2.zero;
+        rb.constraints = RigidbodyConstraints2D.FreezeAll;
+
+        yield return new WaitForSeconds(duration);
+
+        playerSprite.color = originalPlayerColor;
+        rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+        isPetrified = false;
+    }
+
     private void OnDestroy()
     {
         if (Instance == this)

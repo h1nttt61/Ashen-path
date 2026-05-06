@@ -110,8 +110,8 @@ TextureImporter:
         y: 935
         width: 1618
         height: 849
-      alignment: 0
-      pivot: {x: 0, y: 0}
+      alignment: 9
+      pivot: {x: 0.15896377, y: 0.34256166}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -128,12 +128,12 @@ TextureImporter:
       name: eye_attack0000_1
       rect:
         serializedVersion: 2
-        x: 1740
-        y: 767
+        x: 1596
+        y: 1213
         width: 248
         height: 37
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -150,7 +150,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 226e4532ac5a78d48b2bd128c5e7547e
     internalID: 0
     vertices: []
     indices: 

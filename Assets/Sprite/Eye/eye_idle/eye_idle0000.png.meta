@@ -106,12 +106,12 @@ TextureImporter:
       name: eye_idle0000_0
       rect:
         serializedVersion: 2
-        x: 695
-        y: 495
+        x: 684
+        y: 497
         width: 1618
         height: 849
-      alignment: 0
-      pivot: {x: 0, y: 0}
+      alignment: 9
+      pivot: {x: 0.16329251, y: 0.34672245}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -128,12 +128,12 @@ TextureImporter:
       name: eye_idle0000_1
       rect:
         serializedVersion: 2
-        x: 972
-        y: 327
-        width: 248
-        height: 37
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 912
+        y: 775
+        width: 63
+        height: 32
+      alignment: 9
+      pivot: {x: 0.53501, y: 0.43107414}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -150,7 +150,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: e2aab6731cc20134d8dac85feebc87c1
     internalID: 0
     vertices: []
     indices: 
