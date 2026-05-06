@@ -40045,7 +40045,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: -2
+  m_SortingOrder: 2
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
   m_Color: {r: 0, g: 0, b: 0, a: 1}
   m_FlipX: 0
@@ -42964,7 +42964,7 @@ Transform:
   m_GameObject: {fileID: 1185795688}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -107.59, y: -15.01, z: 0}
+  m_LocalPosition: {x: -107.07, y: -14.86, z: 0}
   m_LocalScale: {x: -0.8463376, y: 1.3219912, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -57295,13 +57295,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SecondLocSpiritTrigger
   spirit: {fileID: 1427747819}
   phrases:
-  - "\u0418\u0434\u0438"
-  - "\u041E\u0441\u0442\u0430\u0432\u044C \u0441\u0432\u043E\u0438 \u0441\u043B\u0435\u0434\u044B"
+  - "\u0418\u0434\u0438 \u0438 \u043E\u0441\u0442\u0430\u0432\u044C \u0441\u0432\u043E\u0438
+    \u0441\u043B\u0435\u0434\u044B"
   - "\u041F\u043E\u043A\u0430 \u0432\u0435\u0442\u0435\u0440 \u043D\u0435 \u0437\u0430\u0431\u0440\u0430\u043B
     \u0438\u0445 \u0441\u0435\u0431\u0435"
   - "\u041C\u044B \u0435\u0449\u0435 \u0432\u0441\u0442\u0440\u0435\u0442\u0438\u043C\u0441\u044F..."
-  - "\u0415\u0441\u043B\u0438 \u0442\u044B \u043D\u0435 \u0441\u0442\u0430\u043D\u0435\u0448\u044C
-    \u0447\u0430\u0441\u0442\u044C\u044E \u044D\u0442\u043E\u0433\u043E \u043F\u0440\u0430\u0445\u0430"
+  - "\u0413\u043B\u0430\u0432\u043D\u043E\u0435! \u041D\u0430\u0439\u0434\u0438 \u043C\u043E\u0435\u0433\u043E
+    \u0434\u0440\u0443\u0433\u0430"
+  - "\u042F \u0447\u0443\u0432\u0441\u0442\u0432\u0443\u044E \u043E\u043D \u043D\u0435\u043F\u043E\u0434\u0430\u043B\u0435\u043A\u0443"
+  - "\u041D\u0430\u0447\u043D\u0438 \u0441 \u043F\u0440\u0430\u0432\u043E\u0439 \u0447\u0430\u0441\u0442\u0438"
 --- !u!1 &1608958433
 GameObject:
   m_ObjectHideFlags: 0

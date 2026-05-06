@@ -108,6 +108,7 @@ public static class SaveManager
     public static void ResetProgress()
     {
         PlayerPrefs.DeleteAll();
+        PlayerPrefs.Save();
     }
 
     public static void SaveBossStatus(bool defeated)
