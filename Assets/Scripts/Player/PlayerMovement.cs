@@ -205,8 +205,9 @@ public class PlayerMovement : MonoBehaviour
         float originalGravity = core.rb.gravityScale;
         core.rb.gravityScale = 0;
 
-        while (core.combat.CurrentHealCharge > 0)
+        while (true)
         {
+            if (core.combat.CurrentHealCharge <= 0) break;
             core.rb.linearVelocity = new Vector2(dashDir * superDashSpeed, 0);
             core.combat.SpendCharge(core.maxHealth * 0.2f * Time.deltaTime);
 
