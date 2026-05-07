@@ -156,7 +156,6 @@ public class GhostAI : MonoBehaviour
 
     private void Die()
     {
-        if (SpiritDIalogManager.Instance != null) SpiritDIalogManager.Instance.RegistrKills();
         Destroy(gameObject);
     }
 }
