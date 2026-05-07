@@ -341,6 +341,6 @@ public class GhostKing : MonoBehaviour
     void FlipSprite()
     {
         if (player == null) return;
-        sprite.flipX = player.position.x < transform.position.x;
+        sprite.flipX = player.position.x > transform.position.x;
     }
 }
