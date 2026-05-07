@@ -71,7 +71,27 @@ public class GhostKing : MonoBehaviour
 
     public void StartFight()
     {
-        player = GameObject.FindGameObjectWithTag("Player").transform;
+        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+
+        if (playerObj != null)
+        {
+            player = playerObj.transform;
+        }
+        else
+        {
+            Debug.LogError("ÊÐÈÒÈ×ÅÑÊÀß ÎØÈÁÊÀ: Îáúåêòà ñ òåãîì Player íåò íà ñöåíå!");
+            return;
+        }
+
+        if (BossArenaManager.Instance != null)
+        {
+            BossArenaManager.Instance.fightStarted = true;
+        }
+        else
+        {
+            Debug.LogWarning("BossArenaManager.Instance íå íàéäåí!");
+        }
+
         StartCoroutine(BossBehavior());
         StartCoroutine(PassiveSpawn());
     }
@@ -80,6 +100,7 @@ public class GhostKing : MonoBehaviour
     {
         while (currentHealth > 0)
         {
+            if (player == null) yield break;
             if (isSpamming) { yield return new WaitForSeconds(0.5f); continue; }
 
             float dist = Vector3.Distance(transform.position, player.position);
@@ -254,12 +275,13 @@ public class GhostKing : MonoBehaviour
 
         if (currentHealth <= 0)
         {
-            isDead = true; 
+            isDead = true;
+            StopAllCoroutines();
             Die();
         }
-        }
+    }
 
-        IEnumerator FlashEffect()
+    IEnumerator FlashEffect()
     {
         sprite.color = damageColor;
         yield return new WaitForSeconds(flashDuration);

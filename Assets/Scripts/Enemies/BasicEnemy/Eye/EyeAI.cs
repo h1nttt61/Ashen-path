@@ -83,13 +83,17 @@ public class EyeAI : MonoBehaviour
 
     private void RotateTowardsPlayer(bool smooth)
     {
+        if (Player.Instance == null) return;
+
         Vector3 dir = Player.Instance.transform.position - transform.position;
         float yRot = (dir.x < 0) ? 0f : 180f;
+
         float angle = Mathf.Atan2(dir.y, Mathf.Abs(dir.x)) * Mathf.Rad2Deg;
-        float clampedZ = Mathf.Clamp(angle, -maxAttackAngle, maxAttackAngle);
+
+        float clampedZ = Mathf.Clamp(angle, -maxAttackAngle, 0f);
 
         Quaternion targetRot = Quaternion.Euler(0, yRot, clampedZ);
-        transform.rotation = smooth ? Quaternion.Slerp(transform.rotation, targetRot, Time.fixedDeltaTime * 5f) : targetRot;
+        transform.rotation = smooth ? Quaternion.Slerp(transform.rotation, targetRot, Time.deltaTime * 5f) : targetRot;
     }
 
     private bool IsPlayerInView()

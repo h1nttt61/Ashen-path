@@ -12,7 +12,7 @@ public class KingTrigger : MonoBehaviour
             if (arenaManager != null)
             {
                 arenaManager.StartIntro();
-                Destroy(gameObject);
+                gameObject.SetActive(false);
             }
         }
     }

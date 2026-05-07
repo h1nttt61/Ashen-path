@@ -3,6 +3,8 @@ using System.Collections;
 
 public class BossArenaManager : MonoBehaviour
 {
+    public static BossArenaManager Instance;
+
     [Header("Object")]
     public GameObject bossPrefab;
     public Camera mainCamera;         
@@ -26,7 +28,8 @@ public class BossArenaManager : MonoBehaviour
 
     private GhostKing spawnedBoss;
     private bool activated = false;
-
+    public bool fightStarted = false;
+    public GameObject entryTrigger;
     void Start()
     {
         if (mainCamera != null)
@@ -35,8 +38,24 @@ public class BossArenaManager : MonoBehaviour
         }
     }
 
+    private void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject); 
+        }
+    }
     void Update()
     {
+        if (fightStarted && player == null)
+        {
+            ResetArena();
+            return;
+        }
         if (dynamicCamera && spawnedBoss != null && player != null)
         {
             Vector3 midpoint = (player.position + spawnedBoss.transform.position) / 2f;
@@ -48,6 +67,59 @@ public class BossArenaManager : MonoBehaviour
         else if (!dynamicCamera && mainCamera != null)
         {
             mainCamera.orthographicSize = Mathf.Lerp(mainCamera.orthographicSize, defaultZoom, Time.deltaTime * 2f);
+        }
+    }
+    void OnEnable()
+    {
+        Player.OnHealthChanged += CheckDeath;
+    }
+
+    void OnDisable()
+    {
+        Player.OnHealthChanged -= CheckDeath;
+    }
+
+    private void CheckDeath(int currentHealth)
+    {
+        if (currentHealth <= 0 && fightStarted)
+        {
+            ResetArena();
+        }
+    }
+
+    public void ResetArena()
+    {
+        fightStarted = false;
+        dynamicCamera = false;
+        activated = false;
+
+        if (door != null) door.localPosition = doorOpenPos;
+
+        if (spawnedBoss != null)
+        {
+            Destroy(spawnedBoss.gameObject);
+        }
+
+        StickyShadow[] minions = FindObjectsOfType<StickyShadow>();
+        foreach (StickyShadow m in minions)
+        {
+            Destroy(m.gameObject);
+        }
+
+        BossProjectile[] projectiles = FindObjectsOfType<BossProjectile>();
+        foreach (BossProjectile p in projectiles)
+        {
+            Destroy(p.gameObject);
+        }
+
+        StopAllCoroutines();
+        if (entryTrigger != null) entryTrigger.SetActive(true);
+        if (mainCamera != null && player != null)
+        {
+            mainCamera.orthographicSize = defaultZoom;
+
+            Vector3 playerPos = player.position;
+            mainCamera.transform.position = new Vector3(playerPos.x, playerPos.y, -10f);
         }
     }
 
@@ -121,5 +193,11 @@ public class BossArenaManager : MonoBehaviour
         spawnedBoss.StartFight();
         dynamicCamera = true;
     }
+    private void OnDestroy()
+    {
+        BossArenaManager manager = FindObjectOfType<BossArenaManager>();
+        if (manager != null) manager.EndBossFight();
 
+        Time.timeScale = 1f;
+    }
 }
