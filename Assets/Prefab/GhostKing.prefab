@@ -33,7 +33,7 @@ Transform:
   m_GameObject: {fileID: 3284683738073941013}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -263.7, y: 218.6, z: 0}
+  m_LocalPosition: {x: -258.71, y: 222.02, z: 0}
   m_LocalScale: {x: 0.3, y: 0.3, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -87,7 +87,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: 8501575385156539832, guid: 0013a943d1fcbac4fa914ca94561a439, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1.0031962}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -358,7 +358,7 @@ MonoBehaviour:
   activationDistance: 20
   dashSpeed: 20
   dashDistanceExtra: 5
-  minionPrefab: {fileID: 4023176447582884491, guid: 294e032a6020c7043852497088d57767, type: 3}
+  minionPrefab: {fileID: 4023176447582884491, guid: 0c5761008a595d14ea6d2fbe8cfc456a, type: 3}
   spawnInterval: 30
   projectilePrefab: {fileID: 4405900070295797197, guid: 3e91a3fbb8ee4174196aebe388712588, type: 3}
   visualOnlyProjectilePrefab: {fileID: 4405900070295797197, guid: 9ace14b2967a4a847968bc258ab6b9a1, type: 3}

@@ -81,10 +81,24 @@ public class GhostKing : MonoBehaviour
         while (currentHealth > 0)
         {
             if (isSpamming) { yield return new WaitForSeconds(0.5f); continue; }
-            float dist = Vector3.Distance(transform.position, player.position);
-            if (dist > activationDistance + 5f) { agent.SetDestination(player.position); yield return new WaitForSeconds(0.5f); continue; }
 
-            if (!isPhaseTwoTriggered && (currentHealth / maxHealth) <= 0.3f) yield return StartCoroutine(InvisibilityPhase());
+            float dist = Vector3.Distance(transform.position, player.position);
+
+            if (dist < 4f)
+            {
+                yield return StartCoroutine(KeepDistancePhase(1.5f));
+                continue;
+            }
+
+            if (dist > activationDistance + 5f)
+            {
+                agent.SetDestination(player.position);
+                yield return new WaitForSeconds(0.5f);
+                continue;
+            }
+
+            if (!isPhaseTwoTriggered && (currentHealth / maxHealth) <= 0.3f)
+                yield return StartCoroutine(InvisibilityPhase());
 
             float choice = Random.value;
             if (choice < 0.4f) yield return StartCoroutine(SmartDash());
@@ -105,17 +119,21 @@ public class GhostKing : MonoBehaviour
         agent.acceleration = 100f;
         agent.SetDestination(targetPos);
 
-        float timeout = 1f;
-        while (agent.remainingDistance > 0.5f && timeout > 0)
+        float timeout = 1.2f; 
+        while (agent.remainingDistance > 0.8f && timeout > 0)
         {
             timeout -= Time.deltaTime;
             yield return null;
         }
 
+        Vector3 escapePos = transform.position + (transform.position - player.position).normalized * 5f;
+        agent.speed = 12f;
+        agent.SetDestination(escapePos);
+        yield return new WaitForSeconds(0.8f);
+
         agent.speed = 4f;
         agent.acceleration = 8f;
         isAttacking = false;
-        yield return new WaitForSeconds(1f);
     }
 
     IEnumerator BulletHellAttack()
@@ -226,11 +244,6 @@ public class GhostKing : MonoBehaviour
         }
     }
 
-    void FlipSprite()
-    {
-        sprite.flipX = player.position.x > transform.position.x;
-    }
-
     public void TakeDamage(float damage)
     {
         if (isInvisible || isDead) return;
@@ -262,17 +275,12 @@ public class GhostKing : MonoBehaviour
     IEnumerator DeathSequence()
     {
         agent.isStopped = true;
+        BossArenaManager manager = FindObjectOfType<BossArenaManager>();
+        if (manager != null) manager.EndBossFight();
 
-        if (roarSource != null)
-        {
-            roarSource.pitch = 0.8f;
-            roarSource.Play();
-        }
-
+        if (roarSource != null) { roarSource.pitch = 0.8f; roarSource.Play(); }
         anim.SetTrigger("Spawn");
-
-        if (CameraShake.Instance != null)
-            CameraShake.Instance.Shake(3.0f, 1.5f); 
+        if (CameraShake.Instance != null) CameraShake.Instance.Shake(3.0f, 1.5f);
 
         for (int wave = 0; wave < 8; wave++)
         {
@@ -281,35 +289,58 @@ public class GhostKing : MonoBehaviour
                 float angle = i * (360f / 25);
                 Vector2 dir = new Vector2(Mathf.Cos(angle * Mathf.Deg2Rad), Mathf.Sin(angle * Mathf.Deg2Rad));
                 GameObject p = Instantiate(visualOnlyProjectilePrefab, transform.position, Quaternion.identity);
-                p.GetComponent<Rigidbody2D>().linearVelocity = dir * (10f + wave); 
+                p.GetComponent<Rigidbody2D>().linearVelocity = dir * (10f + wave);
                 Destroy(p, 2f);
             }
-            yield return new WaitForSeconds(0.4f); 
+            yield return new WaitForSeconds(0.4f);
         }
 
-        float fade = 1f;
-        float startVolume = roarSource != null ? roarSource.volume : 1f;
-        while (fade > 0)
+        float fadeBoss = 1f;
+        while (fadeBoss > 0)
         {
-            fade -= Time.deltaTime * 0.4f; 
-
+            fadeBoss -= Time.deltaTime * 0.4f;
             Color c = sprite.color;
-            c.a = fade;
+            c.a = fadeBoss;
             sprite.color = c;
-
-            if (roarSource != null)
-            {
-                roarSource.volume = fade * startVolume; 
-            }
-
             transform.position += (Vector3)Random.insideUnitCircle * 0.03f;
-
             yield return null;
         }
-
         if (roarSource != null) roarSource.Stop();
+
+        yield return new WaitForSeconds(5f);
+
+        if (player != null)
+        {
+            SpriteRenderer playerSprite = player.GetComponentInChildren<SpriteRenderer>();
+
+
+            if (playerSprite != null)
+            {
+                float fadePlayer = 1f;
+                while (fadePlayer > 0)
+                {
+                    fadePlayer -= Time.deltaTime * 0.5f;
+                    Color pc = playerSprite.color;
+                    pc.a = fadePlayer;
+                    playerSprite.color = pc;
+                    yield return null;
+                }
+                playerSprite.enabled = false; 
+            }
+        }
+        FinaleManager finale = FindObjectOfType<FinaleManager>();
+        if (finale != null)
+        {
+            finale.StartFinale();
+        }
 
         SaveManager.SaveBossStatus(true);
         Destroy(gameObject);
+    }
+
+    void FlipSprite()
+    {
+        if (player == null) return;
+        sprite.flipX = player.position.x < transform.position.x;
     }
 }

@@ -16,6 +16,7 @@ public static class SaveManager
     private const string CURRENT_SCENE_KEY = "LastSavedScene";
     private const string SAND_BOSS_DEFEATED_KEY = "SandBossDefeated";
     private const string FIRE_NPC_RING_GIVEN = "FireNpcRingGiven";
+    private const string GAME_COMPLETED_KEY = "GameCompleted";
 
     public static void SaveGame()
     {
@@ -137,6 +138,17 @@ public static class SaveManager
     {
         PlayerPrefs.SetInt(SAND_BOSS_DEFEATED_KEY, defeated ? 1 : 0);
         PlayerPrefs.Save();
+    }
+
+    public static void SaveGameCompleted(bool completed)
+    {
+        PlayerPrefs.SetInt(GAME_COMPLETED_KEY, completed ? 1 : 0);
+        PlayerPrefs.Save();
+    }
+
+    public static bool IsGameCompleted()
+    {
+        return PlayerPrefs.GetInt(GAME_COMPLETED_KEY, 0) == 1;
     }
 
     public static bool IsSandBossDefeated()

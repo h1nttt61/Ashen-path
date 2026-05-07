@@ -11,11 +11,11 @@ GameObject:
   - component: {fileID: 6385095907994537399}
   - component: {fileID: 1303420446097523774}
   - component: {fileID: 5904035292684929646}
-  - component: {fileID: 9116690743991105591}
+  - component: {fileID: 4995300951664032422}
   - component: {fileID: 4696300463915181970}
   - component: {fileID: 3203003866325070886}
   m_Layer: 0
-  m_Name: Ghost
+  m_Name: GhostForBoss
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -121,7 +121,7 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
---- !u!114 &9116690743991105591
+--- !u!114 &4995300951664032422
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -130,15 +130,17 @@ MonoBehaviour:
   m_GameObject: {fileID: 4023176447582884491}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0f85a9500b535b54c82e20e287224a83, type: 3}
+  m_Script: {fileID: 11500000, guid: 504df70dde66b7e4f8624b69148b28a0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GhostAI
-  data: {fileID: 11400000, guid: 1a7f786f6351e6546912ccca5becf9fb, type: 2}
-  animator: {fileID: 3203003866325070886}
-  spriteRenderer: {fileID: 1303420446097523774}
-  damageCooldown: 1
-  attackCooldown: 2.5
-  attackDistance: 4.5
+  m_EditorClassIdentifier: Assembly-CSharp::StickyShadow
+  health: 7
+  damage: 1
+  speed: 5
+  stickySpeed: 8
+  stickDistance: 0.5
+  damageCooldown: 0.8
+  sprite: {fileID: 1303420446097523774}
+  anim: {fileID: 3203003866325070886}
 --- !u!60 &4696300463915181970
 PolygonCollider2D:
   m_ObjectHideFlags: 0

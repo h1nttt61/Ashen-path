@@ -301,6 +301,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MenuButtonScript
   fadeScreen: {fileID: 0}
   buttonsGroup: {fileID: 0}
+  continueButton: {fileID: 600926490}
   fadeSpeed: 1
 --- !u!114 &480240003
 MonoBehaviour:
@@ -654,6 +655,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MenuButtonScript
   fadeScreen: {fileID: 0}
   buttonsGroup: {fileID: 0}
+  continueButton: {fileID: 600926490}
   fadeSpeed: 1
 --- !u!114 &600926490
 MonoBehaviour:
@@ -1258,6 +1260,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MenuButtonScript
   fadeScreen: {fileID: 0}
   buttonsGroup: {fileID: 0}
+  continueButton: {fileID: 480240003}
   fadeSpeed: 1
 --- !u!114 &1793088270
 MonoBehaviour:
@@ -1453,6 +1456,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MenuButtonScript
   fadeScreen: {fileID: 571913351}
   buttonsGroup: {fileID: 903488301}
+  continueButton: {fileID: 600926490}
   fadeSpeed: 1
 --- !u!114 &1984819666
 MonoBehaviour:

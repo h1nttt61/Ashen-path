@@ -12,7 +12,13 @@ public class BossArenaManager : MonoBehaviour
     [Header("Door")]
     public Transform door;
     public Vector3 doorOpenPos;       
-    public Vector3 doorClosedPos;     
+    public Vector3 doorClosedPos;
+
+    [Header("Dymanic camera")]
+    public bool dynamicCamera = false;       
+    public float bossFightZoom = 8f;         
+    public float followSmoothness = 5f;      
+    private float defaultZoom;
 
     [Header("Settings")]
     public float moveSpeed = 3f;      
@@ -20,6 +26,35 @@ public class BossArenaManager : MonoBehaviour
 
     private GhostKing spawnedBoss;
     private bool activated = false;
+
+    void Start()
+    {
+        if (mainCamera != null)
+        {
+            defaultZoom = mainCamera.orthographicSize; 
+        }
+    }
+
+    void Update()
+    {
+        if (dynamicCamera && spawnedBoss != null && player != null)
+        {
+            Vector3 midpoint = (player.position + spawnedBoss.transform.position) / 2f;
+            midpoint.z = -10f; 
+            mainCamera.transform.position = Vector3.Lerp(mainCamera.transform.position, midpoint, Time.deltaTime * followSmoothness);
+
+            mainCamera.orthographicSize = Mathf.Lerp(mainCamera.orthographicSize, bossFightZoom, Time.deltaTime * 2f);
+        }
+        else if (!dynamicCamera && mainCamera != null)
+        {
+            mainCamera.orthographicSize = Mathf.Lerp(mainCamera.orthographicSize, defaultZoom, Time.deltaTime * 2f);
+        }
+    }
+
+    public void EndBossFight()
+    {
+        dynamicCamera = false;
+    }
 
     public void StartIntro()
     {
@@ -84,5 +119,7 @@ public class BossArenaManager : MonoBehaviour
 
         spawnedBoss.enabled = true;
         spawnedBoss.StartFight();
+        dynamicCamera = true;
     }
+
 }

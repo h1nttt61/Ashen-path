@@ -6,6 +6,7 @@ public class MenuButtonScript : MonoBehaviour
 {
     [SerializeField] private CanvasGroup fadeScreen;
     [SerializeField] private CanvasGroup buttonsGroup;
+    [SerializeField] private UnityEngine.UI.Button continueButton;
     public float fadeSpeed = 1.0f;
 
     private void Start()
@@ -31,6 +32,11 @@ public class MenuButtonScript : MonoBehaviour
         if (MusicManagerPersistent.Instance != null)
         {
             MusicManagerPersistent.Instance.PlayMusic();
+        }
+
+        if (SaveManager.IsGameCompleted() && continueButton != null)
+        {
+            continueButton.interactable = false;
         }
     }
 
