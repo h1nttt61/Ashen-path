@@ -33,21 +33,38 @@ public class AsyncSceneLoad : MonoBehaviour
 
         isLoading = true;
 
+        if (Player.Instance != null)
+        {
+            SaveManager.SaveGame();
+
+            int nextSceneIndex = SceneManager.GetSceneByName(sceneToLoad).buildIndex;
+          
+            int buildIndex = SceneUtility.GetBuildIndexByScenePath(sceneToLoad);
+
+            if (buildIndex != -1)
+            {
+                PlayerPrefs.SetInt("LastSavedScene", buildIndex);
+            }
+        }
+
         SaveManager.ClearCheckpointData();
+        PlayerPrefs.Save();
 
         float timer = 0;
         while (timer < 1f)
         {
             timer += Time.unscaledDeltaTime;
-            fadeGroup.alpha = Mathf.Lerp(0, 1, timer);
+            if (fadeGroup != null) fadeGroup.alpha = Mathf.Lerp(0, 1, timer);
             yield return null;
         }
 
         if (Player.Instance != null)
         {
             Player.Instance.rb.linearVelocity = Vector2.zero;
-            Player.Instance.movement.enabled = false;
-            Player.Instance.GetComponentInChildren<Animator>().speed = 0;
+            if (Player.Instance.movement != null) Player.Instance.movement.enabled = false;
+
+            Animator anim = Player.Instance.GetComponentInChildren<Animator>();
+            if (anim != null) anim.speed = 0;
         }
 
         AsyncOperation operation = SceneManager.LoadSceneAsync(sceneToLoad);

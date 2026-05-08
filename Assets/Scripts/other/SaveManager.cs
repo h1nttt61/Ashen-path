@@ -38,6 +38,13 @@ public static class SaveManager
         return PlayerPrefs.GetInt(CURRENT_SCENE_KEY, 2);
     }
 
+    public static void SaveSpecificScene(string sceneName)
+    {
+        int index = SceneManager.GetSceneByName(sceneName).buildIndex;
+        PlayerPrefs.SetInt(CURRENT_SCENE_KEY, index);
+        PlayerPrefs.Save();
+    }
+
     public static void SaveCurrentCheckpoint(string id)
     {
         PlayerPrefs.SetString(LAST_CHECKPOINT_ID, id);
