@@ -3,30 +3,28 @@ using UnityEngine;
 
 public class FinalSpiritSequence : MonoBehaviour
 {
-    [Header("Основные ссылки")]
+    [Header("Links")]
     [SerializeField] private SpiritNPCTwo spirit;
     [SerializeField] private StaircaseSequence staircase;
-    [SerializeField] private GameObject blackBackground;
+    [SerializeField] private Transform wallPoint;
 
-    [Header("Точки движения Духа")]
-    [SerializeField] private Transform stairPoint; 
-    [SerializeField] private Transform wallPoint;  
-
-    [Header("Настройки Стены")]
-    [SerializeField] private int blocksToDestroy = 5; 
-
-    [Header("Диалоги (Phrases)")]
+    [Header("Dialogs")]
     [TextArea(3, 10)]
     [SerializeField] private string[] startPhrases; 
     [TextArea(3, 10)]
     [SerializeField] private string[] wallPhrases;  
 
-    private int currentBrokenBlocks = 0;
-
     private void Start()
     {
-        DestructibleBlock.OnAnyBlockDestroyed += () => currentBrokenBlocks++;
-        gameObject.SetActive(false);
+        if (SaveManager.IsSandBossDefeated())
+        {
+            staircase.gameObject.SetActive(true);
+            gameObject.SetActive(false);
+        }
+        else
+        {
+            if (spirit != null) spirit.gameObject.SetActive(false);
+        }
     }
 
     public void StartSequence()
@@ -41,25 +39,12 @@ public class FinalSpiritSequence : MonoBehaviour
         spirit.transform.position = Player.Instance.transform.position + new Vector3(-3, 2, 0);
         yield return StartCoroutine(spirit.Fade(0f, 1f));
 
-        SetPlayerLock(true); 
-
         yield return StartCoroutine(ShowDialog(startPhrases));
 
-        yield return StartCoroutine(MoveSpirit(stairPoint.position));
-        yield return staircase.RevealStaircase();
-        yield return new WaitForSeconds(1f);
+        yield return StartCoroutine(staircase.RevealStaircase());
 
         yield return StartCoroutine(MoveSpirit(wallPoint.position));
         yield return StartCoroutine(ShowDialog(wallPhrases));
-
-        SetPlayerLock(false); 
-
-        yield return new WaitUntil(() => currentBrokenBlocks >= blocksToDestroy);
-
-        if (blackBackground != null) blackBackground.SetActive(false);
-
-        SaveManager.SaveSandBossStatus(true); 
-        SaveManager.SaveGame();
 
         yield return StartCoroutine(spirit.Fade(1f, 0f));
         spirit.gameObject.SetActive(false);
@@ -67,7 +52,7 @@ public class FinalSpiritSequence : MonoBehaviour
 
     private IEnumerator MoveSpirit(Vector3 target)
     {
-        float speed = 7f;
+        float speed = 8f;
         while (Vector3.Distance(spirit.transform.position, target) > 0.1f)
         {
             spirit.transform.position = Vector3.MoveTowards(spirit.transform.position, target, speed * Time.deltaTime);
@@ -78,18 +63,6 @@ public class FinalSpiritSequence : MonoBehaviour
     private IEnumerator ShowDialog(string[] lines)
     {
         NPCDialog dialog = spirit.GetComponent<NPCDialog>();
-        if (dialog != null)
-        {
-            dialog.lines = lines;
-            yield return dialog.DisplayFullDialog();
-        }
-    }
-
-    private void SetPlayerLock(bool locked)
-    {
-        if (Player.Instance == null) return;
-        Player.Instance.movement.enabled = !locked;
-        Player.Instance.combat.enabled = !locked; 
-        Player.Instance.rb.bodyType = locked ? RigidbodyType2D.Static : RigidbodyType2D.Dynamic;
+        if (dialog != null) yield return dialog.DisplayFullDialog();
     }
 }

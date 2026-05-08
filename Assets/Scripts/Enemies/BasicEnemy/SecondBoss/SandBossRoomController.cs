@@ -1,52 +1,73 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class SandBossRoomController : MonoBehaviour
 {
     [SerializeField] private BossRoomController.DoorData[] doors;
-    [SerializeField] private Transform spawnPoint;
-    [SerializeField] private GameObject bossPrefab;
-    [SerializeField] private SandStormIntro stormEffect;
+    [Header("Mass Battle Settings")]
+    [SerializeField] private List<GameObject> enemyPrefabs; 
     [SerializeField] private Camera mainCamera;
+    [SerializeField] private Transform[] spawnPoints;
+    private List<GameObject> activeEnemies = new List<GameObject>();
 
-    private bool bossFightStarted = false;
+    [Header("Sequence Link")]
+    [SerializeField] private FinalSpiritSequence finalSequence;
 
-    public void StartBossFight()
+    private bool battleStarted = false;
+
+    public void StartBossFight() 
     {
-        if (bossFightStarted) return;
-        bossFightStarted = true;
-        StartCoroutine(IntroSequence());
+        if (battleStarted) return;
+        battleStarted = true;
+        StartCoroutine(MassBattleSequence());
     }
 
-    IEnumerator IntroSequence()
+    IEnumerator MassBattleSequence()
     {
         foreach (var door in doors) StartCoroutine(MoveDoor(door.doorTransform, door.closedPosition));
 
-        Vector3 startCamPos = mainCamera.transform.position;
-        Vector3 targetCamPos = new Vector3(spawnPoint.position.x, spawnPoint.position.y, startCamPos.z);
-        yield return StartCoroutine(LerpCamera(startCamPos, targetCamPos));
+        for (int i = 0; i < enemyPrefabs.Count; i++)
+        {
+            if (i < spawnPoints.Length) 
+            {
+                GameObject enemy = Instantiate(enemyPrefabs[i], spawnPoints[i].position, Quaternion.identity);
+                activeEnemies.Add(enemy);
+            }
+            else
+            {
+                Debug.LogWarning("Точек спавна меньше, чем префабов врагов!");
+            }
+        }
 
-        yield return StartCoroutine(stormEffect.PlayVortex(spawnPoint.position, 2.0f));
+        while (IsAnyEnemyAlive())
+        {
+            yield return new WaitForSeconds(0.5f);
+        }
 
-        GameObject boss = Instantiate(bossPrefab, spawnPoint.position, Quaternion.identity);
-        SandBossAI ai = boss.GetComponent<SandBossAI>();
-
-        yield return StartCoroutine(ai.FadeIn(1.5f));
-
-        Vector3 playerPos = new Vector3(Player.Instance.transform.position.x, Player.Instance.transform.position.y, startCamPos.z);
-        yield return StartCoroutine(LerpCamera(mainCamera.transform.position, playerPos));
-
-        ai.Activate();
+        OnBossDefeated();
     }
 
-    private IEnumerator LerpCamera(Vector3 from, Vector3 to)
+    private bool IsAnyEnemyAlive()
     {
-        float t = 0;
-        while (t < 1)
+        for (int i = activeEnemies.Count - 1; i >= 0; i--)
         {
-            t += Time.deltaTime * 1.5f;
-            mainCamera.transform.position = Vector3.Lerp(from, to, t);
-            yield return null;
+            if (activeEnemies[i] == null)
+            {
+                activeEnemies.RemoveAt(i); 
+            }
+        }
+        return activeEnemies.Count > 0;
+    }
+
+    public void OnBossDefeated()
+    {
+        SaveManager.SaveSandBossStatus(true);
+        SaveManager.SaveGame();
+
+        if (finalSequence != null)
+        {
+            finalSequence.StartSequence(); 
         }
     }
 

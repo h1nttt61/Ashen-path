@@ -3,47 +3,62 @@ using UnityEngine;
 
 public class SandStormIntro : MonoBehaviour
 {
-    [SerializeField] private GameObject sandParticlePrefab;
+    [SerializeField] private GameObject spherePrefab;
 
     public IEnumerator PlayVortex(Vector3 center, float duration)
     {
-        float elapsed = 0;
-        while (elapsed < duration)
+        Vector3[] sphereOffsets = {
+            new Vector3(-5, 5), new Vector3(5, 5),
+            new Vector3(-5, -5), new Vector3(5, -5)
+        };
+
+        GameObject[] spheres = new GameObject[4];
+        LineRenderer[] beams = new LineRenderer[4];
+
+        for (int i = 0; i < 4; i++)
         {
-            elapsed += Time.deltaTime;
+            spheres[i] = Instantiate(spherePrefab, center + sphereOffsets[i], Quaternion.identity);
 
-            for (int i = 0; i < 3; i++)
-            {
-                float angle = Random.Range(0f, Mathf.PI * 2);
-                float radius = 5f;
-                Vector3 spawnPos = center + new Vector3(Mathf.Cos(angle), Mathf.Sin(angle), 0) * radius;
+            LineRenderer lr = spheres[i].AddComponent<LineRenderer>();
+            beams[i] = lr;
 
-                GameObject p = Instantiate(sandParticlePrefab, spawnPos, Quaternion.identity);
-                StartCoroutine(MoveInVortex(p, center, 0.7f));
-            }
+            lr.positionCount = 2;
+            lr.startWidth = 0.15f;
+            lr.endWidth = 0.02f;
+
+            lr.material = new Material(Shader.Find("Sprites/Default"));
+
+            Color redColor = Color.red;
+            lr.startColor = redColor;
+            lr.endColor = redColor;
+
+            lr.useWorldSpace = true;
+            lr.SetPosition(0, spheres[i].transform.position);
+            lr.SetPosition(1, center);
+
+            SetBeamAlpha(lr, 0);
+        }
+
+        float t = 0;
+        while (t < 1f)
+        {
+            t += Time.deltaTime / (duration * 0.4f);
+            foreach (var beam in beams) SetBeamAlpha(beam, t);
             yield return null;
         }
+
+        yield return new WaitForSeconds(duration * 0.6f);
+
+        foreach (var s in spheres) Destroy(s);
     }
 
-    private IEnumerator MoveInVortex(GameObject p, Vector3 center, float duration)
+    private void SetBeamAlpha(LineRenderer line, float alpha)
     {
-        float elapsed = 0;
-        Vector3 startPos = p.transform.position;
-        float startAngle = Mathf.Atan2(startPos.y - center.y, startPos.x - center.x);
-
-        while (elapsed < duration)
-        {
-            if (p == null) yield break;
-            elapsed += Time.deltaTime;
-            float progress = elapsed / duration;
-
-            float currentRadius = Mathf.Lerp(5f, 0f, progress);
-            float currentAngle = startAngle + (progress * 10f);
-
-            p.transform.position = center + new Vector3(Mathf.Cos(currentAngle), Mathf.Sin(currentAngle), 0) * currentRadius;
-            p.transform.localScale = Vector3.Lerp(Vector3.one * 0.2f, Vector3.zero, progress);
-            yield return null;
-        }
-        Destroy(p);
+        Gradient gradient = new Gradient();
+        gradient.SetKeys(
+            new GradientColorKey[] { new GradientColorKey(Color.red, 0f), new GradientColorKey(Color.red, 1f) },
+            new GradientAlphaKey[] { new GradientAlphaKey(alpha, 0f), new GradientAlphaKey(alpha, 1f) }
+        );
+        line.colorGradient = gradient;
     }
 }
