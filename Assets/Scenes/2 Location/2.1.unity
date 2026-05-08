@@ -107980,7 +107980,7 @@ GameObject:
   - component: {fileID: 489383305}
   - component: {fileID: 489383304}
   - component: {fileID: 489383303}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Trigger
   m_TagString: Untagged
   m_Icon: {fileID: 0}
