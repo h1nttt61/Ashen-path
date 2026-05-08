@@ -4,7 +4,7 @@ public class BossProjectile : MonoBehaviour
 {
     void OnTriggerEnter2D(Collider2D col)
     {
-        if (col.gameObject.layer == 10)
+        if (col.CompareTag("Player"))
         {
             Player playerScript = col.GetComponent<Player>();
 

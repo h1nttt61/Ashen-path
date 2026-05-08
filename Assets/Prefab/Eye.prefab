@@ -162,18 +162,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EyeAI
   currentState: 0
-  moveSpeed: 3
+  moveSpeed: 4
   smoothTime: 0.6
   detectionRadius: 12
   stopDistance: 5
   attackRange: 9
   maxAttackAngle: 30
   timeToPetrify: 1.5
-  petrifyDuration: 2.5
-  attackCooldown: 20
+  petrifyDuration: 3.5
+  attackCooldown: 5
   anim: {fileID: 3185310262444625805}
   spriteRenderer: {fileID: 5324336487036045923}
-  health: 8
+  health: 9
 --- !u!50 &9158893489054066734
 Rigidbody2D:
   serializedVersion: 5

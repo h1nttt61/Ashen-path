@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.AI;
 using System.Collections;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 
 public class GhostKing : MonoBehaviour
 {
@@ -43,6 +44,7 @@ public class GhostKing : MonoBehaviour
     private SpriteRenderer sprite;
     private bool isAttacking = false;
     private bool isDead = false;
+    private bool isDashing = false;
     private float spawnProtection = 1.0f;
     private bool isSpamming = false;
     void Awake()
@@ -79,7 +81,7 @@ public class GhostKing : MonoBehaviour
         }
         else
         {
-            Debug.LogError("ÊÐÈÒÈ×ÅÑÊÀß ÎØÈÁÊÀ: Îáúåêòà ñ òåãîì Player íåò íà ñöåíå!");
+            Debug.LogError("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½: ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ Player ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½!");
             return;
         }
 
@@ -89,7 +91,7 @@ public class GhostKing : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("BossArenaManager.Instance íå íàéäåí!");
+            Debug.LogWarning("BossArenaManager.Instance ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½!");
         }
 
         StartCoroutine(BossBehavior());
@@ -130,11 +132,23 @@ public class GhostKing : MonoBehaviour
 
     IEnumerator SmartDash()
     {
+        int layerMask = LayerMask.GetMask("Wall", "Ground");
         isAttacking = true;
+        isDashing = true;
         anim.SetTrigger("Dash");
 
         Vector3 dir = (player.position - transform.position).normalized;
-        Vector3 targetPos = player.position + dir * dashDistanceExtra;
+        RaycastHit2D dashRay = Physics2D.Raycast(transform.position, dir, dashDistanceExtra, layerMask);
+
+        Vector3 targetPos;
+        if (dashRay.collider == null)
+        {
+            targetPos = player.position + dir * dashDistanceExtra;
+        }
+        else
+        {
+            targetPos = player.position + dir * (dashRay.distance - 0.05f);
+        }
 
         agent.speed = dashSpeed;
         agent.acceleration = 100f;
@@ -155,6 +169,7 @@ public class GhostKing : MonoBehaviour
         agent.speed = 4f;
         agent.acceleration = 8f;
         isAttacking = false;
+        isDashing = false;
     }
 
     IEnumerator BulletHellAttack()
@@ -188,7 +203,7 @@ public class GhostKing : MonoBehaviour
         float timer = duration;
         while (timer > 0)
         {
-            Vector3 target = player.position + (transform.position - player.position).normalized * 8f;
+            Vector3 target = player.position + (transform.position - player.position).normalized * 8f + Vector3.up;
             agent.SetDestination(target);
             timer -= Time.deltaTime;
             yield return null;
@@ -246,7 +261,7 @@ public class GhostKing : MonoBehaviour
             {
                 for (int j = -1; j <= 1; j++)
                 {
-                    float angleOffset = j * 15f; // Ðàçáðîñ âååðà
+                    float angleOffset = j * 15f; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½
                     Vector3 dirToPlayer = (player.position - transform.position).normalized;
                     Quaternion rotation = Quaternion.Euler(0, 0, angleOffset);
                     Vector3 finalDir = rotation * dirToPlayer;
@@ -364,5 +379,16 @@ public class GhostKing : MonoBehaviour
     {
         if (player == null) return;
         sprite.flipX = player.position.x > transform.position.x;
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Player"))
+        {
+            if (Player.Instance != null && isDashing)
+            {
+                Player.Instance.TakeDamage(1, transform);
+            }
+        }
     }
 }

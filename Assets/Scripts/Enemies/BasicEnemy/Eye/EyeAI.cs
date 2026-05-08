@@ -85,9 +85,10 @@ public class EyeAI : MonoBehaviour
     {
         if (Player.Instance == null) return;
 
-        Vector3 dir = Player.Instance.transform.position - transform.position;
+        Vector3 dir = (Player.Instance.transform.position - transform.position).normalized;
         float yRot = (dir.x < 0) ? 0f : 180f;
 
+        float lookDirX = (dir.x < 0) ? -dir.x : dir.x;
         float angle = Mathf.Atan2(dir.y, Mathf.Abs(dir.x)) * Mathf.Rad2Deg;
 
         float clampedZ = Mathf.Clamp(angle, -maxAttackAngle, 0f);
